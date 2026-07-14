@@ -213,7 +213,7 @@
     </form>
 
     <!-- Success State (Hidden) -->
-    <div class="hidden absolute inset-0 text-center flex flex-col items-center justify-center success-slide-in" id="success-state">
+    <div class="absolute inset-0 text-center flex-col items-center justify-center success-slide-in" id="success-state" style="display:none;">
       <span class="text-5xl mb-xs">🌴</span>
       <h3 class="font-headline-md text-headline-md text-white mb-base">You're on the list.</h3>
       <p class="font-body-main text-on-surface-variant mb-md">We'll pulse you when we're live.<br>Tell someone who needs this.</p>
@@ -369,8 +369,8 @@ form.addEventListener('submit', async (e) => {
   form.style.opacity = '0';
   form.style.pointerEvents = 'none';
   setTimeout(() => {
-    form.classList.add('hidden');
-    successState.classList.remove('hidden');
+    form.style.display = 'none';
+    successState.style.display = 'flex';
   }, 300);
 
   // Update counter
