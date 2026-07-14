@@ -1,515 +1,268 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>PulsIO — The Island at Your Fingertips</title>
 <meta name="description" content="Mauritius's first real-time live intelligence platform. Coming soon."/>
 <meta property="og:title" content="PulsIO — The Island at Your Fingertips"/>
 <meta property="og:description" content="Mauritius's first real-time live intelligence platform. Coming soon."/>
-<meta property="og:image" content="https://pulsio.mu/og-image.png"/>
 <meta property="og:url" content="https://pulsio.mu"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">try{
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#bacac2",
+                    "tertiary": "#ffcf91",
+                    "background": "#060E18",
+                    "tertiary-fixed-dim": "#ffb955",
+                    "on-background": "#dbe3f2",
+                    "secondary-fixed-dim": "#b6c4ff",
+                    "on-secondary-fixed": "#001550",
+                    "on-primary-fixed-variant": "#00513e",
+                    "secondary-fixed": "#dce1ff",
+                    "on-primary": "#00382a",
+                    "outline-variant": "#3b4a44",
+                    "on-secondary-fixed-variant": "#003ab3",
+                    "on-error-container": "#ffdad6",
+                    "surface-bright": "#323a45",
+                    "surface-dim": "#0c141e",
+                    "error-container": "#93000a",
+                    "secondary-container": "#0043cd",
+                    "surface-tint": "#28dfb3",
+                    "tertiary-fixed": "#ffddb4",
+                    "surface-container-highest": "#2d3541",
+                    "tertiary-container": "#fbab29",
+                    "on-tertiary-fixed": "#291800",
+                    "on-tertiary-container": "#694300",
+                    "primary-container": "#00d4a8",
+                    "surface-container-high": "#222b36",
+                    "on-tertiary-fixed-variant": "#633f00",
+                    "surface-container-lowest": "#070f19",
+                    "on-error": "#690005",
+                    "surface-variant": "#2d3541",
+                    "outline": "#85948d",
+                    "on-primary-container": "#005642",
+                    "on-primary-fixed": "#002117",
+                    "on-tertiary": "#452b00",
+                    "on-secondary": "#002780",
+                    "surface-container-low": "#141c27",
+                    "primary": "#45f1c3",
+                    "surface-container": "#18202b",
+                    "surface": "#0c141e",
+                    "on-surface": "#dbe3f2",
+                    "error": "#ffb4ab",
+                    "primary-fixed": "#55fcce",
+                    "inverse-primary": "#006b54",
+                    "inverse-surface": "#dbe3f2",
+                    "primary-fixed-dim": "#28dfb3",
+                    "on-secondary-container": "#b6c4ff",
+                    "secondary": "#b6c4ff",
+                    "inverse-on-surface": "#29313c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "16px",
+                    "lg": "40px",
+                    "gutter": "16px",
+                    "md": "24px",
+                    "base": "4px",
+                    "xs": "8px",
+                    "max_width": "560px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Syne", "sans-serif"],
+                    "body-main": ["IBM Plex Mono", "monospace"],
+                    "data-lg": ["IBM Plex Mono", "monospace"],
+                    "display-lg-mobile": ["Syne", "sans-serif"],
+                    "label-caps": ["IBM Plex Mono", "monospace"],
+                    "mono-small": ["IBM Plex Mono", "monospace"],
+                    "headline-md": ["Syne", "sans-serif"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-main": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "data-lg": ["20px", {"lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600"}],
+                    "mono-small": ["11px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    }catch(_e){}</script>
 <style>
-/* ── RESET ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-
-/* ── DESIGN TOKENS ── */
-:root{
-  --bg:       #060e18;
-  --surface:  #0b1929;
-  --p:        #00d4a8;
-  --p-dim:    rgba(0,212,168,0.08);
-  --p-glow:   rgba(0,212,168,0.22);
-  --blue:     #1b4fd8;
-  --blue2:    #2563eb;
-  --text:     #e4f0ec;
-  --muted:    rgba(228,240,236,0.42);
-  --border:   rgba(0,212,168,0.12);
-  --display:  'Syne', sans-serif;
-  --mono:     'IBM Plex Mono', monospace;
-}
-
-body{
-  font-family:var(--display);
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  overflow-x:hidden;
-  position:relative;
-}
-
-/* ── AMBIENT BACKGROUND ── */
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 60% 50% at 50% 0%,   rgba(0,212,168,0.06) 0%,transparent 70%),
-    radial-gradient(ellipse 40% 40% at 80% 80%,  rgba(27,79,216,0.07) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 60% at 10% 60%,  rgba(0,212,168,0.04) 0%,transparent 60%);
-  pointer-events:none;
-  z-index:0;
-}
-
-/* Scanlines */
-body::after{
-  content:'';
-  position:fixed;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px);
-  pointer-events:none;
-  z-index:0;
-}
-
-/* ── MAIN CONTAINER ── */
-.wrap{
-  position:relative;
-  z-index:1;
-  width:100%;
-  max-width:560px;
-  padding:40px 24px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-  gap:0;
-}
-
-/* ── LOGO MARK ── */
-.logo-mark{
-  position:relative;
-  width:96px;height:96px;
-  margin-bottom:32px;
-  flex-shrink:0;
-}
-.ring{
-  position:absolute;
-  border-radius:50%;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  border-style:solid;
-  border-color:var(--p);
-}
-.r1{width:96px;height:96px;border-width:1px;opacity:0.16;animation:breathe 4s ease-in-out infinite}
-.r2{width:76px;height:76px;border-width:1.5px;opacity:0.30;animation:breathe 4s ease-in-out infinite 0.4s}
-.r3{width:58px;height:58px;border-width:2px;opacity:0.55;animation:breathe 4s ease-in-out infinite 0.8s}
-.r4{width:42px;height:42px;border-width:2.5px;opacity:0.85;animation:breathe 4s ease-in-out infinite 1.2s}
-.core-outer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--blue)}
-.core-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--blue2)}
-.core-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#fff}
-
-/* Accent dots */
-.adot{position:absolute;border-radius:50%;background:var(--p)}
-.adot-t{width:4px;height:4px;top:2px;left:50%;transform:translateX(-50%);opacity:.9}
-.adot-r{width:3px;height:3px;top:22%;right:4px;opacity:.7}
-.adot-l{width:3px;height:3px;top:22%;left:4px;opacity:.7}
-
-@keyframes breathe{
-  0%,100%{opacity:var(--base-op,0.3);transform:translate(-50%,-50%) scale(1)}
-  50%{opacity:calc(var(--base-op,0.3)*0.45);transform:translate(-50%,-50%) scale(1.06)}
-}
-
-/* ── WORDMARK ── */
-.wordmark{
-  font-size:52px;
-  font-weight:800;
-  letter-spacing:-1.5px;
-  line-height:1;
-  margin-bottom:14px;
-  user-select:none;
-}
-.wordmark .puls{color:var(--text)}
-.wordmark .io{color:var(--p)}
-
-/* ── TAGLINE ── */
-.tagline{
-  font-family:var(--mono);
-  font-size:11px;
-  letter-spacing:3px;
-  text-transform:uppercase;
-  color:var(--muted);
-  margin-bottom:48px;
-}
-
-/* ── DIVIDER ── */
-.divider{
-  width:40px;height:1px;
-  background:var(--p);
-  opacity:0.35;
-  margin-bottom:48px;
-}
-
-/* ── HEADLINE ── */
-.headline{
-  font-size:clamp(28px,5vw,42px);
-  font-weight:800;
-  letter-spacing:-1px;
-  line-height:1.15;
-  margin-bottom:16px;
-  color:var(--text);
-}
-.headline em{
-  font-style:normal;
-  color:var(--p);
-}
-
-/* ── SUBLINE ── */
-.subline{
-  font-size:15px;
-  font-weight:400;
-  font-family:var(--mono);
-  color:var(--muted);
-  line-height:1.7;
-  margin-bottom:48px;
-  max-width:420px;
-}
-
-/* ── COUNTDOWN ── */
-/* Hidden by default — activated via Builder App by setting LAUNCH_DATE */
-#countdown-wrap{
-  display:none; /* Builder App sets this to flex when launch date is set */
-  gap:16px;
-  margin-bottom:48px;
-  justify-content:center;
-}
-.cd-box{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:4px;
-  background:var(--p-dim);
-  border:0.5px solid var(--border);
-  border-radius:10px;
-  padding:14px 18px;
-  min-width:72px;
-}
-.cd-num{
-  font-family:var(--mono);
-  font-size:32px;
-  font-weight:500;
-  color:var(--p);
-  line-height:1;
-}
-.cd-label{
-  font-family:var(--mono);
-  font-size:9px;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-
-/* ── EMAIL FORM ── */
-.form-wrap{
-  width:100%;
-  max-width:420px;
-  margin-bottom:16px;
-}
-.input-row{
-  display:flex;
-  gap:8px;
-  width:100%;
-}
-.email-input{
-  flex:1;
-  background:var(--surface);
-  border:0.5px solid var(--border);
-  border-radius:10px;
-  padding:14px 16px;
-  font-family:var(--mono);
-  font-size:13px;
-  color:var(--text);
-  outline:none;
-  transition:border-color 0.2s;
-  min-width:0;
-}
-.email-input::placeholder{color:var(--muted)}
-.email-input:focus{border-color:var(--p)}
-.submit-btn{
-  background:var(--p);
-  border:none;
-  border-radius:10px;
-  padding:14px 22px;
-  font-family:var(--display);
-  font-size:13px;
-  font-weight:700;
-  color:#04120d;
-  cursor:pointer;
-  white-space:nowrap;
-  transition:all 0.18s;
-  letter-spacing:0.3px;
-  flex-shrink:0;
-}
-.submit-btn:hover{background:#00ffcc;transform:translateY(-1px)}
-.submit-btn:active{transform:translateY(0)}
-
-/* ── SUCCESS STATE ── */
-#success{
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  padding:20px;
-  background:var(--p-dim);
-  border:0.5px solid var(--border);
-  border-radius:12px;
-  width:100%;
-  max-width:420px;
-}
-.success-icon{font-size:24px}
-.success-title{font-size:15px;font-weight:700;color:var(--p)}
-.success-sub{font-size:12px;font-family:var(--mono);color:var(--muted);line-height:1.6}
-
-/* Share row */
-.share-row{
-  display:flex;
-  gap:10px;
-  margin-top:8px;
-}
-.share-btn{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  background:var(--surface);
-  border:0.5px solid var(--border);
-  border-radius:8px;
-  padding:8px 14px;
-  font-family:var(--mono);
-  font-size:11px;
-  color:var(--muted);
-  cursor:pointer;
-  text-decoration:none;
-  transition:all 0.15s;
-}
-.share-btn:hover{border-color:var(--p);color:var(--p)}
-
-/* Follow prompt in success state */
-.follow-label{
-  font-family:var(--mono);
-  font-size:9px;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  color:var(--muted);
-  margin-top:14px;
-  margin-bottom:4px;
-}
-.follow-row{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-}
-.follow-btn{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  background:var(--p-dim);
-  border:0.5px solid var(--p);
-  border-radius:8px;
-  padding:9px 16px;
-  font-family:var(--mono);
-  font-size:11px;
-  color:var(--p);
-  text-decoration:none;
-  transition:all 0.15s;
-  font-weight:500;
-}
-.follow-btn:hover{background:rgba(0,212,168,0.16)}
-
-/* Footer social icons */
-.footer-social{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-top:8px;
-  justify-content:center;
-}
-.footer-icon{
-  display:flex;
-  align-items:center;
-  gap:5px;
-  font-family:var(--mono);
-  font-size:10px;
-  color:var(--muted);
-  text-decoration:none;
-  opacity:0.5;
-  transition:opacity 0.15s;
-  letter-spacing:0.5px;
-}
-.footer-icon:hover{opacity:1;color:var(--p)}
-
-/* ── COUNTER ── */
-.waitlist-count{
-  font-family:var(--mono);
-  font-size:11px;
-  color:var(--muted);
-  margin-bottom:48px;
-  letter-spacing:0.5px;
-}
-.waitlist-count span{color:var(--p);font-weight:500}
-
-/* ── FOOTER ── */
-footer{
-  margin-top:64px;
-  font-family:var(--mono);
-  font-size:10px;
-  color:var(--muted);
-  letter-spacing:0.8px;
-  opacity:0.6;
-}
-
-/* ── FLOATING PARTICLES ── */
-.particles{
-  position:fixed;inset:0;
-  pointer-events:none;
-  z-index:0;
-  overflow:hidden;
-}
-.particle{
-  position:absolute;
-  border-radius:50%;
-  background:var(--p);
-  animation:float linear infinite;
-}
-@keyframes float{
-  0%{transform:translateY(100vh) scale(0);opacity:0}
-  10%{opacity:0.6}
-  90%{opacity:0.3}
-  100%{transform:translateY(-20px) scale(1);opacity:0}
-}
-
-/* ── RESPONSIVE ── */
-@media(max-width:480px){
-  .wordmark{font-size:42px}
-  .input-row{flex-direction:column}
-  .submit-btn{width:100%;text-align:center}
-  .share-row{flex-direction:column}
-  .share-btn{justify-content:center}
-}
-
-/* ── REDUCED MOTION ── */
-@media(prefers-reduced-motion:reduce){
-  .ring,.particle{animation:none}
-}
+  .particle-container{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .particle{position:absolute;bottom:-10px;border-radius:50%;background:#00d4a8;opacity:0;animation:float var(--duration,15s) linear infinite}
+  @keyframes float{0%{transform:translateY(0) scale(0);opacity:0}10%{opacity:.5}90%{opacity:.2}100%{transform:translateY(-100vh) scale(1);opacity:0}}
+  .glass-panel{background:rgba(20,28,39,.4);border:1px solid rgba(0,212,168,.1);backdrop-filter:blur(8px);border-radius:0.25rem}
+  .hover-lift{transition:transform .2s,box-shadow .2s;border-radius:0.25rem}
+  .hover-lift:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,212,168,.15)}
+  .input-focus-pulse:focus{border-color:rgba(0,212,168,.5);box-shadow:0 2px 12px rgba(0,212,168,.1);outline:none}
+  .success-slide-in{animation:slideIn .5s ease-out forwards}
+  @keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @media(prefers-reduced-motion:reduce){.particle,.ring-1,.ring-2,.ring-3,.accent-dot{animation:none}}
 </style>
-</head>
-<body>
+</head><body class="font-body-main text-on-background selection:bg-primary/30 selection:text-primary" style="background-color: rgb(6, 14, 24); color: rgb(228, 240, 236);">
 
-<!-- Floating particles -->
-<div class="particles" id="particles"></div>
+<!-- Environmental Elements -->
+<div class="scanlines" style="position: fixed; inset: 0px; pointer-events: none; z-index: 50; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%) 0% 0% / 100% 2px, linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)) 0% 0% / 3px 100%;"></div>
+<div class="particle-container" id="particle-container"></div>
+<div class="glow top-[-20%] left-[-10%]" style="position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(69, 241, 195, 0.15) 0%, rgba(69, 241, 195, 0) 70%); filter: blur(80px); pointer-events: none;"></div>
+<div class="glow bottom-[-20%] right-[-10%]" style="position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 107, 84, 0.1) 0%, rgba(0, 107, 84, 0) 70%); filter: blur(80px); pointer-events: none;"></div>
 
-<main class="wrap">
+<main class="relative z-10 min-h-screen flex flex-col items-center justify-center px-gutter py-lg max-w-max_width mx-auto">
 
-  <!-- Logo mark -->
-  <div class="logo-mark" aria-hidden="true">
-    <div class="ring r1"></div>
-    <div class="ring r2"></div>
-    <div class="ring r3"></div>
-    <div class="ring r4"></div>
-    <div class="core-outer"></div>
-    <div class="core-inner"></div>
-    <div class="core-dot"></div>
-    <div class="adot adot-t"></div>
-    <div class="adot adot-r"></div>
-    <div class="adot adot-l"></div>
-  </div>
+  <!-- Header Section -->
+  <header class="text-center mb-md w-full">
+    <div class="mb-xs">
+      <div class="w-32 h-32 mx-auto" id="animated-svg-ANIMATION_2" style="display:block;"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient cx="50%" cy="50%" fx="50%" fy="50%" id="dotGradient" r="50%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1"></stop>
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.5"></stop>
+          </radialGradient>
+          <style>
+            @keyframes breathe {
+              0%, 100% { transform: scale(0.95); opacity: 0.3; }
+              50% { transform: scale(1.05); opacity: 0.7; }
+            }
+            @keyframes rotate {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+            .ring { fill: none; stroke: #00D4A8; stroke-width: 1.5; transform-origin: center; opacity: 0.5; }
+            .ring-1 { animation: breathe 4s ease-in-out infinite; }
+            .ring-2 { animation: breathe 4s ease-in-out infinite 1s; }
+            .ring-3 { animation: breathe 4s ease-in-out infinite 2s; }
+            .logo-circle { fill: #1B4FD8; }
+            .inner-circle { fill: #2563EB; }
+            .center-dot { fill: white; }
+            .accent-dot { fill: #00D4A8; animation: rotate 10s linear infinite; transform-origin: center; }
+          </style>
+        </defs>
+        <circle class="ring ring-1" cx="100" cy="100" r="50"></circle>
+        <circle class="ring ring-2" cx="100" cy="100" r="70"></circle>
+        <circle class="ring ring-3" cx="100" cy="100" r="90"></circle>
+        <circle class="logo-circle" cx="100" cy="100" r="30"></circle>
+        <circle class="inner-circle" cx="100" cy="100" r="18"></circle>
+        <circle class="center-dot" cx="100" cy="100" r="5"></circle>
+        <g class="accent-dot">
+          <circle cx="100" cy="50" fill="#00D4A8" r="3"></circle>
+          <circle cx="170" cy="100" fill="#00D4A8" r="2.5"></circle>
+          <circle cx="100" cy="170" fill="#00D4A8" r="2"></circle>
+        </g>
+      </svg></div>
+    </div>
 
-  <!-- Wordmark -->
-  <div class="wordmark" aria-label="PulsIO">
-    <span class="puls">Puls</span><span class="io">IO</span>
-  </div>
+    <h1 class="font-display-lg-mobile text-display-lg-mobile tracking-tighter mb-base">
+      <span class="text-white" style="color: rgb(228, 240, 236);">Puls</span><span class="text-primary-container">IO</span>
+    </h1>
 
-  <!-- Tagline -->
-  <div class="tagline">Mauritius · Live Intelligence</div>
+    <p class="font-mono-small text-mono-small text-on-surface-variant uppercase tracking-[0.2em] mb-md opacity-80">
+      Mauritius · Live Intelligence
+    </p>
 
-  <div class="divider"></div>
+    <div class="w-12 h-[1px] bg-primary-container mx-auto mb-lg"></div>
 
-  <!-- Headline -->
-  <h1 class="headline">The island is about<br>to get a <em>pulse.</em></h1>
+    <h2 class="font-headline-md text-headline-md mb-xs leading-tight text-on-surface">
+      The island is about to get a <span class="text-primary">pulse</span>.
+    </h2>
 
-  <!-- Subline -->
-  <p class="subline">
-    Mauritius's first real-time live intelligence platform.<br>
-    Launching soon. Be first.
-  </p>
+    <p class="font-body-main text-body-main text-on-surface-variant/80 max-w-md mx-auto">
+      Mauritius's first real-time live intelligence platform. <br>Launching soon. Be first.
+    </p>
+  </header>
 
-  <!-- Countdown — hidden until Builder App activates it -->
-  <div id="countdown-wrap" role="timer" aria-label="Countdown to launch">
-    <div class="cd-box"><div class="cd-num" id="cd-days">00</div><div class="cd-label">Days</div></div>
-    <div class="cd-box"><div class="cd-num" id="cd-hours">00</div><div class="cd-label">Hours</div></div>
-    <div class="cd-box"><div class="cd-num" id="cd-mins">00</div><div class="cd-label">Mins</div></div>
-    <div class="cd-box"><div class="cd-num" id="cd-secs">00</div><div class="cd-label">Secs</div></div>
-  </div>
+  <!-- Countdown Section — hidden until activated via CONFIG.LAUNCH_DATE -->
+  <section class="grid grid-cols-4 gap-xs w-full mb-lg" id="countdown-wrap" style="display:none;">
+    <div class="glass-panel py-sm flex flex-col items-center justify-center">
+      <span class="font-data-lg text-data-lg text-primary" id="days">00</span>
+      <span class="font-mono-small text-[10px] uppercase text-on-surface-variant">Days</span>
+    </div>
+    <div class="glass-panel py-sm flex flex-col items-center justify-center">
+      <span class="font-data-lg text-data-lg text-primary" id="hours">00</span>
+      <span class="font-mono-small text-[10px] uppercase text-on-surface-variant">Hrs</span>
+    </div>
+    <div class="glass-panel py-sm flex flex-col items-center justify-center">
+      <span class="font-data-lg text-data-lg text-primary" id="mins">00</span>
+      <span class="font-mono-small text-[10px] uppercase text-on-surface-variant">Min</span>
+    </div>
+    <div class="glass-panel py-sm flex flex-col items-center justify-center">
+      <span class="font-data-lg text-data-lg text-primary" id="secs">00</span>
+      <span class="font-mono-small text-[10px] uppercase text-on-surface-variant">Sec</span>
+    </div>
+  </section>
 
-  <!-- Email form -->
-  <div class="form-wrap" id="form-wrap">
-    <div class="input-row">
-      <input
-        type="email"
-        class="email-input"
-        id="email-input"
-        placeholder="your@email.com"
-        aria-label="Email address"
-        autocomplete="email"
-        required
-      />
-      <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">
+  <!-- Waitlist Form Area -->
+  <section class="w-full relative min-h-[140px]" id="form-container">
+    <form class="space-y-sm" id="waitlist-form">
+      <div class="relative">
+        <input class="w-full bg-surface-container-low/40 border-b border-primary/20 p-md font-body-main text-on-surface placeholder:text-outline/50 input-focus-pulse glass-panel transition-all" id="email-input" placeholder="your@email.com" required="" type="email" autocomplete="email">
+      </div>
+      <button class="w-full bg-primary text-on-primary py-md font-label-caps text-label-caps uppercase tracking-widest hover-lift active:scale-95 transition-all" type="submit" id="submit-btn">
         Join waitlist
       </button>
+    </form>
+
+    <!-- Success State (Hidden) -->
+    <div class="hidden absolute inset-0 text-center flex flex-col items-center justify-center success-slide-in" id="success-state">
+      <span class="text-5xl mb-xs">🌴</span>
+      <h3 class="font-headline-md text-headline-md text-white mb-base">You're on the list.</h3>
+      <p class="font-body-main text-on-surface-variant mb-md">We'll pulse you when we're live.<br>Tell someone who needs this.</p>
+
+      <!-- Share buttons -->
+      <div class="flex gap-md mb-md">
+        <a class="flex items-center gap-xs font-mono-small text-primary hover:opacity-70 transition-opacity" id="wa-share" href="#" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        <a class="flex items-center gap-xs font-mono-small text-primary hover:opacity-70 transition-opacity" id="fb-share" href="#" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </a>
+      </div>
+
+      <!-- Follow section -->
+      <p class="font-mono-small text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-xs">Follow the pulse</p>
+      <div class="flex gap-xs">
+        <a class="flex items-center gap-xs font-mono-small text-primary border border-primary/30 rounded-lg px-sm py-xs hover:bg-primary/10 transition-all" href="https://instagram.com/pulsiomu" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          @pulsiomu
+        </a>
+        <a class="flex items-center gap-xs font-mono-small text-primary border border-primary/30 rounded-lg px-sm py-xs hover:bg-primary/10 transition-all" href="https://tiktok.com/@pulseio_mu" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
+          @pulseio_mu
+        </a>
+      </div>
     </div>
+  </section>
+
+  <!-- Waitlist counter — hidden at zero -->
+  <div class="mt-sm font-mono-small text-on-surface-variant/50 text-center" id="counter-wrap" style="display:none;">
+    <span class="text-primary font-medium" id="counter">0</span> people already waiting
   </div>
 
-  <!-- Success state -->
-  <div id="success" role="alert">
-    <div class="success-icon">🌴</div>
-    <div class="success-title">You're on the list.</div>
-    <div class="success-sub">We'll pulse you when we're live.<br>Tell someone who needs this.</div>
-    <div class="share-row">
-      <a class="share-btn" id="wa-share" href="#" target="_blank" rel="noopener">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        WhatsApp
+  <!-- Footer -->
+  <footer class="mt-lg pt-lg border-t border-primary/10 w-full text-center">
+    <div class="flex justify-center gap-md mb-md">
+      <a class="text-on-surface-variant/50 hover:text-primary transition-colors" href="https://instagram.com/pulsiomu" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
       </a>
-      <a class="share-btn" id="fb-share" href="#" target="_blank" rel="noopener">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        Facebook
+      <a class="text-on-surface-variant/50 hover:text-primary transition-colors" href="https://tiktok.com/@pulseio_mu" target="_blank" rel="noopener" aria-label="TikTok">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
       </a>
     </div>
-    <!-- Follow us — Option C: shown after signup -->
-    <div class="follow-label">Follow the pulse</div>
-    <div class="follow-row">
-      <a class="follow-btn" href="https://instagram.com/pulsiomu" target="_blank" rel="noopener" aria-label="Follow PulsIO on Instagram">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-        @PulsIO
-      </a>
-      <a class="follow-btn" href="https://tiktok.com/@pulseio_mu" target="_blank" rel="noopener" aria-label="Follow PulsIO on TikTok">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
-        @PulsIO
-      </a>
-    </div>
-  </div>
-
-  <!-- Waitlist counter -->
-  <div class="waitlist-count" id="counter-wrap">
-    <span id="counter">0</span> people already waiting
-  </div>
-
-  <footer>
-    <div>&copy; 2025 Chetak Infinity Limited &nbsp;·&nbsp; pulsio.mu &nbsp;·&nbsp; 🇲🇺 Mauritius</div>
-    <div class="footer-social">
-      <a class="footer-icon" href="https://instagram.com/pulsiomu" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-        Instagram
-      </a>
-      <span style="color:rgba(228,240,236,0.2);font-size:10px">·</span>
-      <a class="footer-icon" href="https://tiktok.com/@pulseio_mu" target="_blank" rel="noopener" aria-label="TikTok">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
-        TikTok
-      </a>
-    </div>
+    <p class="font-mono-small text-mono-small uppercase tracking-widest text-on-surface-variant/40">
+      &copy; 2026 Chetak Infinity Limited &middot; pulsio.mu &middot; 🇲🇺 Mauritius
+    </p>
   </footer>
 
 </main>
@@ -517,72 +270,71 @@ footer{
 <script>
 // ── CONFIGURATION — controlled by Builder App ─────────────────────────────
 const CONFIG = {
-  // Set to a date string like "2025-09-01T00:00:00" to activate the countdown
-  // Leave null to hide the countdown
-  LAUNCH_DATE: null,
-
-  // Starting waitlist count — Builder App updates this as emails come in
-  WAITLIST_COUNT: 0,
-
-  // Share text
+  LAUNCH_DATE: null,    // Set to "2025-09-01T00:00:00" to activate countdown
+  WAITLIST_COUNT: 0,    // Builder App updates this
   SHARE_TEXT: encodeURIComponent("PulsIO is coming — Mauritius's first live intelligence platform. Join the waitlist at pulsio.mu 🇲🇺"),
 };
+
+// ── PARTICLES ─────────────────────────────────────────────────────────────
+const container = document.getElementById('particle-container');
+const particleCount = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 40;
+for (let i = 0; i < particleCount; i++) {
+  const particle = document.createElement('div');
+  particle.className = 'particle';
+  const size = Math.random() * 3 + 1;
+  particle.style.width = `${size}px`;
+  particle.style.height = `${size}px`;
+  particle.style.left = `${Math.random() * 100}%`;
+  particle.style.setProperty('--duration', `${Math.random() * 10 + 10}s`);
+  particle.style.animationDelay = `-${Math.random() * 20}s`;
+  container.appendChild(particle);
+}
 
 // ── COUNTDOWN ─────────────────────────────────────────────────────────────
 function initCountdown() {
   if (!CONFIG.LAUNCH_DATE) return;
-  const wrap = document.getElementById('countdown-wrap');
-  wrap.style.display = 'flex';
-
+  document.getElementById('countdown-wrap').style.display = 'grid';
   function tick() {
-    const now  = new Date().getTime();
-    const end  = new Date(CONFIG.LAUNCH_DATE).getTime();
+    const now = new Date().getTime();
+    const end = new Date(CONFIG.LAUNCH_DATE).getTime();
     const diff = Math.max(0, end - now);
-
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000)  / 60000);
-    const s = Math.floor((diff % 60000)    / 1000);
-
-    document.getElementById('cd-days').textContent  = String(d).padStart(2,'0');
-    document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
-    document.getElementById('cd-mins').textContent  = String(m).padStart(2,'0');
-    document.getElementById('cd-secs').textContent  = String(s).padStart(2,'0');
-
+    document.getElementById('days').textContent  = String(Math.floor(diff / 86400000)).padStart(2,'0');
+    document.getElementById('hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2,'0');
+    document.getElementById('mins').textContent  = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+    document.getElementById('secs').textContent  = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
     if (diff > 0) setTimeout(tick, 1000);
   }
   tick();
 }
 
-// ── WAITLIST COUNTER ──────────────────────────────────────────────────────
+// ── COUNTER ───────────────────────────────────────────────────────────────
 function initCounter() {
+  if (CONFIG.WAITLIST_COUNT === 0) return;
+  document.getElementById('counter-wrap').style.display = 'block';
   const el = document.getElementById('counter');
-  const target = CONFIG.WAITLIST_COUNT;
-  if (target === 0) {
-    document.getElementById('counter-wrap').style.display = 'none';
-    return;
-  }
   let current = 0;
-  const step = Math.ceil(target / 60);
+  const step = Math.ceil(CONFIG.WAITLIST_COUNT / 60);
   const interval = setInterval(() => {
-    current = Math.min(current + step, target);
+    current = Math.min(current + step, CONFIG.WAITLIST_COUNT);
     el.textContent = current.toLocaleString();
-    if (current >= target) clearInterval(interval);
+    if (current >= CONFIG.WAITLIST_COUNT) clearInterval(interval);
   }, 20);
 }
 
 // ── SHARE LINKS ───────────────────────────────────────────────────────────
 function initShare() {
-  document.getElementById('wa-share').href =
-    `https://wa.me/?text=${CONFIG.SHARE_TEXT}`;
-  document.getElementById('fb-share').href =
-    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://pulsio.mu')}`;
+  document.getElementById('wa-share').href = `https://wa.me/?text=${CONFIG.SHARE_TEXT}`;
+  document.getElementById('fb-share').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://pulsio.mu')}`;
 }
 
-// ── EMAIL SUBMIT ──────────────────────────────────────────────────────────
-async function handleSubmit() {
+// ── FORM HANDLING — Supabase integration ──────────────────────────────────
+const form = document.getElementById('waitlist-form');
+const successState = document.getElementById('success-state');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
   const input = document.getElementById('email-input');
-  const btn   = document.getElementById('submit-btn');
+  const btn = document.getElementById('submit-btn');
   const email = input.value.trim();
 
   if (!email || !email.includes('@')) {
@@ -596,73 +348,46 @@ async function handleSubmit() {
   btn.disabled = true;
 
   try {
-    // POST to Supabase — saves email to waitlist table
-    const res = await fetch(
+    await fetch(
       'https://beyplrfqhfklylmmrxmw.supabase.co/rest/v1/pulsio_waitlist',
       {
         method: 'POST',
         headers: {
           'Content-Type':  'application/json',
-          'apikey':        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJleXBscmZxaGZrbHlsbW1yeG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4NzU4MzAsImV4cCI6MjA5ODQ1MTgzMH0.7QjnyA1EJJJcqavqdLqqP9o3wz9hHcpkAxgQDXXq0XU', // Builder App injects this
+          'apikey':        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJleXBscmZxaGZrbHlsbW1yeG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4NzU4MzAsImV4cCI6MjA5ODQ1MTgzMH0.7QjnyA1EJJJcqavqdLqqP9o3wz9hHcpkAxgQDXXq0XU',
           'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJleXBscmZxaGZrbHlsbW1yeG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4NzU4MzAsImV4cCI6MjA5ODQ1MTgzMH0.7QjnyA1EJJJcqavqdLqqP9o3wz9hHcpkAxgQDXXq0XU',
           'Prefer':        'return=minimal',
         },
         body: JSON.stringify({ email, signed_up_at: new Date().toISOString() }),
       }
     );
-
-    // Show success regardless (avoids revealing if email exists)
-    document.getElementById('form-wrap').style.display = 'none';
-    const success = document.getElementById('success');
-    success.style.display = 'flex';
-
-    // Update counter
-    CONFIG.WAITLIST_COUNT++;
-    const el = document.getElementById('counter');
-    el.textContent = CONFIG.WAITLIST_COUNT.toLocaleString();
-    document.getElementById('counter-wrap').style.display = 'block';
-
   } catch (err) {
-    btn.textContent = 'Join waitlist';
-    btn.disabled = false;
-    // Still show success — email stored locally for retry
-    document.getElementById('form-wrap').style.display = 'none';
-    document.getElementById('success').style.display = 'flex';
+    // Still show success — avoids revealing if email exists
   }
-}
 
-// Allow Enter key to submit
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('email-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleSubmit();
-  });
+  // Show success state
+  form.style.opacity = '0';
+  form.style.pointerEvents = 'none';
+  setTimeout(() => {
+    form.classList.add('hidden');
+    successState.classList.remove('hidden');
+  }, 300);
+
+  // Update counter
+  CONFIG.WAITLIST_COUNT++;
+  document.getElementById('counter').textContent = CONFIG.WAITLIST_COUNT.toLocaleString();
+  document.getElementById('counter-wrap').style.display = 'block';
 });
 
-// ── PARTICLES ─────────────────────────────────────────────────────────────
-function initParticles() {
-  const container = document.getElementById('particles');
-  const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 12;
-
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const size = Math.random() * 3 + 1.5;
-    p.style.cssText = `
-      width:${size}px;height:${size}px;
-      left:${Math.random()*100}%;
-      opacity:${Math.random()*0.4+0.1};
-      animation-duration:${Math.random()*18+12}s;
-      animation-delay:${Math.random()*12}s;
-    `;
-    container.appendChild(p);
-  }
-}
+// Allow Enter key
+document.getElementById('email-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
+});
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 initCountdown();
 initCounter();
 initShare();
-initParticles();
 </script>
-</body>
-</html>
+
+</body></html>
