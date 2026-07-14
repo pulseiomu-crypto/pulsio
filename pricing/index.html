@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/><style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060e18;--surface:#0b1929;--p:#00d4a8;--p-dim:rgba(0,212,168,0.08);
+  --blue:#1b4fd8;--blue2:#2563eb;--text:#e4f0ec;--muted:rgba(228,240,236,0.42);
+  --border:rgba(0,212,168,0.12);--display:'Syne',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--display);background:var(--bg);color:var(--text);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(0,212,168,0.06) 0%,transparent 70%),
+  radial-gradient(ellipse 40% 40% at 80% 80%,rgba(27,79,216,0.07) 0%,transparent 60%);
+  pointer-events:none;z-index:0}
+.page{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:40px 24px 80px}
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:40px;text-decoration:none}
+.logo-mark{position:relative;width:36px;height:36px;flex-shrink:0}
+.lr1{position:absolute;inset:0;border-radius:50%;border:1px solid var(--p);opacity:.3}
+.lr2{position:absolute;inset:6px;border-radius:50%;border:1px solid var(--p);opacity:.5}
+.lc{position:absolute;inset:12px;border-radius:50%;background:var(--blue)}
+.ld{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#fff}
+.wordmark{font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.wordmark .puls{color:var(--text)}.wordmark .io{color:var(--p)}
+h1{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--text);margin-bottom:8px;letter-spacing:-0.5px}
+.subtitle{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:40px}
+.divider{width:40px;height:1px;background:var(--p);opacity:.35;margin-bottom:40px}
+h2{font-size:18px;font-weight:700;color:var(--p);margin:32px 0 12px;letter-spacing:-0.3px}
+p{font-size:14px;line-height:1.8;color:rgba(228,240,236,0.72);margin-bottom:16px;font-family:var(--mono)}
+ul{list-style:none;padding:0;margin-bottom:16px}
+ul li{font-size:14px;line-height:1.8;color:rgba(228,240,236,0.72);font-family:var(--mono);padding-left:16px;position:relative;margin-bottom:6px}
+ul li::before{content:'·';position:absolute;left:0;color:var(--p)}
+.card{background:var(--p-dim);border:0.5px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
+.card-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.card-price{font-family:var(--mono);font-size:24px;font-weight:500;color:var(--p);margin-bottom:4px}
+.card-period{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.card-features{margin-top:12px}
+.card.featured{border-color:var(--p)}
+.badge{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:1px;background:var(--p);color:#04120d;padding:2px 8px;border-radius:4px;margin-bottom:8px;font-weight:700}
+.contact{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:40px;padding-top:20px;border-top:0.5px solid var(--border)}
+.contact a{color:var(--p);text-decoration:none}
+footer{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:40px;opacity:.5;letter-spacing:.5px}</style>
+<title>PulsIO — Pricing</title>
+<meta name="description" content="PulsIO pricing — choose your plan for live Mauritius intelligence."/>
+</head><body><div class="page">
+<a href="https://pulsio.mu" class="logo-row"><div class="logo-mark"><div class="lr1"></div><div class="lr2"></div><div class="lc"></div><div class="ld"></div></div><div class="wordmark"><span class="puls">Puls</span><span class="io">IO</span></div></a>
+<h1>Pricing</h1>
+<div class="subtitle">Choose your plan</div>
+<div class="divider"></div>
+
+<div class="card">
+<div class="card-title">Explorer</div>
+<div class="card-price">Free</div>
+<div class="card-period">forever</div>
+<div class="card-features">
+<ul>
+<li>1 pulse per day — live island snapshot</li>
+<li>Weather, CEB power cuts, CWA water alerts</li>
+<li>Breaking news and traffic accidents (always visible)</li>
+<li>Emergency contacts</li>
+<li>Fuel prices and events</li>
+<li>Cyclone tracking and alerts</li>
+<li>Community reports</li>
+<li>1 device</li>
+</ul>
+</div>
+</div>
+
+<div class="card featured">
+<div class="badge">MOST POPULAR</div>
+<div class="card-title">Traveller</div>
+<div class="card-price">MUR 150</div>
+<div class="card-period">per month</div>
+<div class="card-features">
+<ul>
+<li>10 pulses per day</li>
+<li>Everything in Explorer plus:</li>
+<li>Tourist points of interest</li>
+<li>Live flight tracking (ADS-B)</li>
+<li>Marine vessel tracking (AIS)</li>
+<li>Road traffic heatmap</li>
+<li>Ferry routes and schedules</li>
+<li>Beach conditions and jellyfish alerts</li>
+<li>No ads</li>
+<li>Offline map download</li>
+<li>2 devices</li>
+</ul>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Resident</div>
+<div class="card-price">MUR 400</div>
+<div class="card-period">per month</div>
+<div class="card-features">
+<ul>
+<li>Unlimited pulses</li>
+<li>Everything in Traveller plus:</li>
+<li>Property price heatmap</li>
+<li>Agricultural weather zones</li>
+<li>Flood zone mapping</li>
+<li>Foot traffic analytics</li>
+<li>Historical data replay</li>
+<li>SMS emergency alerts</li>
+<li>3 devices</li>
+</ul>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Pro / B2B</div>
+<div class="card-price">Custom</div>
+<div class="card-period">contact us</div>
+<div class="card-features">
+<ul>
+<li>Unlimited pulses + raw API access</li>
+<li>Everything in Resident plus:</li>
+<li>Port vessel tracking</li>
+<li>Insurance risk overlay</li>
+<li>Business analytics dashboard</li>
+<li>White-label options</li>
+<li>5 devices</li>
+</ul>
+</div>
+</div>
+
+<h2>Pulse Top-Up Packs</h2>
+<p>Need more pulses without a subscription? Purchase a pack anytime. Pulses never expire.</p>
+<ul>
+<li>5 pulses — MUR 75</li>
+<li>15 pulses — MUR 200 (best value)</li>
+<li>30 pulses — MUR 350</li>
+</ul>
+
+<h2>Payment Methods</h2>
+<p>PulsIO accepts card payments via Paddle and cryptocurrency via NOWPayments. We accept Bitcoin, Ethereum, Solana, XRP, USDT, USDC, and BNB.</p>
+
+<div class="contact">Questions about pricing? Contact us at <a href="mailto:support@pulsio.mu">support@pulsio.mu</a></div>
+<footer>&copy; 2025 Chetak Infinity Limited &middot; pulsio.mu &middot; Mauritius</footer>
+</div></body></html>
