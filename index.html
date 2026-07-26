@@ -1,402 +1,904 @@
-<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>PulsIO — The Island at Your Fingertips</title>
-<meta name="description" content="Mauritius's first real-time live intelligence platform. Coming soon."/>
-<meta property="og:title" content="PulsIO — The Island at Your Fingertips"/>
-<meta property="og:description" content="Mauritius's first real-time live intelligence platform. Coming soon."/>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PulsIO — Mauritius. In Real-Time.</title>
+<meta name="description" content="PulsIO is Mauritius's first live island intelligence platform. Weather, cyclone tracking, CEB alerts, beach conditions, flights and news — one map, updated around the clock."/>
+<meta name="theme-color" content="#060E18"/>
+<meta property="og:title" content="PulsIO — Mauritius. In Real-Time."/>
+<meta property="og:description" content="The island at your fingertips. Join the waitlist."/>
 <meta property="og:url" content="https://pulsio.mu"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">try{
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "on-surface-variant": "#bacac2",
-                    "tertiary": "#ffcf91",
-                    "background": "#060E18",
-                    "tertiary-fixed-dim": "#ffb955",
-                    "on-background": "#dbe3f2",
-                    "secondary-fixed-dim": "#b6c4ff",
-                    "on-secondary-fixed": "#001550",
-                    "on-primary-fixed-variant": "#00513e",
-                    "secondary-fixed": "#dce1ff",
-                    "on-primary": "#00382a",
-                    "outline-variant": "#3b4a44",
-                    "on-secondary-fixed-variant": "#003ab3",
-                    "on-error-container": "#ffdad6",
-                    "surface-bright": "#323a45",
-                    "surface-dim": "#0c141e",
-                    "error-container": "#93000a",
-                    "secondary-container": "#0043cd",
-                    "surface-tint": "#28dfb3",
-                    "tertiary-fixed": "#ffddb4",
-                    "surface-container-highest": "#2d3541",
-                    "tertiary-container": "#fbab29",
-                    "on-tertiary-fixed": "#291800",
-                    "on-tertiary-container": "#694300",
-                    "primary-container": "#00d4a8",
-                    "surface-container-high": "#222b36",
-                    "on-tertiary-fixed-variant": "#633f00",
-                    "surface-container-lowest": "#070f19",
-                    "on-error": "#690005",
-                    "surface-variant": "#2d3541",
-                    "outline": "#85948d",
-                    "on-primary-container": "#005642",
-                    "on-primary-fixed": "#002117",
-                    "on-tertiary": "#452b00",
-                    "on-secondary": "#002780",
-                    "surface-container-low": "#141c27",
-                    "primary": "#45f1c3",
-                    "surface-container": "#18202b",
-                    "surface": "#0c141e",
-                    "on-surface": "#dbe3f2",
-                    "error": "#ffb4ab",
-                    "primary-fixed": "#55fcce",
-                    "inverse-primary": "#006b54",
-                    "inverse-surface": "#dbe3f2",
-                    "primary-fixed-dim": "#28dfb3",
-                    "on-secondary-container": "#b6c4ff",
-                    "secondary": "#b6c4ff",
-                    "inverse-on-surface": "#29313c"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.125rem",
-                    "lg": "0.25rem",
-                    "xl": "0.5rem",
-                    "full": "0.75rem"
-            },
-            "spacing": {
-                    "sm": "16px",
-                    "lg": "40px",
-                    "gutter": "16px",
-                    "md": "24px",
-                    "base": "4px",
-                    "xs": "8px",
-                    "max_width": "560px"
-            },
-            "fontFamily": {
-                    "display-lg": ["Syne", "sans-serif"],
-                    "body-main": ["IBM Plex Mono", "monospace"],
-                    "data-lg": ["IBM Plex Mono", "monospace"],
-                    "display-lg-mobile": ["Syne", "sans-serif"],
-                    "label-caps": ["IBM Plex Mono", "monospace"],
-                    "mono-small": ["IBM Plex Mono", "monospace"],
-                    "headline-md": ["Syne", "sans-serif"]
-            },
-            "fontSize": {
-                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
-                    "body-main": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                    "data-lg": ["20px", {"lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "500"}],
-                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "800"}],
-                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600"}],
-                    "mono-small": ["11px", {"lineHeight": "1.4", "fontWeight": "400"}],
-                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}]
-            }
-          },
-        },
-      }
-    }catch(_e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-  .particle-container{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-  .particle{position:absolute;bottom:-10px;border-radius:50%;background:#00d4a8;opacity:0;animation:float var(--duration,15s) linear infinite}
-  @keyframes float{0%{transform:translateY(0) scale(0);opacity:0}10%{opacity:.5}90%{opacity:.2}100%{transform:translateY(-100vh) scale(1);opacity:0}}
-  .glass-panel{background:rgba(20,28,39,.4);border:1px solid rgba(0,212,168,.1);backdrop-filter:blur(8px);border-radius:0.25rem}
-  .hover-lift{transition:transform .2s,box-shadow .2s;border-radius:0.25rem}
-  .hover-lift:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,212,168,.15)}
-  .input-focus-pulse:focus{border-color:rgba(0,212,168,.5);box-shadow:0 2px 12px rgba(0,212,168,.1);outline:none}
-  .success-slide-in{animation:slideIn .5s ease-out forwards}
-  @keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-  @media(prefers-reduced-motion:reduce){.particle,.ring-1,.ring-2,.ring-3,.accent-dot{animation:none}}
+:root{
+  --abyss:#060E18;
+  --deep:#081626;
+  --teal:#00D4A8;
+  --blue:#1B4FD8;
+  --blue2:#2563EB;
+  --bone:#E8F2EC;
+  --muted:rgba(232,242,236,0.42);
+  --faint:rgba(232,242,236,0.22);
+  --line:rgba(0,212,168,0.12);
+  --amber:#F5A623;
+  --coral:#FF5A5A;
+  --sky:#4AB8FF;
+  --green:#3ED96E;
+  --purple:#B09AFF;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--abyss);
+  color:var(--bone);
+  font-family:'Instrument Sans',sans-serif;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(0,212,168,0.3);color:#fff}
+
+/* ── grain ─────────────────────────────── */
+.grain{
+  position:fixed;inset:-50%;z-index:60;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  animation:grain 8s steps(10) infinite;
+}
+@keyframes grain{
+  0%,100%{transform:translate(0,0)}10%{transform:translate(-5%,-8%)}20%{transform:translate(-13%,3%)}
+  30%{transform:translate(7%,-20%)}40%{transform:translate(-5%,20%)}50%{transform:translate(-13%,8%)}
+  60%{transform:translate(13%,0)}70%{transform:translate(0,13%)}80%{transform:translate(3%,30%)}90%{transform:translate(-9%,10%)}
+}
+
+/* ── nav ───────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 28px;transition:background .4s,border-color .4s,padding .4s;
+  border-bottom:0.5px solid transparent;
+}
+nav.solid{background:rgba(4,9,16,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:var(--line);padding:14px 28px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.logo-mark{position:relative;width:26px;height:26px;flex-shrink:0}
+.logo-mark .r1{position:absolute;inset:0;border:1px solid var(--teal);border-radius:50%;opacity:.55;animation:logobreathe 4s ease-in-out infinite}
+.logo-mark .r2{position:absolute;inset:4px;border:1px solid rgba(0,212,168,.35);border-radius:50%}
+.logo-mark .core{position:absolute;inset:8px;background:var(--blue);border-radius:50%}
+.logo-mark .dot{position:absolute;top:50%;left:50%;width:3px;height:3px;background:#fff;border-radius:50%;transform:translate(-50%,-50%)}
+@keyframes logobreathe{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.12);opacity:.2}}
+.logo-word{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:-0.02em}
+.logo-word b{color:var(--teal);font-weight:800}
+.nav-cta{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--teal);text-decoration:none;border:1px solid rgba(0,212,168,.35);border-radius:99px;
+  padding:9px 18px;transition:background .25s,border-color .25s;
+}
+.nav-cta:hover{background:rgba(0,212,168,.1);border-color:var(--teal)}
+
+/* ── hero ──────────────────────────────── */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 90% 60% at 78% 38%, rgba(27,79,216,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 20% 85%, rgba(0,212,168,0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #04090F 0%, #060E18 45%, #071220 100%);
+}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-inner{
+  position:relative;z-index:3;width:100%;max-width:1180px;margin:0 auto;
+  padding:120px 28px 90px;will-change:transform;
+}
+.eyebrow{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);
+  margin-bottom:30px;
+}
+.live-chip{display:inline-flex;align-items:center;gap:6px;color:var(--coral);border:1px solid rgba(255,90,90,.35);border-radius:99px;padding:3px 10px;font-size:9px;letter-spacing:.16em}
+.live-chip i{width:5px;height:5px;border-radius:50%;background:var(--coral);animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+h1{
+  font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.035em;line-height:.98;
+  font-size:clamp(52px,9.5vw,124px);text-transform:uppercase;
+}
+h1 .solid{display:block}
+h1 .ghost{
+  display:block;color:transparent;
+  -webkit-text-stroke:1.5px rgba(0,212,168,0.75);
+}
+.hero-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--teal);margin:26px 0 18px;
+}
+.hero-copy{max-width:520px;font-size:16px;line-height:1.65;color:var(--muted);margin-bottom:38px}
+.hero-copy b{color:var(--bone);font-weight:500}
+
+/* waitlist form */
+.wl{max-width:480px}
+.wl-form{display:flex;gap:10px}
+.wl-form input{
+  flex:1;min-width:0;background:rgba(8,22,38,0.6);border:1px solid var(--line);border-radius:14px;
+  padding:15px 18px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--bone);
+  outline:none;transition:border-color .25s;backdrop-filter:blur(6px);
+}
+.wl-form input::placeholder{color:var(--faint)}
+.wl-form input:focus{border-color:var(--teal)}
+.wl-form button{
+  background:var(--teal);color:#03140d;border:none;border-radius:14px;padding:15px 24px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;
+  transition:background .25s,transform .15s;
+}
+.wl-form button:hover{background:#00ffcc;transform:translateY(-1px)}
+.wl-form button:disabled{opacity:.6;cursor:wait;transform:none}
+.wl-note{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--faint);margin-top:12px}
+.wl-done{
+  border:1px solid rgba(0,212,168,.4);border-radius:14px;padding:18px 20px;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--teal);background:rgba(0,212,168,.06);
+}
+.wl-err{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--coral);margin-top:10px;display:none}
+
+.scroll-cue{
+  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--faint);
+  font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.3em;
+}
+.scroll-cue::after{content:'';width:1px;height:34px;background:linear-gradient(to bottom,var(--teal),transparent);animation:cue 2s ease-in-out infinite}
+@keyframes cue{0%,100%{opacity:.9;transform:scaleY(1)}50%{opacity:.3;transform:scaleY(.6)}}
+
+/* ── marquee ───────────────────────────── */
+.marquee{
+  border-top:0.5px solid var(--line);border-bottom:0.5px solid var(--line);
+  overflow:hidden;padding:16px 0;background:rgba(4,9,16,0.5);
+}
+.marquee-track{display:flex;width:max-content;animation:mq 42s linear infinite}
+.mq-item{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;color:var(--muted);
+  padding:0 30px;white-space:nowrap;
+}
+.mq-item i{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── sections ──────────────────────────── */
+section{position:relative;padding:130px 28px;overflow:hidden}
+.wrap{max-width:1180px;margin:0 auto;position:relative}
+.sec-eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:22px;display:flex;align-items:center;gap:14px;
+}
+.sec-eyebrow::after{content:'';flex:0 0 46px;height:1px;background:linear-gradient(to right,var(--teal),transparent)}
+h2{
+  font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-0.025em;line-height:1.08;
+  font-size:clamp(30px,4.6vw,54px);max-width:760px;
+}
+.sec-copy{max-width:600px;font-size:16px;line-height:1.7;color:var(--muted);margin-top:24px}
+.sec-copy b{color:var(--bone);font-weight:500}
+.glow{
+  position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;will-change:transform;
+}
+
+/* how it works */
+.steps{margin-top:70px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:0.5px solid var(--line)}
+.step{background:var(--abyss);padding:38px 30px 44px;position:relative;transition:background .3s}
+.step:hover{background:#071322}
+.step-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--teal);
+  margin-bottom:56px;display:flex;align-items:center;gap:10px;
+}
+.step-num::after{content:'';width:26px;height:1px;background:rgba(0,212,168,.35)}
+.step h3{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.01em;margin-bottom:14px}
+.step p{font-size:14px;line-height:1.65;color:var(--muted)}
+
+/* feature ledger */
+.ledger{margin-top:64px;border-top:0.5px solid var(--line)}
+.row{
+  display:grid;grid-template-columns:70px 220px 1fr;gap:26px;align-items:baseline;
+  padding:24px 6px;border-bottom:0.5px solid var(--line);transition:background .25s,padding-left .25s;
+}
+.row:hover{background:rgba(0,212,168,0.025);padding-left:14px}
+.row-key{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--faint);display:flex;align-items:center;gap:10px}
+.row-key i{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor}
+.row-name{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;letter-spacing:-0.01em}
+.row-desc{font-size:14px;line-height:1.6;color:var(--muted)}
+
+/* audiences */
+.aud{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.aud-card{
+  border:0.5px solid var(--line);border-radius:18px;padding:34px 28px;
+  background:linear-gradient(180deg,rgba(8,22,38,0.55),rgba(8,22,38,0.15));
+  backdrop-filter:blur(6px);transition:border-color .3s,transform .3s;
+}
+.aud-card:hover{border-color:rgba(0,212,168,.35);transform:translateY(-4px)}
+.aud-k{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--teal);margin-bottom:18px}
+.aud-card h3{font-family:'Syne',sans-serif;font-weight:700;font-size:21px;margin-bottom:14px}
+.aud-card p{font-size:14px;line-height:1.65;color:var(--muted)}
+
+/* pulsscore */
+.score-grid{display:grid;grid-template-columns:auto 1fr;gap:70px;align-items:center;margin-top:20px}
+.ring-wrap{position:relative;width:230px;height:230px}
+.ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(0,212,168,.08);stroke-width:7}
+.ring-fg{fill:none;stroke:var(--teal);stroke-width:7;stroke-linecap:round;filter:drop-shadow(0 0 8px rgba(0,212,168,.5))}
+.ring-num{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;
+}
+.ring-num b{font-size:62px;font-weight:800;color:var(--teal);line-height:1}
+.ring-num span{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.3em;color:var(--faint);margin-top:8px}
+
+/* launch */
+.frost-panel{
+  margin-top:64px;position:relative;border:0.5px solid var(--line);border-radius:22px;
+  height:280px;overflow:hidden;
+}
+.frost-dots{position:absolute;inset:0}
+.frost-dots i{position:absolute;border-radius:50%;filter:blur(1px)}
+.frost-glass{
+  position:absolute;inset:0;background:rgba(6,14,24,0.35);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  display:flex;align-items:center;justify-content:center;
+}
+.frost-glass span{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--muted);text-align:center;line-height:2;
+}
+.launch-form{margin-top:52px}
+
+/* footer */
+footer{border-top:0.5px solid var(--line);padding:64px 28px 44px;background:rgba(4,9,16,0.6)}
+.foot{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:40px;justify-content:space-between;align-items:flex-start}
+.foot-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-top:12px}
+.foot-links{display:flex;gap:26px;flex-wrap:wrap}
+.foot-links a{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--muted);
+  text-decoration:none;transition:color .25s;
+}
+.foot-links a:hover{color:var(--teal)}
+.foot-bottom{
+  max-width:1180px;margin:44px auto 0;padding-top:24px;border-top:0.5px solid rgba(0,212,168,0.07);
+  display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--faint);
+}
+
+/* reveals */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ── upgrades ──────────────────────────── */
+.prog{position:fixed;top:0;left:0;height:2px;width:0;z-index:55;background:linear-gradient(to right,var(--blue2),var(--teal));box-shadow:0 0 10px rgba(0,212,168,.55)}
+.marquee{-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.row-sample{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--teal);opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s;margin-top:7px}
+@media(hover:hover){.row:hover .row-sample{opacity:1;transform:translateY(0)}}
+.score-bars{margin-top:36px;display:grid;gap:13px;max-width:430px}
+.sb{display:grid;grid-template-columns:96px 1fr 34px;gap:14px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--muted)}
+.sb b{color:var(--bone);font-weight:500;text-align:right;font-size:11px}
+.sb-track{height:3px;background:rgba(232,242,236,0.07);border-radius:99px;overflow:hidden}
+.sb-fill{height:100%;width:0;border-radius:99px;transition:width 1.3s cubic-bezier(.2,.7,.2,1)}
+@keyframes frostDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(7px,-9px)}}
+
+/* responsive */
+@media(max-width:900px){
+  .steps{grid-template-columns:1fr}
+  .aud{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr;gap:8px;padding:22px 4px}
+  .row-key{order:1}.row-name{order:2}.row-desc{order:3}
+  .score-grid{grid-template-columns:1fr;gap:44px;justify-items:start}
+  section{padding:96px 22px}
+  nav{padding:16px 20px}
+  .wl-form{flex-direction:column}
+  .wl-form button{width:100%}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .grain,.marquee-track,.logo-mark .r1,.live-chip i,.scroll-cue::after{animation:none!important}
+  .frost-dots i{animation:none!important}
+  .reveal{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+}
 </style>
-</head><body class="font-body-main text-on-background selection:bg-primary/30 selection:text-primary" style="background-color: rgb(6, 14, 24); color: rgb(228, 240, 236);">
+</head>
+<body>
 
-<!-- Environmental Elements -->
-<div class="scanlines" style="position: fixed; inset: 0px; pointer-events: none; z-index: 50; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%) 0% 0% / 100% 2px, linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)) 0% 0% / 3px 100%;"></div>
-<div class="particle-container" id="particle-container"></div>
-<div class="glow top-[-20%] left-[-10%]" style="position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(69, 241, 195, 0.15) 0%, rgba(69, 241, 195, 0) 70%); filter: blur(80px); pointer-events: none;"></div>
-<div class="glow bottom-[-20%] right-[-10%]" style="position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 107, 84, 0.1) 0%, rgba(0, 107, 84, 0) 70%); filter: blur(80px); pointer-events: none;"></div>
+<div class="grain"></div>
 
-<main class="relative z-10 min-h-screen flex flex-col items-center justify-center px-gutter py-lg max-w-max_width mx-auto">
+<nav id="nav">
+  <a class="logo" href="#top">
+    <span class="logo-mark"><span class="r1"></span><span class="r2"></span><span class="core"></span><span class="dot"></span></span>
+    <span class="logo-word">Puls<b>IO</b></span>
+  </a>
+  <a class="nav-cta" href="#join">Join the waitlist</a>
+</nav>
+<div class="prog" id="prog"></div>
 
-  <!-- Header Section -->
-  <header class="text-center mb-md w-full">
-    <div class="mb-xs">
-      <div class="w-32 h-32 mx-auto" id="animated-svg-ANIMATION_2" style="display:block;"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient cx="50%" cy="50%" fx="50%" fy="50%" id="dotGradient" r="50%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1"></stop>
-            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.5"></stop>
-          </radialGradient>
-          <style>
-            @keyframes breathe {
-              0%, 100% { transform: scale(0.95); opacity: 0.3; }
-              50% { transform: scale(1.05); opacity: 0.7; }
-            }
-            @keyframes rotate {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-            .ring { fill: none; stroke: #00D4A8; stroke-width: 1.5; transform-origin: center; opacity: 0.5; }
-            .ring-1 { animation: breathe 4s ease-in-out infinite; }
-            .ring-2 { animation: breathe 4s ease-in-out infinite 1s; }
-            .ring-3 { animation: breathe 4s ease-in-out infinite 2s; }
-            .logo-circle { fill: #1B4FD8; }
-            .inner-circle { fill: #2563EB; }
-            .center-dot { fill: white; }
-            .accent-dot { fill: #00D4A8; animation: rotate 10s linear infinite; transform-origin: center; }
-          </style>
-        </defs>
-        <circle class="ring ring-1" cx="100" cy="100" r="50"></circle>
-        <circle class="ring ring-2" cx="100" cy="100" r="70"></circle>
-        <circle class="ring ring-3" cx="100" cy="100" r="90"></circle>
-        <circle class="logo-circle" cx="100" cy="100" r="30"></circle>
-        <circle class="inner-circle" cx="100" cy="100" r="18"></circle>
-        <circle class="center-dot" cx="100" cy="100" r="5"></circle>
-        <g class="accent-dot">
-          <circle cx="100" cy="50" fill="#00D4A8" r="3"></circle>
-          <circle cx="170" cy="100" fill="#00D4A8" r="2.5"></circle>
-          <circle cx="100" cy="170" fill="#00D4A8" r="2"></circle>
-        </g>
-      </svg></div>
+<!-- ═══ HERO ═══ -->
+<header class="hero" id="top">
+  <div class="hero-bg"></div>
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-inner" id="heroInner">
+    <div class="eyebrow reveal">
+      <span>20.2°S&nbsp;&nbsp;57.5°E&nbsp;—&nbsp;INDIAN OCEAN</span>
+      <span id="mutClock"></span>
+      <span class="live-chip"><i></i>LIVE</span>
     </div>
-
-    <h1 class="font-display-lg-mobile text-display-lg-mobile tracking-tighter mb-base">
-      <span class="text-white" style="color: rgb(228, 240, 236);">Puls</span><span class="text-primary-container">IO</span>
+    <h1>
+      <span class="solid reveal" style="--d:.08s">Mauritius.</span>
+      <span class="ghost reveal" style="--d:.18s">In real-time.</span>
     </h1>
-
-    <p class="font-mono-small text-mono-small text-on-surface-variant uppercase tracking-[0.2em] mb-md opacity-80">
-      Mauritius · Live Intelligence
+    <div class="hero-tag reveal" style="--d:.3s">The island at your fingertips</div>
+    <p class="hero-copy reveal" style="--d:.4s">
+      PulsIO is Mauritius's first live intelligence platform — <b>weather, power cuts, cyclones, beaches, flights and news</b>, gathered onto one map that updates as the island moves.
     </p>
-
-    <div class="w-12 h-[1px] bg-primary-container mx-auto mb-lg"></div>
-
-    <h2 class="font-headline-md text-headline-md mb-xs leading-tight text-on-surface">
-      The island is about to get a <span class="text-primary">pulse</span>.
-    </h2>
-
-    <p class="font-body-main text-body-main text-on-surface-variant/80 max-w-md mx-auto">
-      Mauritius's first real-time live intelligence platform. <br>Launching soon. Be first.
-    </p>
-  </header>
-
-  <!-- Countdown Section — hidden until activated via CONFIG.LAUNCH_DATE -->
-  <section class="grid grid-cols-4 gap-xs w-full mb-lg" id="countdown-wrap" style="display:none;">
-    <div class="glass-panel py-sm flex flex-col items-center justify-center">
-      <span class="font-data-lg text-data-lg text-primary" id="days">00</span>
-      <span class="font-mono-small text-[10px] uppercase text-on-surface-variant">Days</span>
+    <div class="wl reveal" style="--d:.5s">
+      <form class="wl-form" novalidate>
+        <input type="email" placeholder="your@email.com" autocomplete="email" required/>
+        <button type="submit">Join the waitlist</button>
+      </form>
+      <div class="wl-err"></div>
+      <div class="wl-note">Early access opens soon. First on the list, first on the island.</div>
     </div>
-    <div class="glass-panel py-sm flex flex-col items-center justify-center">
-      <span class="font-data-lg text-data-lg text-primary" id="hours">00</span>
-      <span class="font-mono-small text-[10px] uppercase text-on-surface-variant">Hrs</span>
-    </div>
-    <div class="glass-panel py-sm flex flex-col items-center justify-center">
-      <span class="font-data-lg text-data-lg text-primary" id="mins">00</span>
-      <span class="font-mono-small text-[10px] uppercase text-on-surface-variant">Min</span>
-    </div>
-    <div class="glass-panel py-sm flex flex-col items-center justify-center">
-      <span class="font-data-lg text-data-lg text-primary" id="secs">00</span>
-      <span class="font-mono-small text-[10px] uppercase text-on-surface-variant">Sec</span>
-    </div>
-  </section>
-
-  <!-- Waitlist Form Area -->
-  <section class="w-full relative min-h-[140px]" id="form-container">
-    <form class="space-y-sm" id="waitlist-form">
-      <div class="relative">
-        <input class="w-full bg-surface-container-low/40 border-b border-primary/20 p-md font-body-main text-on-surface placeholder:text-outline/50 input-focus-pulse glass-panel transition-all" id="email-input" placeholder="your@email.com" required="" type="email" autocomplete="email">
-      </div>
-      <button class="w-full bg-primary text-on-primary py-md font-label-caps text-label-caps uppercase tracking-widest hover-lift active:scale-95 transition-all" type="submit" id="submit-btn">
-        Join waitlist
-      </button>
-    </form>
-
-    <!-- Success State (Hidden) -->
-    <div class="absolute inset-0 text-center flex-col items-center justify-center success-slide-in" id="success-state" style="display:none;">
-      <span class="text-5xl mb-xs">🌴</span>
-      <h3 class="font-headline-md text-headline-md text-white mb-base">You're on the list.</h3>
-      <p class="font-body-main text-on-surface-variant mb-md">We'll pulse you when we're live.<br>Tell someone who needs this.</p>
-
-      <!-- Share buttons -->
-      <div class="flex gap-md mb-md">
-        <a class="flex items-center gap-xs font-mono-small text-primary hover:opacity-70 transition-opacity" id="wa-share" href="#" target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          WhatsApp
-        </a>
-        <a class="flex items-center gap-xs font-mono-small text-primary hover:opacity-70 transition-opacity" id="fb-share" href="#" target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          Facebook
-        </a>
-      </div>
-
-      <!-- Follow section -->
-      <p class="font-mono-small text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-xs">Follow the pulse</p>
-      <div class="flex gap-xs">
-        <a class="flex items-center gap-xs font-mono-small text-primary border border-primary/30 rounded-lg px-sm py-xs hover:bg-primary/10 transition-all" href="https://instagram.com/pulsiomu" target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-          @pulsiomu
-        </a>
-        <a class="flex items-center gap-xs font-mono-small text-primary border border-primary/30 rounded-lg px-sm py-xs hover:bg-primary/10 transition-all" href="https://tiktok.com/@pulseio_mu" target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
-          @pulseio_mu
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Waitlist counter — hidden at zero -->
-  <div class="mt-sm font-mono-small text-on-surface-variant/50 text-center" id="counter-wrap" style="display:none;">
-    <span class="text-primary font-medium" id="counter">0</span> people already waiting
   </div>
+  <div class="scroll-cue">SCROLL</div>
+</header>
 
-  <!-- Footer -->
-  <footer class="mt-lg pt-lg border-t border-primary/10 w-full text-center">
-    <div class="flex justify-center gap-md mb-md">
-      <a class="text-on-surface-variant/50 hover:text-primary transition-colors" href="https://instagram.com/pulsiomu" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-      </a>
-      <a class="text-on-surface-variant/50 hover:text-primary transition-colors" href="https://tiktok.com/@pulseio_mu" target="_blank" rel="noopener" aria-label="TikTok">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
-      </a>
-    </div>
-    <div class="flex justify-center gap-sm mb-md flex-wrap">
-      <a href="/pricing" class="font-mono-small text-[10px] text-on-surface-variant/40 hover:text-primary transition-colors">Pricing</a>
-      <span class="text-on-surface-variant/20 text-[10px]">·</span>
-      <a href="/terms" class="font-mono-small text-[10px] text-on-surface-variant/40 hover:text-primary transition-colors">Terms</a>
-      <span class="text-on-surface-variant/20 text-[10px]">·</span>
-      <a href="/privacy" class="font-mono-small text-[10px] text-on-surface-variant/40 hover:text-primary transition-colors">Privacy</a>
-      <span class="text-on-surface-variant/20 text-[10px]">·</span>
-      <a href="/refunds" class="font-mono-small text-[10px] text-on-surface-variant/40 hover:text-primary transition-colors">Refunds</a>
-    </div>
-    <p class="font-mono-small text-mono-small uppercase tracking-widest text-on-surface-variant/40">
-      &copy; 2026 Chetak Infinity Limited &middot; pulsio.mu &middot; 🇲🇺 Mauritius
+<!-- ═══ MARQUEE ═══ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="mqTrack"></div>
+</div>
+
+<!-- ═══ THE PLATFORM ═══ -->
+<section>
+  <div class="glow" style="width:520px;height:520px;background:rgba(27,79,216,0.07);top:-160px;right:-140px" data-depth="0.06"></div>
+  <div class="wrap">
+    <div class="sec-eyebrow reveal">The platform</div>
+    <h2 class="reveal" style="--d:.08s">One island. One map. Everything happening on it.</h2>
+    <p class="sec-copy reveal" style="--d:.16s">
+      Every day the island moves — weather shifts, power cuts roll through districts, swells decide which lagoons are safe, cyclones form a thousand kilometres out. That information exists, scattered across a dozen websites and WhatsApp forwards. <b>PulsIO gathers all of it onto a single live map of Mauritius</b>, refreshed around the clock, readable in one glance.
     </p>
-  </footer>
+  </div>
+</section>
 
-</main>
+<!-- ═══ HOW IT WORKS ═══ -->
+<section style="padding-top:40px">
+  <div class="wrap">
+    <div class="sec-eyebrow reveal">How it works</div>
+    <h2 class="reveal" style="--d:.08s">Fire a pulse. Watch the island answer.</h2>
+    <div class="steps">
+      <div class="step reveal" style="--d:.1s">
+        <div class="step-num">01</div>
+        <h3>Fire a pulse</h3>
+        <p>One tap sends a pulse across the island. It's your key to the map — and every free member gets one, every day.</p>
+      </div>
+      <div class="step reveal" style="--d:.2s">
+        <div class="step-num">02</div>
+        <h3>The island reveals</h3>
+        <p>The frost lifts. Weather stations, alerts, beaches, flights and vessels appear as live points you can open, question and follow.</p>
+      </div>
+      <div class="step reveal" style="--d:.3s">
+        <div class="step-num">03</div>
+        <h3>Stay ahead</h3>
+        <p>Keep the alerts that matter to you. Know about the cut before the lights go out — and the swell before you drive to the beach.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section style="padding-top:40px">
+  <div class="glow" style="width:460px;height:460px;background:rgba(0,212,168,0.05);bottom:-120px;left:-160px" data-depth="0.05"></div>
+  <div class="wrap">
+    <div class="sec-eyebrow reveal">The feed</div>
+    <h2 class="reveal" style="--d:.08s">What the island tells you.</h2>
+    <div class="ledger">
+      <div class="row reveal"><div class="row-key"><i style="color:var(--sky);background:var(--sky)"></i>WX</div><div class="row-name">Live weather</div><div class="row-desc">Temperature, wind, humidity and UV across ten stations island-wide, refreshed every ten minutes.</div></div>
+      <div class="row reveal" style="--d:.05s"><div class="row-key"><i style="color:var(--coral);background:var(--coral)"></i>CYC</div><div class="row-name">Cyclone tracking</div><div class="row-desc">Every system in the Indian Ocean — position, class, winds and trajectory — the moment MMS publishes a bulletin. Always free.</div></div>
+      <div class="row reveal" style="--d:.1s"><div class="row-key"><i style="color:var(--amber);background:var(--amber)"></i>CEB</div><div class="row-name">Power cut alerts</div><div class="row-desc">Live and scheduled outages by district, down to the affected streets and the estimated restoration time.</div></div>
+      <div class="row reveal" style="--d:.15s"><div class="row-key"><i style="color:var(--blue2);background:var(--blue2)"></i>CWA</div><div class="row-name">Water disruptions</div><div class="row-desc">Low pressure, bursts and maintenance across the network, with fix estimates as they're announced.</div></div>
+      <div class="row reveal" style="--d:.2s"><div class="row-key"><i style="color:var(--teal);background:var(--teal)"></i>SEA</div><div class="row-name">Beach &amp; lagoon conditions</div><div class="row-desc">Sea state, tide, jellyfish reports and crowd levels — so you pick the right beach before leaving home.</div></div>
+      <div class="row reveal" style="--d:.25s"><div class="row-key"><i style="color:#E8F2EC;background:#E8F2EC"></i>FLT</div><div class="row-name">Flights &amp; marine traffic</div><div class="row-desc">Every aircraft over the island and every vessel around it, moving live on the map.</div></div>
+      <div class="row reveal" style="--d:.3s"><div class="row-key"><i style="color:var(--purple);background:var(--purple)"></i>NWS</div><div class="row-name">News &amp; events</div><div class="row-desc">Breaking headlines from the island's newsrooms, tonight's events, and the week's fuel prices.</div></div>
+      <div class="row reveal" style="--d:.35s"><div class="row-key"><i style="color:var(--green);background:var(--green)"></i>RPT</div><div class="row-name">Community reports</div><div class="row-desc">Accidents, floods, hazards — reported by people on the ground and verified before they reach the map.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AUDIENCES ═══ -->
+<section style="padding-top:40px">
+  <div class="wrap">
+    <div class="sec-eyebrow reveal">Who it's for</div>
+    <h2 class="reveal" style="--d:.08s">Built for the whole island.</h2>
+    <div class="aud">
+      <div class="aud-card reveal" style="--d:.1s">
+        <div class="aud-k">Visiting</div>
+        <h3>Tourists</h3>
+        <p>Land knowing which lagoon is calm, what's on tonight, and exactly how to reach help if you ever need it. PulsIO speaks visitor.</p>
+      </div>
+      <div class="aud-card reveal" style="--d:.2s">
+        <div class="aud-k">Living</div>
+        <h3>Mauritians</h3>
+        <p>The cut in Rose-Hill, the low pressure in Sodnac, the jam at St&nbsp;Jean — tracked and mapped before it reaches your group chats.</p>
+      </div>
+      <div class="aud-card reveal" style="--d:.3s">
+        <div class="aud-k">Working</div>
+        <h3>Professionals</h3>
+        <p>Port movements, road conditions, flood risk, live disruptions. Real-time data for decisions that can't wait for tomorrow's paper.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PULSSCORE ═══ -->
+<section style="padding-top:40px">
+  <div class="glow" style="width:480px;height:480px;background:rgba(0,212,168,0.06);top:-80px;right:-180px" data-depth="0.07"></div>
+  <div class="wrap">
+    <div class="sec-eyebrow reveal">PulsScore</div>
+    <div class="score-grid">
+      <div class="ring-wrap reveal" style="--d:.1s">
+        <svg viewBox="0 0 230 230">
+          <circle class="ring-bg" cx="115" cy="115" r="102"/>
+          <circle class="ring-fg" id="ringFg" cx="115" cy="115" r="102" stroke-dasharray="640.9" stroke-dashoffset="640.9"/>
+        </svg>
+        <div class="ring-num"><b id="ringNum">0</b><span>/ 100 TODAY</span></div>
+      </div>
+      <div>
+        <h2 class="reveal" style="--d:.15s">One number for the whole island.</h2>
+        <p class="sec-copy reveal" style="--d:.22s">
+          Every morning, PulsScore reads the island — weather, safety, beaches, traffic, air and events — and compresses it into a single score out of 100. <b>78 is a great day.</b> You'll learn to feel the difference.
+        </p>
+        <div class="score-bars reveal" style="--d:.3s">
+          <div class="sb"><span>WEATHER</span><div class="sb-track"><div class="sb-fill" data-w="85" style="background:#4AB8FF"></div></div><b>85</b></div>
+          <div class="sb"><span>SAFETY</span><div class="sb-track"><div class="sb-fill" data-w="72" style="background:#F5A623"></div></div><b>72</b></div>
+          <div class="sb"><span>BEACH</span><div class="sb-track"><div class="sb-fill" data-w="88" style="background:#00D4A8"></div></div><b>88</b></div>
+          <div class="sb"><span>TRAFFIC</span><div class="sb-track"><div class="sb-fill" data-w="65" style="background:#F5A623"></div></div><b>65</b></div>
+          <div class="sb"><span>AIR</span><div class="sb-track"><div class="sb-fill" data-w="90" style="background:#3ED96E"></div></div><b>90</b></div>
+          <div class="sb"><span>EVENTS</span><div class="sb-track"><div class="sb-fill" data-w="70" style="background:#B09AFF"></div></div><b>70</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LAUNCH ═══ -->
+<section id="join" style="padding-top:40px">
+  <div class="wrap">
+    <div class="sec-eyebrow reveal">Launching soon</div>
+    <h2 class="reveal" style="--d:.08s">The map stays frosted until launch.</h2>
+    <p class="sec-copy reveal" style="--d:.16s">
+      The platform is built. The pipeline is warming up. When the first public pulse fires across Mauritius, <b>the people on this list will feel it first</b> — early access, before anyone else on the island.
+    </p>
+    <div class="frost-panel reveal" style="--d:.2s">
+      <div class="frost-dots" id="frostDots"></div>
+      <div class="frost-glass"><span>CLASSIFIED UNTIL LAUNCH<br/>◎</span></div>
+    </div>
+    <div class="wl launch-form reveal" style="--d:.26s">
+      <form class="wl-form" novalidate>
+        <input type="email" placeholder="your@email.com" autocomplete="email" required/>
+        <button type="submit">Join the waitlist</button>
+      </form>
+      <div class="wl-err"></div>
+      <div class="wl-note">No spam. One email when we go live.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="foot">
+    <div>
+      <a class="logo" href="#top">
+        <span class="logo-mark"><span class="r2"></span><span class="core"></span><span class="dot"></span></span>
+        <span class="logo-word">Puls<b>IO</b></span>
+      </a>
+      <div class="foot-tag">The island at your fingertips</div>
+    </div>
+    <div class="foot-links">
+      <a href="https://instagram.com/pulsiomu" target="_blank" rel="noopener">Instagram — @pulsiomu</a>
+      <a href="https://tiktok.com/@pulseio_mu" target="_blank" rel="noopener">TikTok — @pulseio_mu</a>
+      <a href="mailto:support@pulsio.mu">support@pulsio.mu</a>
+    </div>
+    <div class="foot-links">
+      <a href="/terms/">Terms</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/refunds/">Refunds</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Chetak Infinity Limited</span>
+    <span>Made in Mauritius 🇲🇺</span>
+  </div>
+</footer>
 
 <script>
-// ── CONFIGURATION — controlled by Builder App ─────────────────────────────
-const CONFIG = {
-  LAUNCH_DATE: null,    // Set to "2025-09-01T00:00:00" to activate countdown
-  WAITLIST_COUNT: 0,    // Builder App updates this
-  SHARE_TEXT: encodeURIComponent("PulsIO is coming — Mauritius's first live intelligence platform. Join the waitlist at pulsio.mu 🇲🇺"),
-};
+(function(){
+'use strict';
+var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ── PARTICLES ─────────────────────────────────────────────────────────────
-const container = document.getElementById('particle-container');
-const particleCount = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 40;
-for (let i = 0; i < particleCount; i++) {
-  const particle = document.createElement('div');
-  particle.className = 'particle';
-  const size = Math.random() * 3 + 1;
-  particle.style.width = `${size}px`;
-  particle.style.height = `${size}px`;
-  particle.style.left = `${Math.random() * 100}%`;
-  particle.style.setProperty('--duration', `${Math.random() * 10 + 10}s`);
-  particle.style.animationDelay = `-${Math.random() * 20}s`;
-  container.appendChild(particle);
+/* ── nav solid on scroll + parallax ─────── */
+var nav = document.getElementById('nav');
+var prog = document.getElementById('prog');
+var heroInner = document.getElementById('heroInner');
+var glows = document.querySelectorAll('.glow');
+var ticking = false;
+function onScroll(){
+  if(ticking) return;
+  ticking = true;
+  requestAnimationFrame(function(){
+    var y = window.scrollY;
+    if(y > 40) nav.classList.add('solid'); else nav.classList.remove('solid');
+    var pmax = document.documentElement.scrollHeight - window.innerHeight;
+    prog.style.width = (pmax > 0 ? (y / pmax) * 100 : 0) + '%';
+    if(!reduced){
+      heroInner.style.transform = 'translateY(' + (y * 0.18) + 'px)';
+      heroInner.style.opacity = Math.max(0, 1 - y / 700);
+      glows.forEach(function(g){
+        var d = parseFloat(g.dataset.depth || 0.05);
+        g.style.transform = 'translateY(' + (-y * d) + 'px)';
+      });
+    }
+    ticking = false;
+  });
 }
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
-// ── COUNTDOWN ─────────────────────────────────────────────────────────────
-function initCountdown() {
-  if (!CONFIG.LAUNCH_DATE) return;
-  document.getElementById('countdown-wrap').style.display = 'grid';
-  function tick() {
-    const now = new Date().getTime();
-    const end = new Date(CONFIG.LAUNCH_DATE).getTime();
-    const diff = Math.max(0, end - now);
-    document.getElementById('days').textContent  = String(Math.floor(diff / 86400000)).padStart(2,'0');
-    document.getElementById('hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2,'0');
-    document.getElementById('mins').textContent  = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
-    document.getElementById('secs').textContent  = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
-    if (diff > 0) setTimeout(tick, 1000);
+/* ── scroll reveals ─────────────────────── */
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+},{ threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+/* ── marquee ────────────────────────────── */
+var items = [
+  ['LIVE WEATHER','#4AB8FF'],['CYCLONE TRACKING','#FF5A5A'],['CEB ALERTS','#F5A623'],
+  ['WATER DISRUPTIONS','#2563EB'],['BEACH CONDITIONS','#00D4A8'],['LIVE FLIGHTS','#E8F2EC'],
+  ['MARINE TRAFFIC','#4AB8FF'],['BREAKING NEWS','#FF5A5A'],['FUEL PRICES','#3ED96E'],
+  ['COMMUNITY REPORTS','#B09AFF']
+];
+var track = document.getElementById('mqTrack');
+var half = items.map(function(it){
+  return '<span class="mq-item"><i style="background:' + it[1] + ';box-shadow:0 0 6px ' + it[1] + '"></i>' + it[0] + '</span>';
+}).join('');
+track.innerHTML = half + half;
+
+/* ── hero canvas: ocean + contours + sonar + particles ── */
+var cv = document.getElementById('heroCanvas');
+var ctx = cv.getContext('2d');
+var W, H, dpr;
+function size(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+size();
+window.addEventListener('resize', size);
+
+/* Mauritius coastline — simplified real coordinates (lng, lat), clockwise from Cap Malheureux */
+var MU_COAST = [
+  [57.60,-19.98],[57.66,-20.01],[57.69,-20.06],[57.72,-20.10],[57.77,-20.19],
+  [57.79,-20.24],[57.78,-20.29],[57.75,-20.36],[57.71,-20.44],[57.65,-20.48],
+  [57.52,-20.52],[57.40,-20.50],[57.36,-20.49],[57.31,-20.46],[57.36,-20.43],
+  [57.37,-20.33],[57.36,-20.27],[57.40,-20.21],[57.49,-20.15],[57.51,-20.11],
+  [57.54,-20.04],[57.58,-20.01]
+];
+var LNG0 = 57.30, LNG1 = 57.80, LAT0 = -20.53, LAT1 = -19.97;
+var MU_NORM = MU_COAST.map(function(p){
+  return [(p[0] - LNG0) / (LNG1 - LNG0), (LAT1 - p[1]) / (LAT1 - LAT0)];
+});
+function drawIsland(cx, cy, ih, scale, alpha, fill){
+  var iw = ih * 0.84;
+  var pts = MU_NORM.map(function(n){
+    return [cx + (n[0] - 0.5) * iw * scale, cy + (n[1] - 0.5) * ih * scale];
+  });
+  ctx.beginPath();
+  var mx = (pts[0][0] + pts[pts.length - 1][0]) / 2;
+  var my = (pts[0][1] + pts[pts.length - 1][1]) / 2;
+  ctx.moveTo(mx, my);
+  for(var i = 0; i < pts.length; i++){
+    var p = pts[i], q = pts[(i + 1) % pts.length];
+    ctx.quadraticCurveTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2);
   }
-  tick();
+  ctx.closePath();
+  if(fill){ ctx.fillStyle = 'rgba(0,212,168,0.025)'; ctx.fill(); }
+  ctx.strokeStyle = 'rgba(0,212,168,' + alpha + ')';
+  ctx.lineWidth = 1;
+  ctx.stroke();
 }
 
-// ── COUNTER ───────────────────────────────────────────────────────────────
-function initCounter() {
-  if (CONFIG.WAITLIST_COUNT === 0) return;
-  document.getElementById('counter-wrap').style.display = 'block';
-  const el = document.getElementById('counter');
-  let current = 0;
-  const step = Math.ceil(CONFIG.WAITLIST_COUNT / 60);
-  const interval = setInterval(() => {
-    current = Math.min(current + step, CONFIG.WAITLIST_COUNT);
-    el.textContent = current.toLocaleString();
-    if (current >= CONFIG.WAITLIST_COUNT) clearInterval(interval);
-  }, 20);
+/* particles */
+var parts = [];
+for(var i = 0; i < 42; i++){
+  parts.push({ x: Math.random(), y: Math.random(), s: Math.random() * 1.8 + 0.6, v: Math.random() * 0.00022 + 0.00008, a: Math.random() * 0.28 + 0.08 });
 }
 
-// ── SHARE LINKS ───────────────────────────────────────────────────────────
-function initShare() {
-  document.getElementById('wa-share').href = `https://wa.me/?text=${CONFIG.SHARE_TEXT}`;
-  document.getElementById('fb-share').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://pulsio.mu')}`;
+/* sonar rings */
+var rings = [];
+var lastRing = 0;
+
+var running = true;
+var heroEl = document.querySelector('.hero');
+new IntersectionObserver(function(e){ running = e[0].isIntersecting; }, { threshold: 0 }).observe(heroEl);
+document.addEventListener('visibilitychange', function(){ if(document.hidden) running = false; else running = true; });
+
+/* mouse depth — hero canvas follows the cursor slightly */
+var tx = 0, ty = 0, mx = 0, my = 0;
+if(!reduced && window.matchMedia('(pointer:fine)').matches){
+  heroEl.addEventListener('mousemove', function(e){
+    tx = (e.clientX / W - 0.5) * 2;
+    ty = (e.clientY / H - 0.5) * 2;
+  });
+  heroEl.addEventListener('mouseleave', function(){ tx = 0; ty = 0; });
 }
 
-// ── FORM HANDLING — Supabase integration ──────────────────────────────────
-const form = document.getElementById('waitlist-form');
-const successState = document.getElementById('success-state');
+/* live island pings — real Mauritius locations */
+var PINGS = [
+  [57.50, -20.16, '#FF5A5A', 'NWS · PORT LOUIS'],
+  [57.58, -20.01, '#4AB8FF', 'WX · GRAND BAIE 27°C'],
+  [57.47, -20.24, '#F5A623', 'CEB · ROSE-HILL'],
+  [57.71, -20.44, '#00D4A8', 'SEA · BLUE BAY CALM'],
+  [57.74, -20.12, '#E8F2EC', 'FLT · MK015 INBOUND'],
+  [57.31, -20.46, '#B09AFF', 'EVT · LE MORNE']
+];
+function geo(lng, lat, cx, cy, ih){
+  var iw = ih * 0.84;
+  return [cx + ((lng - LNG0) / (LNG1 - LNG0) - 0.5) * iw, cy + ((LAT1 - lat) / (LAT1 - LAT0) - 0.5) * ih];
+}
+function hexA(hex, a){
+  var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + Math.max(a, 0) + ')';
+}
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const input = document.getElementById('email-input');
-  const btn = document.getElementById('submit-btn');
-  const email = input.value.trim();
+var t0 = performance.now();
+function frame(now){
+  requestAnimationFrame(frame);
+  if(!running || reduced) return;
+  var t = (now - t0) / 1000;
+  ctx.clearRect(0, 0, W, H);
 
-  if (!email || !email.includes('@')) {
-    input.style.borderColor = '#ff6060';
-    input.focus();
-    setTimeout(() => input.style.borderColor = '', 1500);
-    return;
+  mx += (tx - mx) * 0.05; my += (ty - my) * 0.05;
+  var icx = W * 0.74 + mx * 18, icy = H * 0.42 + my * 12;
+  var ih = Math.min(H * 0.52, W * 0.5, 360);
+
+  /* Mauritius topographic contours — coastline strongest, echoes fading outward */
+  drawIsland(icx, icy, ih, 0.5, 0.05);
+  drawIsland(icx, icy, ih, 0.74, 0.07);
+  drawIsland(icx, icy, ih, 1.0, 0.17, true);
+  drawIsland(icx, icy, ih, 1.24, 0.075);
+  drawIsland(icx, icy, ih, 1.5, 0.05);
+  drawIsland(icx, icy, ih, 1.78, 0.032);
+  ctx.beginPath();
+  ctx.arc(icx, icy, 2.4, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,212,168,0.85)';
+  ctx.shadowColor = '#00D4A8'; ctx.shadowBlur = 10;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  /* sonar */
+  if(now - lastRing > 4200){ rings.push({ born: now }); lastRing = now; }
+  rings = rings.filter(function(r){ return now - r.born < 3400; });
+  rings.forEach(function(r){
+    var p = (now - r.born) / 3400;
+    var rad = p * Math.max(W, H) * 0.42;
+    var al = (1 - p) * 0.35;
+    ctx.beginPath();
+    ctx.arc(icx, icy, rad, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(37,99,235,' + al + ')';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(icx, icy, rad * 0.86, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0,212,168,' + al * 0.55 + ')';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  });
+
+  /* live pings — one event lights up at a time */
+  var pcycle = 3600, plife = 3000;
+  var pIdx = Math.floor(now / pcycle) % PINGS.length;
+  var pT = now % pcycle;
+  if(pT < plife){
+    var pg = PINGS[pIdx];
+    var pp = geo(pg[0], pg[1], icx, icy, ih);
+    var aIn = Math.min(pT / 250, 1);
+    var aOut = pT > plife - 500 ? (plife - pT) / 500 : 1;
+    var pa = aIn * aOut;
+    var rr = Math.min(pT / 900, 1);
+    ctx.beginPath();
+    ctx.arc(pp[0], pp[1], 4 + rr * 22, 0, Math.PI * 2);
+    ctx.strokeStyle = hexA(pg[2], (1 - rr) * 0.5 * aOut);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(pp[0], pp[1], 3, 0, Math.PI * 2);
+    ctx.fillStyle = hexA(pg[2], pa);
+    ctx.shadowColor = pg[2]; ctx.shadowBlur = 8;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    var tw = ctx.measureText(pg[3]).width;
+    var lx = pp[0] + 16;
+    if(lx + tw > W - 14) lx = pp[0] - 16 - tw;
+    ctx.fillStyle = 'rgba(232,242,236,' + pa * 0.75 + ')';
+    ctx.fillText(pg[3], lx, pp[1] + 3);
+    ctx.beginPath();
+    if(lx > pp[0]){ ctx.moveTo(pp[0] + 6, pp[1]); ctx.lineTo(lx - 5, pp[1]); }
+    else { ctx.moveTo(pp[0] - 6, pp[1]); ctx.lineTo(lx + tw + 5, pp[1]); }
+    ctx.strokeStyle = hexA(pg[2], pa * 0.35);
+    ctx.stroke();
   }
 
-  btn.textContent = '...';
-  btn.disabled = true;
+  /* ocean sine lines */
+  var base = H * 0.72;
+  for(var l = 0; l < 4; l++){
+    ctx.beginPath();
+    var amp = 5 + l * 4;
+    var sp = 0.32 + l * 0.11;
+    var yoff = base + l * 26;
+    for(var x = 0; x <= W; x += 8){
+      var y = yoff + Math.sin(x * 0.008 + t * sp) * amp + Math.sin(x * 0.021 - t * sp * 0.6) * amp * 0.4;
+      if(x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = 'rgba(0,212,168,' + (0.11 - l * 0.022) + ')';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
 
-  try {
-    await fetch(
-      'https://beyplrfqhfklylmmrxmw.supabase.co/rest/v1/pulsio_waitlist',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type':  'application/json',
-          'apikey':        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJleXBscmZxaGZrbHlsbW1yeG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4NzU4MzAsImV4cCI6MjA5ODQ1MTgzMH0.7QjnyA1EJJJcqavqdLqqP9o3wz9hHcpkAxgQDXXq0XU',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJleXBscmZxaGZrbHlsbW1yeG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4NzU4MzAsImV4cCI6MjA5ODQ1MTgzMH0.7QjnyA1EJJJcqavqdLqqP9o3wz9hHcpkAxgQDXXq0XU',
-          'Prefer':        'return=minimal',
-        },
-        body: JSON.stringify({ email, signed_up_at: new Date().toISOString() }),
+  /* particles */
+  parts.forEach(function(p){
+    p.y -= p.v;
+    if(p.y < -0.02){ p.y = 1.02; p.x = Math.random(); }
+    ctx.beginPath();
+    ctx.arc(p.x * W + mx * 10, p.y * H + my * 6, p.s, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,212,168,' + p.a + ')';
+    ctx.fill();
+  });
+}
+if(!reduced){ requestAnimationFrame(frame); }
+else {
+  /* one static frame for reduced motion */
+  var icx2 = W * 0.74, icy2 = H * 0.42;
+  var ih2 = Math.min(H * 0.52, W * 0.5, 360);
+  drawIsland(icx2, icy2, ih2, 0.5, 0.05);
+  drawIsland(icx2, icy2, ih2, 0.74, 0.07);
+  drawIsland(icx2, icy2, ih2, 1.0, 0.17, true);
+  drawIsland(icx2, icy2, ih2, 1.24, 0.075);
+  drawIsland(icx2, icy2, ih2, 1.5, 0.05);
+}
+
+/* ── frost dots ─────────────────────────── */
+var fd = document.getElementById('frostDots');
+var cols = ['#00D4A8','#F5A623','#FF5A5A','#4AB8FF','#3ED96E','#B09AFF'];
+var dotsHtml = '';
+for(var d = 0; d < 34; d++){
+  var c = cols[d % cols.length];
+  dotsHtml += '<i style="left:' + (Math.random() * 96 + 2) + '%;top:' + (Math.random() * 88 + 6) + '%;width:' + (Math.random() * 8 + 5) + 'px;height:' + (Math.random() * 8 + 5) + 'px;background:' + c + ';box-shadow:0 0 12px ' + c + ';opacity:' + (Math.random() * 0.5 + 0.4) + ';animation:frostDrift ' + (Math.random() * 6 + 6).toFixed(1) + 's ease-in-out ' + (-Math.random() * 8).toFixed(1) + 's infinite"></i>';
+}
+fd.innerHTML = dotsHtml;
+
+/* ── PulsScore ring ─────────────────────── */
+var ringFg = document.getElementById('ringFg');
+var ringNum = document.getElementById('ringNum');
+var CIRC = 640.9, TARGET = 78;
+new IntersectionObserver(function(e, obs){
+  if(!e[0].isIntersecting) return;
+  obs.disconnect();
+  requestAnimationFrame(function(){
+    document.querySelectorAll('.sb-fill').forEach(function(f, idx){
+      if(reduced){ f.style.transition = 'none'; }
+      else { f.style.transitionDelay = (0.15 + idx * 0.09) + 's'; }
+      f.style.width = f.dataset.w + '%';
+    });
+  });
+  var start = null;
+  function anim(ts){
+    if(!start) start = ts;
+    var p = Math.min((ts - start) / 1600, 1);
+    var ease = 1 - Math.pow(1 - p, 3);
+    var v = Math.round(TARGET * ease);
+    ringNum.textContent = v;
+    ringFg.style.strokeDashoffset = CIRC * (1 - (TARGET / 100) * ease);
+    if(p < 1) requestAnimationFrame(anim);
+  }
+  if(reduced){ ringNum.textContent = TARGET; ringFg.style.strokeDashoffset = CIRC * (1 - TARGET / 100); }
+  else requestAnimationFrame(anim);
+}, { threshold: 0.4 }).observe(document.querySelector('.ring-wrap'));
+
+/* ── live Mauritius clock ───────────────── */
+var clockEl = document.getElementById('mutClock');
+function tickClock(){
+  try{
+    clockEl.textContent = new Date().toLocaleTimeString('en-GB', { timeZone: 'Indian/Mauritius', hour12: false }) + ' MUT';
+  }catch(err){ clockEl.textContent = ''; }
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+/* ── tagline decode ─────────────────────── */
+var tagEl = document.querySelector('.hero-tag');
+var tagFinal = tagEl.textContent;
+if(!reduced){
+  var pool = '◦/|—·01';
+  var shown = 0;
+  tagEl.textContent = '\u00A0';
+  setTimeout(function(){
+    var iv = setInterval(function(){
+      shown++;
+      var out = '';
+      for(var i = 0; i < tagFinal.length; i++){
+        out += i < shown ? tagFinal[i] : (tagFinal[i] === ' ' ? ' ' : pool[Math.floor(Math.random() * pool.length)]);
       }
-    );
-  } catch (err) {
-    // Still show success — avoids revealing if email exists
-  }
+      tagEl.textContent = out;
+      if(shown >= tagFinal.length) clearInterval(iv);
+    }, 26);
+  }, 500);
+}
 
-  // Show success state
-  form.style.opacity = '0';
-  form.style.pointerEvents = 'none';
-  setTimeout(() => {
-    form.style.display = 'none';
-    successState.style.display = 'flex';
-  }, 300);
-
-  // Update counter
-  CONFIG.WAITLIST_COUNT++;
-  document.getElementById('counter').textContent = CONFIG.WAITLIST_COUNT.toLocaleString();
-  document.getElementById('counter-wrap').style.display = 'block';
+/* ── feature row live samples (hover) ───── */
+var SAMPLES = [
+  'PORT LOUIS 27°C · NE 18 KM/H',
+  'ALL STATIONS CLEAR',
+  '2 ZONES ACTIVE · ETA 15:30',
+  'SODNAC LOW PRESSURE · FIX 17:00',
+  'BLUE BAY CALM · UV 8',
+  '8 AIRCRAFT · 15 VESSELS',
+  '14 HEADLINES TODAY',
+  '3 CONFIRMED THIS HOUR'
+];
+document.querySelectorAll('.ledger .row').forEach(function(r, i){
+  var s = document.createElement('span');
+  s.className = 'row-sample';
+  s.textContent = SAMPLES[i] || '';
+  r.querySelector('.row-name').appendChild(s);
 });
 
-// Allow Enter key
-document.getElementById('email-input').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
-});
+/* ── waitlist forms → Supabase ──────────── */
+var SB_URL = 'https://beyplrfqhfklylmmrxmw.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJleXBscmZxaGZrbHlsbW1yeG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4NzU4MzAsImV4cCI6MjA5ODQ1MTgzMH0.7QjnyA1EJJJcqavqdLqqP9o3wz9hHcpkAxgQDXXq0XU';
 
-// ── INIT ──────────────────────────────────────────────────────────────────
-initCountdown();
-initCounter();
-initShare();
+document.querySelectorAll('.wl-form').forEach(function(form){
+  var input = form.querySelector('input');
+  var btn = form.querySelector('button');
+  var err = form.parentElement.querySelector('.wl-err');
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    err.style.display = 'none';
+    var email = input.value.trim();
+    if(!email || email.indexOf('@') < 1 || email.indexOf('.') < 0){
+      input.style.borderColor = '#FF5A5A';
+      setTimeout(function(){ input.style.borderColor = ''; }, 1400);
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Joining…';
+    fetch(SB_URL + '/rest/v1/pulsio_waitlist', {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ email: email })
+    }).then(function(res){
+      if(res.ok || res.status === 201){
+        form.parentElement.innerHTML = '<div class="wl-done">◎&nbsp;&nbsp;You\'re on the list. The island will reach you first.</div>';
+      } else if(res.status === 409){
+        form.parentElement.innerHTML = '<div class="wl-done">◎&nbsp;&nbsp;You\'re already on the list — see you at launch.</div>';
+      } else {
+        throw new Error('HTTP ' + res.status);
+      }
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Join the waitlist';
+      err.textContent = 'Something went wrong — try again in a moment.';
+      err.style.display = 'block';
+    });
+  });
+});
+})();
 </script>
-
-</body></html>
+</body>
+</html>
