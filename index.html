@@ -60,7 +60,7 @@ nav{
   border-bottom:0.5px solid transparent;
 }
 nav.solid{background:rgba(4,9,16,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:var(--line);padding:14px 28px}
-.logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--bone)}
 .logo-mark{position:relative;width:26px;height:26px;flex-shrink:0}
 .logo-mark .r1{position:absolute;inset:0;border:1px solid var(--teal);border-radius:50%;opacity:.55;animation:logobreathe 4s ease-in-out infinite}
 .logo-mark .r2{position:absolute;inset:4px;border:1px solid rgba(0,212,168,.35);border-radius:50%}
@@ -280,6 +280,8 @@ footer{border-top:0.5px solid var(--line);padding:64px 28px 44px;background:rgba
 
 /* responsive */
 @media(max-width:900px){
+  h1{font-size:clamp(32px,11vw,64px)}
+  .hero-inner{padding:110px 22px 80px}
   .steps{grid-template-columns:1fr}
   .aud{grid-template-columns:1fr}
   .row{grid-template-columns:1fr;gap:8px;padding:22px 4px}
