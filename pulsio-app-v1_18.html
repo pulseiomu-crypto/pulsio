@@ -1261,8 +1261,9 @@ const PulseFX = (function () {
   const GOO_BLUR     = 13;     // CSS px
   const GOO_CONTRAST = 22;
   const WAVE_PTS     = 220;
-  const WAVE_SLOW    = 0.13;   // refraction — the front lags over high ground
-  const WAVE_LIFT    = 26;     // CSS px the crest rides up a 964 m peak
+  const WAVE_SLOW    = 0.20;   // refraction — the front lags over high ground
+  const WAVE_LIFT    = 38;     // CSS px the crest rides up the highest ground
+  const WAVE_SMOOTH  = 6;      // ring samples averaged either side (see drawWave)
   const WAVE_FLAT    = 0.94;   // vertical squash — reads as a ground plane
   const MAX_DPR      = 2;      // single biggest perf lever
   const IDLE_FPS     = 30;
@@ -1288,6 +1289,8 @@ const PulseFX = (function () {
   let blobs = [], mkList = null;
   let _mapRect = null;
   let idleRaf = 0, idleT0 = 0, idleLast = -1, everFired = false, lastEndT = 0;
+  // Preallocated so the wave allocates nothing per frame.
+  const HS = new Float32Array(WAVE_PTS), HSM = new Float32Array(WAVE_PTS);
 
   const HAS_FILTER = (function () {
     try {
@@ -1683,11 +1686,26 @@ const PulseFX = (function () {
       const rr = lead - ring * 16;
       if (rr <= 4) continue;
       const a = env * (ring === 0 ? 0.95 : ring === 1 ? 0.45 : 0.20);
+      for (let i = 0; i < WAVE_PTS; i++) {
+        const th = i / WAVE_PTS * TAU;
+        HS[i] = sampleH(heart.x + Math.cos(th) * rr,
+                        heart.y + Math.sin(th) * rr * WAVE_FLAT, R);
+      }
+      // Smooth along the ring. Sampling each point independently makes the
+      // front look like noise on a circle; averaging turns high-frequency
+      // terrain into the broad bulge that reads as the wave climbing a
+      // mountain rather than jittering over one.
+      for (let i = 0; i < WAVE_PTS; i++) {
+        let acc = 0;
+        for (let j = -WAVE_SMOOTH; j <= WAVE_SMOOTH; j++)
+          acc += HS[(i + j + WAVE_PTS) % WAVE_PTS];
+        HSM[i] = acc / (WAVE_SMOOTH * 2 + 1);
+      }
       g.beginPath();
       for (let i = 0; i <= WAVE_PTS; i++) {
         const th = i / WAVE_PTS * TAU;
         const cs = Math.cos(th), sn = Math.sin(th);
-        const h  = sampleH(heart.x + cs * rr, heart.y + sn * rr * WAVE_FLAT, R);
+        const h  = HSM[i % WAVE_PTS];
         const r2 = rr * (1 - h * WAVE_SLOW);
         const x = heart.x + cs * r2;
         const y = heart.y + sn * r2 * WAVE_FLAT - h * WAVE_LIFT;
