@@ -1255,11 +1255,16 @@ const PulseFX = (function () {
   const DURATION = 7.45;
 
   // ── Look & feel ─────────────────────────────────────────────────────
-  const TEAL         = '#00D4A8';
+  const TEAL_RGB     = [0, 212, 168];    // #00D4A8, the brand teal, exactly
+  const CORE_RGB     = [90, 245, 210];   // core lift — still teal, never white
   const N_BLOBS      = 7;
   const GOO_SCALE    = 0.34;   // gooey buffer at ⅓ device res — blur hides it
-  const GOO_BLUR     = 13;     // CSS px
-  const GOO_CONTRAST = 22;
+  const GOO_BLUR     = 5;      // CSS px. Must stay well under the gap between
+                               // blobs or the field saturates into one lozenge.
+  const GOO_T0       = 0.42;   // gooey alpha threshold, lower edge
+  const GOO_T1       = 0.58;   // ... upper edge. Narrow band == crisp merge.
+  const GOO_HALO     = 0.22;   // faint glow kept outside the hard edge
+  const GOO_SHEEN    = 0.22;   // top-lit sheen across the whole silhouette
   const WAVE_PTS     = 220;
   const WAVE_SLOW    = 0.20;   // refraction — the front lags over high ground
   const WAVE_LIFT    = 38;     // CSS px the crest rides up the highest ground
@@ -1289,6 +1294,10 @@ const PulseFX = (function () {
   let blobs = [], mkList = null;
   let _mapRect = null;
   let idleRaf = 0, idleT0 = 0, idleLast = -1, everFired = false, lastEndT = 0;
+  let bezelPx = -1;
+  // Furthest land from the impact point, as a multiple of the island rect's
+  // height. Measured from the heightmap at bake time (see bakeTerrain).
+  let landReach = 1;
   // Preallocated so the wave allocates nothing per frame.
   const HS = new Float32Array(WAVE_PTS), HSM = new Float32Array(WAVE_PTS);
 
@@ -1341,7 +1350,8 @@ const PulseFX = (function () {
     document.body.appendChild(cv);
     ctx = cv.getContext('2d');
     blobCv = document.createElement('canvas'); blobCtx = blobCv.getContext('2d');
-    gooCv  = document.createElement('canvas'); gooCtx  = gooCv.getContext('2d');
+    gooCv  = document.createElement('canvas');
+    gooCtx  = gooCv.getContext('2d', { willReadFrequently: true });
     waveCv = document.createElement('canvas'); waveCtx = waveCv.getContext('2d');
     buildBlobs();
     resize();
@@ -1359,18 +1369,32 @@ const PulseFX = (function () {
     cv.style.width  = w + 'px';
     cv.style.height = h + 'px';
     _mapRect = null;
+    bezelPx = -1;
   }
 
-  // Deterministic from index — never Math.random(), so render(t) stays pure.
+  // Explicit and deterministic — never Math.random(), so render(t) stays pure.
+  // Orbit radii have to comfortably exceed the blob radii, and the blobs need
+  // different angular speeds, or the field never separates: seven discs all
+  // sitting near the centre blur into a single lozenge no matter what the
+  // threshold does. Spread across 9..21px with radii 6..9px they part and
+  // re-merge as they drift, which is the lava-lamp read.
+  //           orbit  radius  spin  wobble
+  const BLOB_SPEC = [
+    [  9,  8,  0.31,  0.90 ],
+    [ 16,  7,  0.24,  1.20 ],
+    [ 21,  9,  0.38,  0.70 ],
+    [ 19,  6,  0.28,  1.00 ],
+    [ 13,  8,  0.44,  1.40 ],
+    [ 20,  6,  0.35,  0.80 ],
+    [ 15,  7,  0.21,  1.10 ]
+  ];
   function buildBlobs() {
     blobs = [];
     for (let i = 0; i < N_BLOBS; i++) {
+      const sp = BLOB_SPEC[i % BLOB_SPEC.length];
       blobs.push({
         a0:  (i / N_BLOBS) * TAU + (i % 3) * 0.7,
-        r0:  10 + ((i * 37) % 17),
-        rad: 13 + ((i * 23) % 9),
-        spd: 0.22 + ((i * 13) % 7) * 0.035,
-        wob: 0.70 + ((i * 29) % 11) * 0.09,
+        r0:  sp[0], rad: sp[1], spd: sp[2], wob: sp[3],
         lag: (i / N_BLOBS) * 0.30
       });
     }
@@ -1441,6 +1465,31 @@ const PulseFX = (function () {
     }
     mc.putImageData(mi, 0, 0);
     rc.putImageData(ri, 0, 0);
+
+    // How far the wave actually has to travel to cover the island. Using the
+    // bbox corner instead sends the front 40% further than the furthest coast,
+    // so it clears the island a third of the way through the phase and the
+    // rest of the wave renders over empty sea.
+    const aspect = ((HM.e - HM.w) / 360) / (mercY(HM.s) - mercY(HM.n));  // = R.w/R.h
+    const hu = (ISLAND_HEART[0] - HM.w) / (HM.e - HM.w);
+    const hv = (mercY(ISLAND_HEART[1]) - mercY(HM.n)) / (mercY(HM.s) - mercY(HM.n));
+    // 99th percentile of land distance, NOT the maximum: the furthest "land"
+    // is Round and Serpent Island ~30km off the north coast, a handful of
+    // pixels that would stretch the travel 75% further than the main island
+    // needs. p99 covers the island proper; the islets catch the tail.
+    const ds = [];
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        if (hAt(x, y) <= 0.004) continue;
+        const du = (x / (W - 1) - hu) * aspect;
+        const dv = (y / (H - 1) - hv) / WAVE_FLAT;
+        ds.push(Math.sqrt(du * du + dv * dv));
+      }
+    }
+    ds.sort(function (a, b) { return a - b; });
+    landReach = ds.length
+      ? ds[Math.min(ds.length - 1, Math.floor(ds.length * 0.99))] * 1.15
+      : 1;
   }
 
   // Screen-space bilinear sample. Exact, because the heightmap is linear in
@@ -1477,9 +1526,20 @@ const PulseFX = (function () {
 
   function btnCenter() {
     const el = document.getElementById('firebtn');
-    if (!el) return { x: innerWidth / 2, y: innerHeight - 96 };
+    if (!el) return { x: innerWidth / 2, y: innerHeight - 96, inner: 32 };
     const b = el.getBoundingClientRect();
-    return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+    if (bezelPx < 0) bezelPx = parseFloat(getComputedStyle(el).borderTopWidth) || 0;
+    return { x: b.left + b.width / 2, y: b.top + b.height / 2,
+             inner: Math.max(4, b.width / 2 - bezelPx) };
+  }
+
+  // Radius the liquid is confined to. 0 means unconfined.
+  function clipRadius(t, inner) {
+    if (t < PH.escape[0]) return inner;
+    if (t < PH.escape[1]) { const k = norm(t, PH.escape); return inner + k * k * 1200; }
+    if (t < PH.refill[0]) return 0;
+    if (t < PH.refill[1]) { const k = 1 - norm(t, PH.refill); return inner + k * k * 1200; }
+    return inner;
   }
 
   // ── Journey: one scalar description of where the liquid is at time t ─
@@ -1531,10 +1591,19 @@ const PulseFX = (function () {
   }
 
   // ── Gooey metaball pass ─────────────────────────────────────────────
-  // Black bg + white circles → blur+contrast → multiply-tint → 'lighter'.
-  // Black contributes nothing under additive compositing, so no alpha
-  // thresholding is needed. Buffer is ⅓ device res; blur hides the loss.
-  function drawGoo(list, alpha) {
+  // Coverage is rendered as white-on-black, blurred, then converted luma →
+  // alpha in one pass over the (tiny) buffer.
+  //
+  // It is tempting to skip that conversion and composite the black-backed
+  // buffer with 'lighter', letting black "drop out". It does not: 'lighter'
+  // sums alpha as well as colour, so on a TRANSPARENT overlay canvas an
+  // opaque black backdrop composites to opaque black — a hard dark square
+  // around the button. The explicit conversion below is what makes the
+  // background actually disappear, and it also lets us emit the exact brand
+  // teal instead of whatever contrast() does to the hue.
+  //
+  // SwiftUI equivalent: .blur(radius:) + .alphaThreshold(min:) in drawLayer.
+  function drawGoo(list, alpha, clipR, clipC) {
     if (alpha <= 0.001) return null;
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
     for (let i = 0; i < list.length; i++) {
@@ -1567,29 +1636,49 @@ const PulseFX = (function () {
     }
     gooCtx.globalCompositeOperation = 'source-over';
     gooCtx.clearRect(0, 0, gw, gh);
-    gooCtx.filter = HAS_FILTER
-      ? 'blur(' + (GOO_BLUR * s).toFixed(2) + 'px) contrast(' + GOO_CONTRAST + ')'
-      : 'none';
+    gooCtx.filter = HAS_FILTER ? 'blur(' + (GOO_BLUR * s).toFixed(2) + 'px)' : 'none';
     gooCtx.drawImage(blobCv, 0, 0);
     gooCtx.filter = 'none';
-    gooCtx.globalCompositeOperation = 'multiply';   // white → teal, black → black
-    gooCtx.fillStyle = TEAL;
+
+    // luma → alpha + exact colour. ~14k px, well under a millisecond.
+    const im = gooCtx.getImageData(0, 0, gw, gh), d = im.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const l = d[i] / 255;
+      let a = (l - GOO_T0) / (GOO_T1 - GOO_T0);
+      a = a < 0 ? 0 : a > 1 ? 1 : a; a = a * a * (3 - 2 * a);
+      let hl = (l - 0.06) / (GOO_T0 - 0.06);
+      hl = hl < 0 ? 0 : hl > 1 ? 1 : hl;
+      const av = a + (1 - a) * hl * GOO_HALO;        // hard body + soft halo
+      if (av <= 0.002) { d[i + 3] = 0; continue; }
+      // Flat brand teal. Do NOT ramp colour by luma here: a blurred disc is
+      // saturated across almost its whole area, so any luma-keyed tint paints
+      // the entire body with the highlight colour and the result reads mint
+      // rather than #00D4A8. Dimension comes from the sheen pass below.
+      d[i]     = TEAL_RGB[0];
+      d[i + 1] = TEAL_RGB[1];
+      d[i + 2] = TEAL_RGB[2];
+      d[i + 3] = av * 255;
+    }
+    gooCtx.putImageData(im, 0, 0);
+    // Dimension comes from ONE top-lit gradient across the whole silhouette,
+    // not a highlight per blob — per-blob highlights read as hard little
+    // discs sitting on the mass. 'source-atop' confines it to the goo and
+    // leaves the alpha channel untouched.
+    gooCtx.globalCompositeOperation = 'source-atop';
+    const lg = gooCtx.createLinearGradient(0, 0, 0, gh);
+    lg.addColorStop(0,    'rgba(' + CORE_RGB.join(',') + ',' + GOO_SHEEN + ')');
+    lg.addColorStop(0.55, 'rgba(' + CORE_RGB.join(',') + ',0)');
+    gooCtx.fillStyle = lg;
     gooCtx.fillRect(0, 0, gw, gh);
     gooCtx.globalCompositeOperation = 'source-over';
 
     ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
+    // The bezel physically contains the liquid until it escapes.
+    if (clipR > 0 && clipC) {
+      ctx.beginPath(); ctx.arc(clipC.x, clipC.y, clipR, 0, TAU); ctx.clip();
+    }
     ctx.globalAlpha = alpha;
     ctx.drawImage(gooCv, 0, 0, gw, gh, x0, y0, w, h);
-    ctx.globalAlpha = alpha * 0.55;
-    for (let i = 0; i < list.length; i++) {          // hot cores
-      const b = list[i], rr = b.r * 1.1;
-      const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, rr);
-      g.addColorStop(0, 'rgba(180,255,235,0.90)');
-      g.addColorStop(1, 'rgba(0,212,168,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, TAU); ctx.fill();
-    }
     ctx.restore();
     return { x: x0, y: y0, w: w, h: h };
   }
@@ -1651,15 +1740,10 @@ const PulseFX = (function () {
   }
 
   // Radius of the wavefront at time t, in CSS px from the impact point.
-  function waveLead(t, R, heart) {
-    let maxR = 0;
-    const cs = [[HM.w, HM.n], [HM.e, HM.n], [HM.w, HM.s], [HM.e, HM.s]];
-    for (let i = 0; i < 4; i++) {
-      const p = project(cs[i][0], cs[i][1]);
-      const d = Math.hypot(p.x - heart.x, (p.y - heart.y) / WAVE_FLAT);
-      if (d > maxR) maxR = d;
-    }
-    return easeOut(norm(t, PH.wave)) * maxR * 1.02;
+  // Near-linear on purpose: easeOut() front-loads the travel so hard that the
+  // front crosses the island in the first third of the phase.
+  function waveLead(t, R) {
+    return Math.pow(norm(t, PH.wave), 0.9) * landReach * R.h;
   }
 
   // ── The wave ────────────────────────────────────────────────────────
@@ -1680,7 +1764,8 @@ const PulseFX = (function () {
     g.globalCompositeOperation = 'lighter';
     g.lineJoin = 'round';
 
-    const env = Math.sin(Math.PI * Math.min(1, k * 1.15));    // fade in and out
+    // Ramp in quickly, hold across the crossing, fade only at the very end.
+    const env = Math.min(1, k * 6) * Math.min(1, (1 - k) * 4);
 
     for (let ring = 0; ring < 3; ring++) {
       const rr = lead - ring * 16;
@@ -1713,8 +1798,8 @@ const PulseFX = (function () {
       }
       g.closePath();
       if (ring === 0) {
-        g.lineWidth = 11; g.strokeStyle = 'rgba(0,212,168,' + (a * 0.20) + ')'; g.stroke();
-        g.lineWidth = 3;  g.strokeStyle = 'rgba(150,255,230,' + a + ')';        g.stroke();
+        g.lineWidth = 14; g.strokeStyle = 'rgba(0,212,168,' + (a * 0.26) + ')'; g.stroke();
+        g.lineWidth = 3.5; g.strokeStyle = 'rgba(150,255,230,' + a + ')';       g.stroke();
       } else {
         g.lineWidth = 2;  g.strokeStyle = 'rgba(0,212,168,' + a + ')';          g.stroke();
       }
@@ -1742,14 +1827,14 @@ const PulseFX = (function () {
     const R = hmRect();
     const A = btnCenter();
     const B = project(ISLAND_HEART[0], ISLAND_HEART[1]);
-    const lead = waveLead(t, R, B);
+    const lead = waveLead(t, R);
 
     drawRelief(t, R);
     drawWave(t, R, B, lead);
     drawImpact(t, B);
     drawTrail(t, A, B);
     const S = blobsAt(t, A, B, 1);
-    if (S.vis > 0.001) drawGoo(S.list, S.vis);
+    if (S.vis > 0.001) drawGoo(S.list, S.vis, clipRadius(t, A.inner), A);
     return { heart: B, lead: lead };
   }
 
@@ -1770,7 +1855,7 @@ const PulseFX = (function () {
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
     const S = blobsAt(t, A, A, calmAt(t));
-    idleRect = drawGoo(S.list, 1);
+    idleRect = drawGoo(S.list, 1, A.inner, A);
   }
 
   function idleVisible() {
