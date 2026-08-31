@@ -8,39 +8,112 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-<script>try{tailwind.config={darkMode:"class",theme:{extend:{colors:{bg:"#060E18",surface:"#081626",panel:"rgba(8,22,38,0.97)","p":"#00D4A8","p-dim":"rgba(0,212,168,0.08)","p-glow":"rgba(0,212,168,0.22)",blue:"#1B4FD8",blue2:"#2563EB",amber:"#F5A623","a-dim":"rgba(245,165,39,0.12)",coral:"#FF5A5A","c-dim":"rgba(255,90,90,0.12)",sky:"#4AB8FF",green:"#3ED96E",purple:"#B09AFF",light:"#E8F2EC",muted:"rgba(232,242,236,0.38)",border:"rgba(0,220,168,0.14)",border2:"rgba(0,220,168,0.28)"},fontFamily:{display:["Syne","sans-serif"],mono:["IBM Plex Mono","monospace"],body:["Instrument Sans","sans-serif"]}}}}}catch(e){}</script>
+<script>try{tailwind.config={darkMode:"class",theme:{extend:{colors:{bg:"#060E18",surface:"#081626",panel:"rgba(8,22,38,0.97)","p":"#00D4A8","p-dim":"rgba(0,212,168,0.08)","p-glow":"rgba(0,212,168,0.22)",blue:"#1B4FD8",blue2:"#2563EB",amber:"#F5A623","a-dim":"rgba(245,165,39,0.12)",coral:"#FF5A5A","c-dim":"rgba(255,90,90,0.12)",sky:"#4AB8FF",green:"#3ED96E",purple:"#B09AFF",light:"#E8F2EC",muted:"rgba(232,242,236,0.55)","muted-2":"rgba(232,242,236,0.34)",border:"rgba(232,242,236,0.09)","border-s":"rgba(232,242,236,0.15)",border2:"rgba(0,212,168,0.40)"},fontFamily:{display:["Syne","sans-serif"],mono:["IBM Plex Mono","monospace"],body:["Instrument Sans","sans-serif"]}}}}}catch(e){}</script>
 <style>
+/* ═══ 1 · DESIGN TOKENS ═══════════════════════════════════════════ */
+:root{
+  /* brand — unchanged */
+  --abyss:#060E18; --deep:#081626; --bone:#E8F2EC;
+  --teal:#00D4A8; --blue:#1B4FD8; --blue2:#2563EB;
+  /* text */
+  --ink:#E8F2EC;
+  --muted:rgba(232,242,236,0.55);
+  --muted-2:rgba(232,242,236,0.34);
+  /* hairlines — neutral for structure, teal reserved for live/active */
+  --hair:rgba(232,242,236,0.09);
+  --hair-strong:rgba(232,242,236,0.15);
+  --hair-active:rgba(0,212,168,0.40);
+  /* elevation — light-based depth */
+  --lift:inset 0 1px 0 rgba(232,242,236,0.06);
+  --e-1:0 1px 2px rgba(0,0,0,.40), 0 8px 24px -12px rgba(0,0,0,.60);
+  --e-2:0 2px 8px rgba(0,0,0,.50), 0 24px 64px -16px rgba(0,0,0,.72);
+  --e-teal:0 8px 28px -10px rgba(0,212,168,.42);
+  /* surfaces */
+  --surface-1:linear-gradient(180deg,rgba(13,30,48,0.78) 0%,rgba(8,22,38,0.78) 100%);
+  --surface-2:linear-gradient(180deg,#0C1C2E 0%,#081524 100%);
+  --surface-glass:rgba(9,24,40,0.55);
+  /* radius */
+  --r-xs:6px; --r-sm:10px; --r-md:14px; --r-lg:18px;
+  /* motion — soft settle */
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --dur-fast:140ms; --dur-base:240ms; --dur-slow:420ms;
+}
+
+/* ═══ BASE ════════════════════════════════════════════════════════ */
 html,body{height:100%;overflow:hidden;margin:0;padding:0}
-body{background:#060E18;color:#E8F2EC}
+body{background:var(--abyss);color:var(--ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent}
+::selection{background:rgba(0,212,168,.24)}
+/* 6 · tabular figures so numerics never jitter */
+.font-mono,.font-display{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* 5 · one eyebrow style */
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);line-height:1.5}
+/* 22 · units read quieter than their numbers */
+.unit{font-size:.5em;font-weight:600;letter-spacing:0;opacity:.55;margin-left:.12em}
+/* 10 · neutral structural hairline */
+.rowline{border-bottom:1px solid var(--hair)}
+/* 14 · topbar group separator */
+.tb-sep{display:block;width:1px;height:18px;background:var(--hair);flex-shrink:0}
+
+/* 25 · property-specific transitions + shared easing */
+.transition-all{transition-property:color,background-color,border-color,box-shadow,transform,opacity,filter!important;transition-duration:var(--dur-base)!important;transition-timing-function:var(--ease)!important}
+.transition-colors{transition-duration:var(--dur-base)!important;transition-timing-function:var(--ease)!important}
+.transition-transform{transition-timing-function:var(--ease-spring)!important}
+
+/* 26 · press states */
+button:active,.chip:active,.tbtn:active,.seg-tab:active,.topup-pack:active,
+.pay-method:active,.morning-time:active,.pp-btn:active,.rp-tab:active,
+a[href^="tel"]:active,.glass[onclick]:active,.card[onclick]:active{transform:scale(.97);transition-duration:80ms!important}
+
+/* 27 · focus rings */
+:focus{outline:none}
+:focus-visible{outline:2px solid rgba(0,212,168,.65);outline-offset:2px}
+
+/* 7/8/9 · elevation surfaces. .glass = real blur over the map, .card = inside modals */
+.glass{background:var(--surface-glass);border:1px solid var(--hair);backdrop-filter:blur(14px) saturate(130%);-webkit-backdrop-filter:blur(14px) saturate(130%);box-shadow:var(--e-1),var(--lift)}
+.card{background:var(--surface-1);border:1px solid var(--hair);box-shadow:var(--e-1),var(--lift)}
+
+/* ═══ MAP ═════════════════════════════════════════════════════════ */
 #map-container{position:absolute;inset:0}
 .maplibregl-ctrl-attrib{display:none!important}
-.maplibregl-ctrl-group{background:rgba(8,22,38,0.9)!important;border:0.5px solid rgba(0,220,168,0.14)!important}
-.maplibregl-popup-content{background:#081626!important;color:#E8F2EC!important;border:0.5px solid rgba(0,220,168,0.14)!important;border-radius:12px!important;padding:0!important;font-family:'IBM Plex Mono',monospace!important;font-size:11px!important;box-shadow:0 8px 32px rgba(0,0,0,0.5)!important;min-width:220px!important;max-width:260px!important;overflow:hidden!important}
-.maplibregl-popup-close-button{color:rgba(232,242,236,0.4)!important;font-size:16px!important;padding:6px 8px!important;right:2px!important;top:2px!important}
+.maplibregl-ctrl-group{background:rgba(8,22,38,0.9)!important;border:1px solid var(--hair)!important;box-shadow:var(--e-1)!important}
+
+/* 42 · popups */
+.maplibregl-popup-content{background:var(--surface-2)!important;color:var(--ink)!important;border:1px solid var(--hair-strong)!important;border-radius:var(--r-md)!important;padding:0!important;font-family:'IBM Plex Mono',monospace!important;font-size:12px!important;box-shadow:var(--e-2),var(--lift)!important;min-width:236px!important;max-width:276px!important;overflow:hidden!important;animation:ppin 180ms var(--ease) both}
+@keyframes ppin{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
+.maplibregl-popup-close-button{color:var(--muted-2)!important;font-size:18px!important;padding:6px 9px!important;right:2px!important;top:2px!important;transition:color var(--dur-base) var(--ease)!important}
 .maplibregl-popup-close-button:hover{color:#00D4A8!important;background:none!important}
-.pp-header{padding:10px 12px 6px;display:flex;align-items:center;gap:8px}
-.pp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.pp-type{font-size:8px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.5}
-.pp-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:0 12px 8px}
-.pp-divider{height:0.5px;background:rgba(0,220,168,0.1);margin:0 12px}
-.pp-stats{padding:8px 12px}
-.pp-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:10px}
-.pp-label{color:rgba(232,242,236,0.4)}
-.pp-val{font-size:9px}
-.pp-footer{padding:6px 12px 10px;display:flex;gap:6px}
-.pp-btn{flex:1;text-align:center;padding:5px;border-radius:6px;font-size:8px;letter-spacing:0.05em;cursor:pointer;transition:all 0.15s;font-family:'IBM Plex Mono',monospace}
-.pp-btn-teal{background:rgba(0,212,168,0.1);border:0.5px solid rgba(0,212,168,0.3);color:#00D4A8}
+.pp-header{padding:12px 14px 6px;display:flex;align-items:center;gap:9px}
+.pp-dot{position:relative;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pp-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:inherit;opacity:.20}
+.pp-type{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.pp-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;padding:0 14px 10px}
+.pp-divider{height:1px;background:var(--hair);margin:0 14px}
+.pp-stats{padding:10px 14px}
+.pp-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 0;font-size:11px}
+.pp-label{color:var(--muted)}
+.pp-val{font-size:11px}
+.pp-footer{padding:8px 14px 12px;display:flex;gap:8px}
+.pp-btn{flex:1;text-align:center;padding:7px 6px;border-radius:var(--r-xs);font-size:10px;letter-spacing:.05em;cursor:pointer;transition:background-color var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),transform var(--dur-base) var(--ease);font-family:'IBM Plex Mono',monospace}
+.pp-btn-teal{background:rgba(0,212,168,0.1);border:1px solid rgba(0,212,168,0.3);color:#00D4A8}
 .pp-btn-teal:hover{background:rgba(0,212,168,0.2)}
-.pp-btn-coral{background:rgba(255,90,90,0.1);border:0.5px solid rgba(255,90,90,0.3);color:#FF5A5A}
+.pp-btn-coral{background:rgba(255,90,90,0.1);border:1px solid rgba(255,90,90,0.3);color:#FF5A5A}
 .pp-btn-coral:hover{background:rgba(255,90,90,0.2)}
-.pp-forecast{display:flex;gap:4px;padding:4px 12px 8px;overflow-x:auto}
-.pp-fc-item{text-align:center;padding:4px 6px;background:rgba(0,212,168,0.05);border-radius:6px;min-width:42px}
-.pp-fc-time{font-size:7px;color:rgba(232,242,236,0.35)}
-.pp-fc-temp{font-size:11px;font-family:'Syne',sans-serif;font-weight:700}
-.pp-fc-icon{font-size:10px}
-.maplibregl-popup-tip{border-top-color:#081626!important}
-#frost{position:absolute;inset:0;z-index:5;background:rgba(6,14,24,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity 0.8s;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.pp-forecast{display:flex;gap:6px;padding:4px 14px 12px;overflow-x:auto}
+.pp-fc-item{text-align:center;padding:6px 8px;background:rgba(232,242,236,0.04);border-radius:var(--r-xs);min-width:46px;box-shadow:var(--lift)}
+.pp-fc-time{font-size:9px;color:var(--muted);letter-spacing:.08em}
+.pp-fc-temp{font-size:13px;font-family:'Syne',sans-serif;font-weight:700}
+.pp-fc-icon{font-size:12px;margin:1px 0}
+.maplibregl-popup-tip{border-top-color:#0A1828!important}
+
+/* 41 · marker live pulse — opacity only, so the dark separator ring survives */
+@keyframes planePulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+/* ═══ PULSE / FROST ═══════════════════════════════════════════════ */
+#frost{position:absolute;inset:0;z-index:5;background:rgba(6,14,24,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity 0.8s var(--ease);display:flex;align-items:center;justify-content:center;pointer-events:none}
 #frost.clear{opacity:0}
 /* ── Fire dock — the button now lives below the map ──────────────── */
 #firedock{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 8px;background:rgba(3,6,11,0.99);border-top:0.5px solid rgba(0,220,168,0.14);flex-shrink:0;position:relative;z-index:20}
@@ -58,12 +131,60 @@ body{background:#060E18;color:#E8F2EC}
    onboarding/modals(100). The liquid is painted here rather than inside the
    button, which is what lets it escape the bezel. */
 #pulsefx{position:fixed;inset:0;z-index:30;pointer-events:none}
-#rpanel{position:absolute;right:0;top:0;bottom:0;width:0;z-index:12;background:rgba(8,22,38,0.97);border-left:0.5px solid rgba(0,220,168,0.14);overflow:hidden;transition:width 0.3s;display:flex;flex-direction:column}
-#rpanel.open{width:240px}
-@media(max-width:640px){#rpanel.open{width:100%}}
+
+/* ═══ 33 · RIGHT PANEL — GPU transform, no width reflow ═══════════ */
+#rpanel{position:absolute;right:0;top:0;bottom:0;width:264px;z-index:12;background:var(--surface-1);backdrop-filter:blur(20px) saturate(130%);-webkit-backdrop-filter:blur(20px) saturate(130%);border-left:1px solid var(--hair);box-shadow:-1px 0 0 rgba(232,242,236,0.04),-24px 0 48px -24px rgba(0,0,0,.7);overflow:hidden;display:flex;flex-direction:column;transform:translateX(100%);pointer-events:none;transition:transform var(--dur-slow) var(--ease)}
+#rpanel.open{transform:translateX(0);pointer-events:auto}
+@media(max-width:640px){#rpanel{width:100%}}
 .hide-scroll{scrollbar-width:none}.hide-scroll::-webkit-scrollbar{display:none}
 @keyframes tick{0%{transform:translateX(60%)}100%{transform:translateX(-300%)}}
-#onboarding{position:fixed;inset:0;z-index:100;background:#060E18;transition:opacity 0.5s,transform 0.5s;overflow:hidden}
+
+/* ═══ 28/29 · MODALS — blurred backdrop + soft-settle entrance ════ */
+#upgrade-modal,#score-overlay,#emergency-modal,#signup-modal,#login-modal,
+#signup-success,#topup-modal,#purchase-success,#morning-modal,#spent-modal{
+  background:rgba(3,7,14,0.72);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%)}
+#settings-modal{background:rgba(3,7,14,0.86);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%)}
+@keyframes mfade{from{opacity:0}to{opacity:1}}
+@keyframes mrise{from{opacity:0;transform:translateY(12px) scale(.965)}to{opacity:1;transform:none}}
+@keyframes msheet{from{opacity:0;transform:translateY(2.5%)}to{opacity:1;transform:none}}
+#upgrade-modal:not(.hidden),#score-overlay:not(.hidden),#emergency-modal:not(.hidden),
+#signup-modal:not(.hidden),#login-modal:not(.hidden),#signup-success:not(.hidden),
+#topup-modal:not(.hidden),#purchase-success:not(.hidden),#morning-modal:not(.hidden),
+#spent-modal:not(.hidden){animation:mfade var(--dur-fast) var(--ease) both}
+#upgrade-modal:not(.hidden)>div,#emergency-modal:not(.hidden)>div,#signup-modal:not(.hidden)>div,
+#login-modal:not(.hidden)>div,#signup-success:not(.hidden)>div,#topup-modal:not(.hidden)>div,
+#purchase-success:not(.hidden)>div,#morning-modal:not(.hidden)>div,#spent-modal:not(.hidden)>div,
+#score-overlay:not(.hidden)>div{animation:mrise 300ms var(--ease) both}
+#settings-modal:not(.hidden){animation:msheet 340ms var(--ease) both}
+/* 7 · modal panels get elevation + top light-catch */
+#upgrade-modal>div,#emergency-modal>div,#signup-modal>div,#login-modal>div,
+#signup-success>div,#topup-modal>div,#purchase-success>div,#morning-modal>div,
+#spent-modal>div{background:var(--surface-2);box-shadow:var(--e-2),var(--lift)}
+
+/* ═══ 30 · TOAST ══════════════════════════════════════════════════ */
+#toast{transition:opacity 200ms var(--ease),transform 200ms var(--ease);box-shadow:var(--e-2),var(--lift)!important}
+#toast:not(.hidden){animation:toastin 260ms var(--ease) both}
+#toast.out{opacity:0;transform:translate(-50%,10px)}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ═══ NEWS FEED ═══════════════════════════════════════════════════ */
+#news-modal{background:rgba(3,7,14,0.95);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%)}
+#news-modal:not(.hidden){animation:msheet 340ms var(--ease) both}
+#news-detail{background:rgba(3,7,14,0.72);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%)}
+#news-detail:not(.hidden){animation:mfade var(--dur-fast) var(--ease) both}
+#news-detail:not(.hidden)>div{animation:mrise 300ms var(--ease) both}
+#news-detail>div{background:var(--surface-2);box-shadow:var(--e-2),var(--lift)}
+
+/* ═══ 34 · TOGGLE SWITCHES ════════════════════════════════════════ */
+.sw{transition:background-color 220ms var(--ease),border-color 220ms var(--ease)}
+.sw>div{transition:transform 300ms var(--ease-spring),background-color 220ms var(--ease)!important}
+
+/* ═══ 35 · LIVE badge — the dot breathes, not the pill ════════════ */
+.live-dot{display:inline-block;animation:livepulse 2s ease-in-out infinite}
+@keyframes livepulse{0%,100%{opacity:1}50%{opacity:.28}}
+
+/* ═══ ONBOARDING ══════════════════════════════════════════════════ */
+#onboarding{position:fixed;inset:0;z-index:100;background:#060E18;transition:opacity 0.5s var(--ease),transform 0.5s var(--ease);overflow:hidden}
 #onboarding::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 20%,rgba(0,212,168,0.07) 0%,transparent 70%),radial-gradient(ellipse 40% 50% at 80% 80%,rgba(27,79,216,0.06) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 15% 60%,rgba(0,212,168,0.04) 0%,transparent 60%);pointer-events:none}
 #onboarding::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.03) 3px,rgba(0,0,0,0.03) 4px);pointer-events:none}
 .ob-particle{position:absolute;border-radius:50%;background:#00D4A8;animation:obfloat var(--dur,15s) linear infinite;opacity:0;pointer-events:none}
@@ -71,10 +192,23 @@ body{background:#060E18;color:#E8F2EC}
 #onboarding.hidden{opacity:0;transform:scale(1.02);pointer-events:none}
 @keyframes breathe{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.12;transform:scale(1.08)}}
 @keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.chip{transition:all 0.15s;user-select:none}.chip.on{background:rgba(0,212,168,0.22)!important;border-color:#00D4A8!important;color:#00D4A8!important}
-.glass{background:rgba(8,22,38,0.5);border:0.5px solid rgba(0,220,168,0.14);backdrop-filter:blur(8px)}
-@keyframes planePulse{0%,100%{opacity:1;box-shadow:0 0 10px currentColor}50%{opacity:.6;box-shadow:0 0 4px currentColor}}
-@media(prefers-reduced-motion:reduce){#pulsefx{display:none}#firebtn,#firebtn:active{transition:none;transform:none}}
+.chip{transition:background-color var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease),transform var(--dur-base) var(--ease);user-select:none}
+.chip.on{background:rgba(0,212,168,0.18)!important;border-color:var(--hair-active)!important;color:#00D4A8!important;box-shadow:var(--e-teal)}
+
+@media(prefers-reduced-motion:reduce){
+  #pulsefx{display:none}
+  #firebtn,#firebtn:active{transition:none;transform:none}
+  .maplibregl-popup-content,#toast:not(.hidden),.live-dot,
+  #upgrade-modal:not(.hidden),#score-overlay:not(.hidden),#emergency-modal:not(.hidden),
+  #signup-modal:not(.hidden),#login-modal:not(.hidden),#signup-success:not(.hidden),
+  #topup-modal:not(.hidden),#purchase-success:not(.hidden),#morning-modal:not(.hidden),
+  #spent-modal:not(.hidden),#settings-modal:not(.hidden),
+  #news-modal:not(.hidden),#news-detail:not(.hidden),#news-detail:not(.hidden)>div,
+  #upgrade-modal:not(.hidden)>div,#emergency-modal:not(.hidden)>div,#signup-modal:not(.hidden)>div,
+  #login-modal:not(.hidden)>div,#signup-success:not(.hidden)>div,#topup-modal:not(.hidden)>div,
+  #purchase-success:not(.hidden)>div,#morning-modal:not(.hidden)>div,#spent-modal:not(.hidden)>div,
+  #score-overlay:not(.hidden)>div{animation:none!important}
+}
 </style>
 </head>
 <body class="font-body">
@@ -83,7 +217,7 @@ body{background:#060E18;color:#E8F2EC}
 <div id="ob1">
 <div class="relative w-28 h-28 mx-auto mb-6"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full"><defs><style>.rng{fill:none;stroke:#00D4A8;stroke-width:1.5;transform-origin:center;opacity:.5}.rng1{animation:breathe 4s ease-in-out infinite}.rng2{animation:breathe 4s ease-in-out infinite 1s}.rng3{animation:breathe 4s ease-in-out infinite 2s}.adot{fill:#00D4A8;animation:rotate 10s linear infinite;transform-origin:center}</style></defs><circle class="rng rng1" cx="100" cy="100" r="90"/><circle class="rng rng2" cx="100" cy="100" r="70"/><circle class="rng rng3" cx="100" cy="100" r="50"/><circle cx="100" cy="100" r="30" fill="#1B4FD8"/><circle cx="100" cy="100" r="18" fill="#2563EB"/><circle cx="100" cy="100" r="5" fill="white"/><g class="adot"><circle cx="100" cy="50" r="3"/><circle cx="170" cy="100" r="2.5"/><circle cx="100" cy="170" r="2"/></g></svg></div>
 <div class="font-display text-4xl font-extrabold tracking-tighter mb-1"><span class="text-light">Puls</span><span class="text-p">IO</span></div>
-<p class="font-mono text-[11px] tracking-[0.2em] uppercase text-muted mb-10">The island at your fingertips</p>
+<p class="font-mono text-[12px] tracking-[0.2em] uppercase text-muted mb-10">The island at your fingertips</p>
 <div class="flex gap-1.5 justify-center mb-8"><div class="w-2 h-2 rounded-full bg-p"></div><div class="w-2 h-2 rounded-full bg-p/20"></div><div class="w-2 h-2 rounded-full bg-p/20"></div></div>
 <button onclick="obGo(2)" class="bg-p text-[#03140d] font-display font-bold text-sm px-10 py-3.5 rounded-xl hover:bg-[#00ffcc] transition-all">Get started</button>
 </div>
@@ -97,100 +231,101 @@ body{background:#060E18;color:#E8F2EC}
 
 <div id="ob3" class="hidden w-full max-w-md">
 <div class="font-display text-2xl font-bold mb-2">What matters to you?</div>
-<p class="font-mono text-[12px] text-muted mb-6">Pick your type, then select up to 3 priorities.</p>
-<div class="mb-5"><div class="font-mono text-[9px] tracking-[0.15em] uppercase text-muted mb-2">I am</div><div class="flex flex-wrap gap-2 justify-center"><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickType(this)">🏠 Mauritian</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickType(this)">✈️ Tourist</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickType(this)">💼 Professional</div></div></div>
-<div class="mb-5"><div class="font-mono text-[9px] tracking-[0.15em] uppercase text-muted mb-2">Priorities (pick up to 3)</div><div class="flex flex-wrap gap-2 justify-center"><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">⚡ CEB cuts</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">🌤️ Weather</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">🚗 Traffic</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">📰 News</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">🌀 Cyclone</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">⛽ Fuel</div></div></div>
+<p class="font-mono text-[13px] text-muted mb-6">Pick your type, then select up to 3 priorities.</p>
+<div class="mb-5"><div class="eyebrow mb-2.5">I am</div><div class="flex flex-wrap gap-2 justify-center"><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickType(this)">🏠 Mauritian</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickType(this)">✈️ Tourist</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickType(this)">💼 Professional</div></div></div>
+<div class="mb-5"><div class="eyebrow mb-2.5">Priorities (pick up to 3)</div><div class="flex flex-wrap gap-2 justify-center"><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">⚡ CEB cuts</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">🌤️ Weather</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">🚗 Traffic</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">📰 News</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">🌀 Cyclone</div><div class="chip font-mono text-xs bg-p-dim border border-border text-muted px-4 py-2 rounded-full cursor-pointer" onclick="pickPref(this)">⛽ Fuel</div></div></div>
 <div class="flex gap-1.5 justify-center mb-6"><div class="w-2 h-2 rounded-full bg-p/20"></div><div class="w-2 h-2 rounded-full bg-p/20"></div><div class="w-2 h-2 rounded-full bg-p"></div></div>
 <button onclick="finishOB()" class="bg-p text-[#03140d] font-display font-bold text-sm px-10 py-3.5 rounded-xl hover:bg-[#00ffcc] transition-all">Enter PulsIO</button>
 </div>
 </div>
 
 <div id="app" class="hidden h-screen flex flex-col">
-<div id="adbar" class="px-3 py-1 flex items-center justify-between border-b border-amber/10 bg-a-dim flex-shrink-0"><span class="text-[9px] text-muted font-body cursor-pointer hover:text-light transition-colors" onclick="window.open('#','_blank')">Sponsored · Le Méridien — Escape to paradise</span><span class="text-[7px] font-mono bg-a-dim border border-amber/30 text-amber px-2 py-0.5 rounded cursor-pointer hover:bg-amber/20" onclick="openUpgrade()">Remove ads ↑</span></div>
+<div id="adbar" class="px-4 py-1.5 flex items-center justify-between border-b border-amber/10 bg-a-dim flex-shrink-0"><span class="text-[11px] text-muted font-body cursor-pointer hover:text-light transition-colors" onclick="window.open('#','_blank')">Sponsored · Le Méridien — Escape to paradise</span><span class="text-[10px] font-mono bg-a-dim border border-amber/30 text-amber px-2 py-0.5 rounded cursor-pointer hover:bg-amber/20" onclick="openUpgrade()">Remove ads ↑</span></div>
 
 <!-- Offline banner -->
 <div id="offline-banner" class="hidden px-3 py-1.5 flex items-center justify-center gap-2 border-b border-sky/10 flex-shrink-0 z-20" style="background:rgba(74,184,255,0.06)">
-<span class="text-[9px] font-mono text-sky">📡 Offline — showing your last pulse</span>
+<span class="text-[11px] font-mono text-sky">📡 Offline — showing your last pulse</span>
 </div>
 
 <!-- Back online toast -->
 <div id="online-banner" class="hidden px-3 py-1.5 flex items-center justify-center gap-2 border-b border-p/10 flex-shrink-0 z-20" style="background:rgba(0,212,168,0.06)">
-<span class="text-[9px] font-mono text-p">✓ Back online — data refreshing</span>
+<span class="text-[11px] font-mono text-p">✓ Back online — data refreshing</span>
 </div>
 
-<div id="topbar" class="flex items-center gap-2 px-3 h-11 bg-[rgba(4,8,14,0.99)] border-b border-border flex-shrink-0 z-20">
-<div class="flex items-center gap-1.5 cursor-pointer" onclick="recentreMap()"><div class="relative w-6 h-6"><div class="absolute inset-0 rounded-full border border-p animate-pulse opacity-60"></div><div class="absolute inset-1 rounded-full border border-p/40"></div><div class="absolute inset-2 rounded-full bg-blue"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-white"></div></div><span class="font-display text-[15px] font-extrabold tracking-tight"><span class="text-light">Puls</span><span class="text-p">IO</span></span></div>
-<span class="text-[8px] font-mono tracking-wider bg-c-dim border border-coral/40 text-coral px-1.5 py-0.5 rounded-full animate-pulse">● LIVE</span>
-<div class="flex items-center gap-1.5 bg-p-dim border border-border rounded-full px-2.5 py-1 cursor-pointer hover:border-p transition-colors" onclick="openUpgrade()"><span class="text-[7px] font-mono text-muted tracking-wide">PULSE</span><div class="flex gap-0.5" id="pips"></div><span class="text-[10px] font-mono text-p min-w-[20px]" id="pcount">1/1</span></div>
-<div class="bg-p-dim border border-p/30 text-p text-[9px] font-mono px-2 py-0.5 rounded-full cursor-pointer hover:bg-p-glow transition-colors" onclick="openScore()">78</div>
-<div class="ml-auto flex items-center gap-1.5">
-<div class="text-[8px] font-mono border border-white/10 text-muted px-2 py-0.5 rounded-full cursor-pointer hover:border-p hover:text-p transition-colors" id="tier-pill" onclick="openUpgrade()">FREE ↑</div>
-<div class="w-5 h-5 rounded-full bg-p-dim border border-border flex items-center justify-center cursor-pointer hover:border-p transition-colors" onclick="isSignedUp?openSettings():showLogin()" id="profile-btn"><span class="text-[8px] text-muted">👤</span></div>
+<div id="topbar" class="flex items-center gap-2 sm:gap-2.5 px-3 sm:px-4 h-[52px] bg-[rgba(4,8,14,0.99)] border-b border-border flex-shrink-0 z-20 overflow-hidden">
+<div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="recentreMap()"><div class="relative w-7 h-7"><div class="absolute inset-0 rounded-full border border-p animate-pulse opacity-60"></div><div class="absolute inset-1 rounded-full border border-p/40"></div><div class="absolute inset-2 rounded-full bg-blue"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-white"></div></div><span class="font-display text-[17px] font-extrabold tracking-tight"><span class="text-light">Puls</span><span class="text-p">IO</span></span></div>
+<span class="tb-sep hidden sm:block"></span>
+<span class="text-[10px] font-mono tracking-[0.12em] bg-c-dim border border-coral/40 text-coral px-2 py-0.5 rounded-full flex-shrink-0"><span class="live-dot">●</span> LIVE</span>
+<div class="flex items-center gap-2 bg-p-dim border border-border rounded-full px-3 py-1.5 cursor-pointer hover:border-border2 transition-colors min-w-0" onclick="openUpgrade()"><span class="eyebrow flex-shrink-0 hidden sm:inline">Pulse</span><div class="flex gap-1 min-w-0 overflow-hidden" id="pips"></div><span class="text-[11px] font-mono text-p min-w-[28px] text-right flex-shrink-0" id="pcount">1/1</span></div>
+<div class="bg-p-dim border border-border2 text-p text-[11px] font-mono px-2.5 py-1 rounded-full cursor-pointer hover:bg-p-glow transition-colors flex-shrink-0" onclick="openScore()">78</div>
+<div class="ml-auto flex items-center gap-2 sm:gap-2.5 flex-shrink-0"><span class="tb-sep hidden sm:block"></span>
+<div class="text-[10px] font-mono tracking-[0.08em] border border-border text-muted px-2.5 py-1 rounded-full cursor-pointer hover:border-border2 hover:text-p transition-colors" id="tier-pill" onclick="openUpgrade()">FREE ↑</div>
+<div class="w-7 h-7 rounded-full bg-p-dim border border-border flex items-center justify-center cursor-pointer hover:border-border2 transition-colors" onclick="isSignedUp?openSettings():showLogin()" id="profile-btn"><span class="text-[11px] text-muted">👤</span></div>
 </div>
 </div>
 
 <!-- Segment tabs -->
-<div id="segments" class="flex px-3 py-1 bg-[rgba(4,8,14,0.99)] border-b border-border flex-shrink-0 z-20 gap-1">
-<button class="seg-tab font-mono text-[9px] px-3 py-1 rounded-full bg-p-dim border border-p/30 text-p transition-all" onclick="setSeg('all',this)">All</button>
-<button class="seg-tab font-mono text-[9px] px-3 py-1 rounded-full border border-transparent text-muted transition-all hover:border-border" onclick="setSeg('tourist',this)">Tourist</button>
-<button class="seg-tab font-mono text-[9px] px-3 py-1 rounded-full border border-transparent text-muted transition-all hover:border-border" onclick="setSeg('mauritian',this)">Mauritian</button>
-<button class="seg-tab font-mono text-[9px] px-3 py-1 rounded-full border border-transparent text-muted transition-all hover:border-border" onclick="setSeg('pro',this)">Pro</button>
+<div id="segments" class="flex px-4 py-2 bg-[rgba(4,8,14,0.99)] border-b border-border flex-shrink-0 z-20 gap-1">
+<button class="seg-tab font-mono text-[11px] px-3 py-1 rounded-full bg-p-dim border border-p/30 text-p transition-all" onclick="setSeg('all',this)">All</button>
+<button class="seg-tab font-mono text-[11px] px-3 py-1 rounded-full border border-transparent text-muted transition-all hover:border-border" onclick="setSeg('tourist',this)">Tourist</button>
+<button class="seg-tab font-mono text-[11px] px-3 py-1 rounded-full border border-transparent text-muted transition-all hover:border-border" onclick="setSeg('mauritian',this)">Mauritian</button>
+<button class="seg-tab font-mono text-[11px] px-3 py-1 rounded-full border border-transparent text-muted transition-all hover:border-border" onclick="setSeg('pro',this)">Pro</button>
 </div>
 
 <div class="flex-1 relative overflow-hidden">
 <div id="map-container">
-<div id="frost" style="flex-direction:column"><span class="font-mono text-[11px] text-muted text-center leading-relaxed" style="position:absolute;bottom:100px;left:50%;transform:translateX(-50%);white-space:nowrap">Fire your pulse to reveal<br>what's happening on the island</span></div>
+<div id="frost" style="flex-direction:column"><span class="font-mono text-[12px] text-muted text-center leading-relaxed" style="position:absolute;bottom:100px;left:50%;transform:translateX(-50%);white-space:nowrap">Fire your pulse to reveal<br>what's happening on the island</span></div>
 </div>
 
 <div id="rpanel">
-<div class="flex border-b border-border"><div class="rp-tab flex-1 py-2 text-[8px] tracking-wide font-mono text-center cursor-pointer border-b-2 text-p border-p" onclick="setTab('live',this)">LIVE</div><div class="rp-tab flex-1 py-2 text-[8px] tracking-wide font-mono text-center cursor-pointer border-b-2 text-muted border-transparent" onclick="setTab('guide',this)">GUIDE</div><div class="rp-tab flex-1 py-2 text-[8px] tracking-wide font-mono text-center cursor-pointer border-b-2 text-muted border-transparent" onclick="setTab('alerts',this)">ALERTS</div><div class="rp-tab flex-1 py-2 text-[8px] tracking-wide font-mono text-center cursor-pointer border-b-2 text-muted border-transparent" onclick="setTab('report',this)">REPORT</div></div>
-<div class="p-3 overflow-y-auto flex-1 hide-scroll">
+<div class="flex border-b border-border"><div class="rp-tab flex-1 py-2 text-[10px] tracking-wide font-mono text-center cursor-pointer border-b-2 text-p border-p" onclick="setTab('live',this)">LIVE</div><div class="rp-tab flex-1 py-2 text-[10px] tracking-wide font-mono text-center cursor-pointer border-b-2 text-muted border-transparent" onclick="setTab('guide',this)">GUIDE</div><div class="rp-tab flex-1 py-2 text-[10px] tracking-wide font-mono text-center cursor-pointer border-b-2 text-muted border-transparent" onclick="setTab('alerts',this)">ALERTS</div><div class="rp-tab flex-1 py-2 text-[10px] tracking-wide font-mono text-center cursor-pointer border-b-2 text-muted border-transparent" onclick="setTab('report',this)">REPORT</div></div>
+<div class="p-4 overflow-y-auto flex-1 hide-scroll">
 <div id="tab-live">
-<div class="glass rounded-lg p-3 mb-3"><div class="text-[7px] font-mono text-muted tracking-wide uppercase mb-1">Temperature</div><div class="text-2xl font-display font-bold text-amber">27°C</div><div class="text-[9px] text-muted mt-1">Feels like 30°C · Humid</div></div>
-<div class="glass rounded-lg p-3 mb-3"><div class="text-[7px] font-mono text-muted tracking-wide uppercase mb-1">PulsScore</div><div class="text-2xl font-display font-bold text-p">78</div><div class="text-[9px] text-muted mt-1">Great day on the island</div></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Humidity</span><span class="font-mono text-[9px] text-sky">74%</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Wind</span><span class="font-mono text-[9px] text-p">NE 18 km/h</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">UV Index</span><span class="font-mono text-[9px] text-amber">8 · High</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Sea state</span><span class="font-mono text-[9px] text-sky">Moderate</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Tide</span><span class="font-mono text-[9px] text-sky">Rising · 1.2m</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Sunset</span><span class="font-mono text-[9px] text-amber">18:07</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Fuel MUR/L</span><span class="font-mono text-[9px] text-green">63.20</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">USD / MUR</span><span class="font-mono text-[9px] text-muted">45.82</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="flyTo(57.48,-20.30,13)"><span class="text-muted">CEB cuts</span><span class="font-mono text-[9px] text-amber">2 zones →</span></div>
-<div class="flex justify-between items-center py-1.5 text-[10px]"><span class="text-muted">Cyclone</span><span class="font-mono text-[9px] text-p">● Clear</span></div>
+<div class="glass rounded-lg p-4 mb-3"><div class="eyebrow mb-1.5">Temperature</div><div class="text-[30px] leading-none font-display font-bold text-amber">27<span class="unit">°C</span></div><div class="text-[11px] text-muted mt-1">Feels like 30°C · Humid</div></div>
+<div class="glass rounded-lg p-4 mb-3"><div class="eyebrow mb-1.5">PulsScore</div><div class="text-[30px] leading-none font-display font-bold text-p">78</div><div class="text-[11px] text-muted mt-1">Great day on the island</div></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Humidity</span><span class="font-mono text-[11px] text-sky">74%</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Wind</span><span class="font-mono text-[11px] text-p">NE 18 km/h</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">UV Index</span><span class="font-mono text-[11px] text-amber">8 · High</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Sea state</span><span class="font-mono text-[11px] text-sky">Moderate</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Tide</span><span class="font-mono text-[11px] text-sky">Rising · 1.2m</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Sunset</span><span class="font-mono text-[11px] text-amber">18:07</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Fuel MUR/L</span><span class="font-mono text-[11px] text-green">63.20</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">USD / MUR</span><span class="font-mono text-[11px] text-muted">45.82</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="flyTo(57.48,-20.30,13)"><span class="text-muted">CEB cuts</span><span class="font-mono text-[11px] text-amber">2 zones →</span></div>
+<div class="flex justify-between items-center py-2.5 text-[11px]"><span class="text-muted">Cyclone</span><span class="font-mono text-[11px] text-p">● Clear</span></div>
 </div>
 <div id="tab-guide" class="hidden">
-<div class="glass rounded-lg p-3 mb-3 cursor-pointer hover:border-p/30 border border-transparent transition-all" onclick="flyTo(57.72,-20.44,14)"><div class="text-[7px] font-mono text-muted tracking-wide uppercase mb-1">Best beach today</div><div class="text-base font-display font-bold text-p">Blue Bay →</div><div class="text-[9px] text-muted mt-1">Calm · 26°C water · Low UV</div></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Lagoon</span><span class="font-mono text-[9px] text-green">Safe</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Snorkeling</span><span class="font-mono text-[9px] text-p">Excellent</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Jellyfish</span><span class="font-mono text-[9px] text-green">None</span></div>
-<div class="flex justify-between items-center py-1.5 border-b border-p/5 text-[10px]"><span class="text-muted">Crowd</span><span class="font-mono text-[9px] text-p">Low</span></div>
-<div class="flex justify-between items-center py-1.5 text-[10px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="openEmergency()"><span class="text-muted">Emergency</span><span class="font-mono text-[9px] text-coral">999 · 114 →</span></div>
+<div class="glass rounded-lg p-4 mb-3 cursor-pointer hover:border-p/30 border border-transparent transition-all" onclick="flyTo(57.72,-20.44,14)"><div class="eyebrow mb-1.5">Best beach today</div><div class="text-base font-display font-bold text-p">Blue Bay →</div><div class="text-[11px] text-muted mt-1">Calm · 26°C water · Low UV</div></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Lagoon</span><span class="font-mono text-[11px] text-green">Safe</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Snorkeling</span><span class="font-mono text-[11px] text-p">Excellent</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Jellyfish</span><span class="font-mono text-[11px] text-green">None</span></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Crowd</span><span class="font-mono text-[11px] text-p">Low</span></div>
+<div class="flex justify-between items-center py-2.5 text-[11px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="openEmergency()"><span class="text-muted">Emergency</span><span class="font-mono text-[11px] text-coral">999 · 114 →</span></div>
 </div>
 <div id="tab-alerts" class="hidden">
-<div class="flex gap-2 items-start py-2 border-b border-border text-[10px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="flyTo(57.48,-20.30,14)"><div class="w-1.5 h-1.5 rounded-full bg-amber mt-1.5 flex-shrink-0"></div><div><div>CEB cut · Vacoas-Phoenix</div><div class="text-[8px] text-muted font-mono mt-0.5">11:00–15:00 today</div></div></div>
-<div class="flex gap-2 items-start py-2 border-b border-border text-[10px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="flyTo(57.47,-20.24,14)"><div class="w-1.5 h-1.5 rounded-full bg-amber mt-1.5 flex-shrink-0"></div><div><div>CEB cut · Rose-Hill</div><div class="text-[8px] text-muted font-mono mt-0.5">09:00–13:30 today</div></div></div>
-<div class="flex gap-2 items-start py-2 border-b border-border text-[10px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="flyTo(57.46,-20.26,14)"><div class="w-1.5 h-1.5 rounded-full bg-sky mt-1.5 flex-shrink-0"></div><div><div>CWA low pressure · Quatre Bornes</div><div class="text-[8px] text-muted font-mono mt-0.5">Fix ETA: 17:00</div></div></div>
-<div class="flex gap-2 items-start py-2 text-[10px]"><div class="w-1.5 h-1.5 rounded-full bg-green mt-1.5 flex-shrink-0"></div><div><div>All cyclone stations clear</div><div class="text-[8px] text-muted font-mono mt-0.5">MMS bulletin 09:00</div></div></div>
+<div class="flex gap-2 items-start py-3 border-b border-border text-[11px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="flyTo(57.48,-20.30,14)"><div class="w-1.5 h-1.5 rounded-full bg-amber mt-1.5 flex-shrink-0"></div><div><div>CEB cut · Vacoas-Phoenix</div><div class="text-[10px] text-muted font-mono mt-0.5">11:00–15:00 today</div></div></div>
+<div class="flex gap-2 items-start py-3 border-b border-border text-[11px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="flyTo(57.47,-20.24,14)"><div class="w-1.5 h-1.5 rounded-full bg-amber mt-1.5 flex-shrink-0"></div><div><div>CEB cut · Rose-Hill</div><div class="text-[10px] text-muted font-mono mt-0.5">09:00–13:30 today</div></div></div>
+<div class="flex gap-2 items-start py-3 border-b border-border text-[11px] cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="flyTo(57.46,-20.26,14)"><div class="w-1.5 h-1.5 rounded-full bg-sky mt-1.5 flex-shrink-0"></div><div><div>CWA low pressure · Quatre Bornes</div><div class="text-[10px] text-muted font-mono mt-0.5">Fix ETA: 17:00</div></div></div>
+<div class="flex gap-2 items-start py-3 text-[11px]"><div class="w-1.5 h-1.5 rounded-full bg-green mt-1.5 flex-shrink-0"></div><div><div>All cyclone stations clear</div><div class="text-[10px] text-muted font-mono mt-0.5">MMS bulletin 09:00</div></div></div>
 </div>
 <div id="tab-report" class="hidden">
 <div class="font-display text-sm font-bold mb-3">Submit a Report</div>
-<p class="font-mono text-[10px] text-muted mb-4">Help your community. Report what you see.</p>
+<p class="font-mono text-[11px] text-muted mb-4">Help your community. Report what you see.</p>
 <div class="space-y-2 mb-4">
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">⚡ Power cut</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">💧 Water cut</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🚗 Accident</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">⚠️ Hazard</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🌊 Flood</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🚦 Traffic jam</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🪼 Jellyfish</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🎵 Event</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🏗️ Infrastructure</div>
-<div class="chip font-mono text-[11px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">📌 Other</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">⚡ Power cut</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">💧 Water cut</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🚗 Accident</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">⚠️ Hazard</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🌊 Flood</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🚦 Traffic jam</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🪼 Jellyfish</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🎵 Event</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">🏗️ Infrastructure</div>
+<div class="chip font-mono text-[12px] bg-p-dim border border-border text-muted px-3 py-2 rounded-lg cursor-pointer text-center hover:border-p hover:text-p transition-all" onclick="pickReport(this)">📌 Other</div>
 </div>
-<textarea class="w-full bg-surface border border-border rounded-lg p-2 font-mono text-[11px] text-light placeholder:text-muted/50 resize-none h-16 focus:border-p focus:outline-none transition-colors" placeholder="Optional description..."></textarea>
+<textarea class="w-full bg-surface border border-border rounded-lg p-2 font-mono text-[12px] text-light placeholder:text-muted/70 resize-none h-16 focus:border-p focus:outline-none transition-colors" placeholder="Optional description..."></textarea>
 <button class="w-full mt-3 py-2.5 bg-p text-[#03140d] rounded-xl text-xs font-display font-bold cursor-pointer hover:bg-[#00ffcc] transition-all" onclick="submitReport()">Submit Report</button>
-<p class="font-mono text-[8px] text-muted mt-2 text-center">Reports need 2 confirmations to go live on the map</p>
+<p class="font-mono text-[10px] text-muted mt-2 text-center">Reports need 2 confirmations to go live on the map</p>
 </div>
 </div>
 </div>
@@ -204,43 +339,47 @@ body{background:#060E18;color:#E8F2EC}
 <div id="firestate">1 AVAILABLE</div>
 </div>
 
-<div class="px-3 py-1 bg-[rgba(3,6,11,0.99)] border-t border-border flex items-center gap-2 flex-shrink-0 overflow-hidden">
 <span class="text-[7px] font-mono tracking-wider bg-c-dim border border-coral/30 text-coral px-1.5 py-0.5 rounded flex-shrink-0 uppercase">News</span>
 <div class="text-[9px] font-mono text-muted whitespace-nowrap" style="animation:tick 40s linear infinite">Port Louis: Metro extension approved · Blue Bay lagoon rated excellent · Record tourism Q2 · SEMDEX +0.8% · Grand Baie festival this weekend</div>
+
+<div class="px-4 py-1.5 bg-[rgba(3,6,11,0.99)] border-t border-border flex items-center gap-2.5 flex-shrink-0 overflow-hidden cursor-pointer group" onclick="openNews()">
+<span class="text-[10px] font-mono tracking-wider bg-c-dim border border-coral/30 text-coral px-1.5 py-0.5 rounded flex-shrink-0 uppercase">News</span>
+<div class="flex-1 min-w-0 overflow-hidden"><div id="news-ticker" class="text-[11px] font-mono text-muted whitespace-nowrap inline-block" style="animation:tick 40s linear infinite">Loading island news…</div></div>
+<span class="text-[10px] font-mono text-muted-2 group-hover:text-p flex-shrink-0 transition-colors">All news →</span>
 </div>
 
-<div class="flex justify-center gap-0.5 px-2 py-1.5 bg-[rgba(3,6,11,0.99)] border-t border-border flex-shrink-0 z-20">
-<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-p/30 bg-p-dim text-p text-[7px] font-mono min-w-[42px]" onclick="setTool(this)"><span class="text-sm">◎</span>Map</button>
-<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[7px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="setTool(this)"><span class="text-sm">◌</span>Weather</button>
-<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[7px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="togglePanel()"><span class="text-sm">◈</span>Panel</button>
-<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[7px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="setTool(this)"><span class="text-sm">◐</span>Traffic</button>
-<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[7px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="setTool(this)"><span class="text-sm">◑</span>Flights</button>
-<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[7px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="setTool(this)"><span class="text-sm">◒</span>Marine</button>
+<div class="flex justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 bg-[rgba(3,6,11,0.99)] border-t border-border flex-shrink-0 z-20">
+<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-p/30 bg-p-dim text-p text-[10px] font-mono min-w-[42px]" onclick="setTool(this)"><span class="text-sm">◎</span>Map</button>
+<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[10px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="setTool(this)"><span class="text-sm">◌</span>Weather</button>
+<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[10px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="togglePanel()"><span class="text-sm">◈</span>Panel</button>
+<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[10px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="setTool(this)"><span class="text-sm">◐</span>Traffic</button>
+<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[10px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="setTool(this)"><span class="text-sm">◑</span>Flights</button>
+<button class="tbtn flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-transparent text-muted text-[10px] font-mono min-w-[42px] hover:border-border hover:bg-p-dim" onclick="setTool(this)"><span class="text-sm">◒</span>Marine</button>
 </div>
 </div>
 
 
 <div id="upgrade-modal" class="hidden fixed inset-0 z-50 bg-[rgba(3,7,14,0.86)] flex items-center justify-center overflow-y-auto py-8">
-<div class="bg-surface border border-border rounded-2xl p-5 w-[320px]">
+<div class="bg-surface border border-border rounded-2xl p-6 w-[320px]">
 <div class="flex justify-between items-center mb-4"><span class="font-display text-base font-bold">Choose your plan</span><span class="text-muted text-sm cursor-pointer hover:text-light" onclick="closeUpgrade()">✕</span></div>
-<div class="glass rounded-lg p-3 mb-2 border border-transparent hover:border-p/30 cursor-pointer transition-all">
+<div class="card rounded-lg p-4 mb-2 border border-transparent hover:border-p/30 cursor-pointer transition-all">
 <div class="flex justify-between items-center mb-1"><span class="font-display text-sm font-bold text-amber">Explorer</span><span class="font-mono text-xs text-amber">Free</span></div>
-<div class="font-mono text-[9px] text-muted">1 pulse/day · 1 device · Ads</div>
+<div class="font-mono text-[11px] text-muted">1 pulse/day · 1 device · Ads</div>
 </div>
-<div class="glass rounded-lg p-3 mb-2 border border-p/30 cursor-pointer transition-all hover:border-p" onclick="setTier('t1');closeUpgrade()">
-<div class="text-[7px] font-mono text-[#03140d] bg-p px-2 py-0.5 rounded inline-block mb-1.5">RECOMMENDED</div>
-<div class="flex justify-between items-center mb-1"><span class="font-display text-sm font-bold text-p">Traveller</span><span class="font-mono text-xs text-p">MUR 150/mo</span></div>
-<div class="font-mono text-[9px] text-muted">10 pulses/day · 2 devices · No ads · Flights · Marine · Beach</div>
+<div class="card rounded-lg p-4 mb-2 border border-p/30 cursor-pointer transition-all hover:border-p" onclick="setTier('t1');closeUpgrade()">
+<div class="text-[10px] font-mono text-[#03140d] bg-p px-2 py-0.5 rounded inline-block mb-1.5">RECOMMENDED</div>
+<div class="flex justify-between items-center mb-1"><span class="font-display text-sm font-bold text-p">Traveller</span><span class="font-mono text-xs text-p">MUR 150<span class="unit">/mo</span></span></div>
+<div class="font-mono text-[11px] text-muted">10 pulses/day · 2 devices · No ads · Flights · Marine · Beach</div>
 </div>
-<div class="glass rounded-lg p-3 mb-2 border border-transparent hover:border-sky/30 cursor-pointer transition-all" onclick="setTier('t2');closeUpgrade()">
-<div class="flex justify-between items-center mb-1"><span class="font-display text-sm font-bold text-sky">Resident</span><span class="font-mono text-xs text-sky">MUR 400/mo</span></div>
-<div class="font-mono text-[9px] text-muted">Unlimited pulses · 3 devices · History replay · SMS alerts</div>
+<div class="card rounded-lg p-4 mb-2 border border-transparent hover:border-sky/30 cursor-pointer transition-all" onclick="setTier('t2');closeUpgrade()">
+<div class="flex justify-between items-center mb-1"><span class="font-display text-sm font-bold text-sky">Resident</span><span class="font-mono text-xs text-sky">MUR 400<span class="unit">/mo</span></span></div>
+<div class="font-mono text-[11px] text-muted">Unlimited pulses · 3 devices · History replay · SMS alerts</div>
 </div>
-<div class="glass rounded-lg p-3 mb-3 border border-transparent hover:border-purple/30 cursor-pointer transition-all">
+<div class="card rounded-lg p-4 mb-3 border border-transparent hover:border-purple/30 cursor-pointer transition-all">
 <div class="flex justify-between items-center mb-1"><span class="font-display text-sm font-bold text-purple">Pro</span><span class="font-mono text-xs text-purple">Custom</span></div>
-<div class="font-mono text-[9px] text-muted">API access · 5 devices · White-label · Business analytics</div>
+<div class="font-mono text-[11px] text-muted">API access · 5 devices · White-label · Business analytics</div>
 </div>
-<div class="text-center"><span class="font-mono text-[9px] text-muted">or </span><span class="font-mono text-[9px] text-amber cursor-pointer hover:underline" onclick="closeUpgrade();openSpent()">buy a pulse pack →</span></div>
+<div class="text-center"><span class="font-mono text-[11px] text-muted">or </span><span class="font-mono text-[11px] text-amber cursor-pointer hover:underline" onclick="closeUpgrade();openSpent()">buy a pulse pack →</span></div>
 </div>
 </div>
 
@@ -264,18 +403,18 @@ body{background:#060E18;color:#E8F2EC}
 </div>
 <span class="font-display text-sm font-extrabold"><span class="text-light">Puls</span><span class="text-p">IO</span></span>
 </div>
-<div class="font-mono text-[8px] text-muted">🇲🇺 Mauritius</div>
+<div class="font-mono text-[10px] text-muted">🇲🇺 Mauritius</div>
 </div>
 
 <!-- Date -->
 <div class="px-4 pb-3">
-<div class="font-mono text-[9px] text-muted" id="score-date">Wednesday, July 23, 2026</div>
+<div class="font-mono text-[11px] text-muted" id="score-date">Wednesday, July 23, 2026</div>
 </div>
 
 <!-- Big score -->
 <div class="px-4 pb-1 text-center">
 <div class="text-6xl font-display font-extrabold text-p leading-none mb-1" id="score-num">78</div>
-<div class="font-mono text-[10px] text-muted tracking-wider uppercase" id="score-label">Great day on the island</div>
+<div class="font-mono text-[11px] text-muted tracking-wider uppercase" id="score-label">Great day on the island</div>
 </div>
 
 <!-- Score ring visual -->
@@ -286,7 +425,7 @@ body{background:#060E18;color:#E8F2EC}
 <circle cx="60" cy="60" r="52" fill="none" stroke="#00D4A8" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="71.88" class="transition-all"/>
 </svg>
 <div class="absolute inset-0 flex items-center justify-center">
-<span class="font-display text-2xl font-extrabold text-p">78<span class="text-sm text-muted">/100</span></span>
+<span class="font-display text-2xl font-extrabold text-p">78<span class="unit">/100</span></span>
 </div>
 </div>
 </div>
@@ -295,32 +434,32 @@ body{background:#060E18;color:#E8F2EC}
 <div class="px-4 pb-3">
 <div class="grid grid-cols-3 gap-1.5">
 <div class="text-center p-2 rounded-lg" style="background:rgba(0,212,168,0.06)">
-<div class="text-[7px] font-mono text-muted mb-0.5">Weather</div>
+<div class="eyebrow mb-1">Weather</div>
 <div class="font-display text-sm font-bold text-p">85</div>
 <div class="w-full h-1 bg-[rgba(0,212,168,0.1)] rounded-full mt-1"><div class="h-full bg-p rounded-full" style="width:85%"></div></div>
 </div>
 <div class="text-center p-2 rounded-lg" style="background:rgba(245,165,39,0.06)">
-<div class="text-[7px] font-mono text-muted mb-0.5">Safety</div>
+<div class="eyebrow mb-1">Safety</div>
 <div class="font-display text-sm font-bold text-amber">72</div>
 <div class="w-full h-1 bg-[rgba(245,165,39,0.1)] rounded-full mt-1"><div class="h-full bg-amber rounded-full" style="width:72%"></div></div>
 </div>
 <div class="text-center p-2 rounded-lg" style="background:rgba(0,212,168,0.06)">
-<div class="text-[7px] font-mono text-muted mb-0.5">Beach</div>
+<div class="eyebrow mb-1">Beach</div>
 <div class="font-display text-sm font-bold text-p">88</div>
 <div class="w-full h-1 bg-[rgba(0,212,168,0.1)] rounded-full mt-1"><div class="h-full bg-p rounded-full" style="width:88%"></div></div>
 </div>
 <div class="text-center p-2 rounded-lg" style="background:rgba(245,165,39,0.06)">
-<div class="text-[7px] font-mono text-muted mb-0.5">Traffic</div>
+<div class="eyebrow mb-1">Traffic</div>
 <div class="font-display text-sm font-bold text-amber">65</div>
 <div class="w-full h-1 bg-[rgba(245,165,39,0.1)] rounded-full mt-1"><div class="h-full bg-amber rounded-full" style="width:65%"></div></div>
 </div>
 <div class="text-center p-2 rounded-lg" style="background:rgba(0,212,168,0.06)">
-<div class="text-[7px] font-mono text-muted mb-0.5">Air</div>
+<div class="eyebrow mb-1">Air</div>
 <div class="font-display text-sm font-bold text-p">90</div>
 <div class="w-full h-1 bg-[rgba(0,212,168,0.1)] rounded-full mt-1"><div class="h-full bg-p rounded-full" style="width:90%"></div></div>
 </div>
 <div class="text-center p-2 rounded-lg" style="background:rgba(0,212,168,0.06)">
-<div class="text-[7px] font-mono text-muted mb-0.5">Events</div>
+<div class="eyebrow mb-1">Events</div>
 <div class="font-display text-sm font-bold text-p">70</div>
 <div class="w-full h-1 bg-[rgba(0,212,168,0.1)] rounded-full mt-1"><div class="h-full bg-p rounded-full" style="width:70%"></div></div>
 </div>
@@ -329,8 +468,8 @@ body{background:#060E18;color:#E8F2EC}
 
 <!-- Card footer -->
 <div class="px-4 py-3 flex items-center justify-between" style="background:rgba(0,212,168,0.04);border-top:0.5px solid rgba(0,220,168,0.1)">
-<div class="font-mono text-[8px] text-muted">pulsio.mu</div>
-<div class="font-mono text-[8px] text-p">The island at your fingertips</div>
+<div class="font-mono text-[10px] text-muted">pulsio.mu</div>
+<div class="font-mono text-[10px] text-p">The island at your fingertips</div>
 </div>
 </div>
 
@@ -340,15 +479,15 @@ body{background:#060E18;color:#E8F2EC}
 <span>📤</span> Share PulsScore
 </button>
 <div class="flex gap-2">
-<button class="flex-1 py-2.5 glass rounded-xl text-[10px] font-mono text-p cursor-pointer hover:bg-p-dim transition-all flex items-center justify-center gap-1.5 border border-p/20" onclick="shareWhatsApp()">
+<button class="flex-1 py-2.5 card rounded-xl text-[11px] font-mono text-p cursor-pointer hover:bg-p-dim transition-all flex items-center justify-center gap-1.5 border border-p/20" onclick="shareWhatsApp()">
 <svg width="12" height="12" viewBox="0 0 24 24" fill="#00D4A8"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
 WhatsApp
 </button>
-<button class="flex-1 py-2.5 glass rounded-xl text-[10px] font-mono text-p cursor-pointer hover:bg-p-dim transition-all flex items-center justify-center gap-1.5 border border-p/20" onclick="shareInstagram()">
+<button class="flex-1 py-2.5 card rounded-xl text-[11px] font-mono text-p cursor-pointer hover:bg-p-dim transition-all flex items-center justify-center gap-1.5 border border-p/20" onclick="shareInstagram()">
 <svg width="12" height="12" viewBox="0 0 24 24" fill="#00D4A8"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
 Instagram
 </button>
-<button class="flex-1 py-2.5 glass rounded-xl text-[10px] font-mono text-muted cursor-pointer hover:bg-p-dim transition-all flex items-center justify-center gap-1.5 border border-border" onclick="copyScoreLink()">
+<button class="flex-1 py-2.5 card rounded-xl text-[11px] font-mono text-muted cursor-pointer hover:bg-p-dim transition-all flex items-center justify-center gap-1.5 border border-border" onclick="copyScoreLink()">
 📋 Copy
 </button>
 </div>
@@ -356,16 +495,16 @@ Instagram
 </div>
 
 <div id="emergency-modal" class="hidden fixed inset-0 z-50 bg-[rgba(3,7,14,0.86)] flex items-center justify-center">
-<div class="bg-surface border border-coral/30 rounded-2xl p-5 w-[300px] text-center">
+<div class="bg-surface border border-coral/30 rounded-2xl p-6 w-[300px] text-center">
 <div class="flex justify-between items-center mb-3"><span class="font-display text-sm font-bold text-coral">Emergency Contacts</span><span class="text-muted text-sm cursor-pointer hover:text-light" onclick="closeEmergency()">✕</span></div>
-<a href="tel:999" class="flex items-center justify-between p-3 glass rounded-lg mb-2 cursor-pointer hover:border-coral/40 transition-all border border-transparent"><span class="font-mono text-sm text-light">999</span><span class="font-mono text-[10px] text-muted">Police</span></a>
-<a href="tel:114" class="flex items-center justify-between p-3 glass rounded-lg mb-2 cursor-pointer hover:border-coral/40 transition-all border border-transparent"><span class="font-mono text-sm text-light">114</span><span class="font-mono text-[10px] text-muted">SAMU Ambulance</span></a>
-<a href="tel:115" class="flex items-center justify-between p-3 glass rounded-lg mb-2 cursor-pointer hover:border-coral/40 transition-all border border-transparent"><span class="font-mono text-sm text-light">115</span><span class="font-mono text-[10px] text-muted">Fire Service</span></a>
-<a href="tel:116" class="flex items-center justify-between p-3 glass rounded-lg cursor-pointer hover:border-coral/40 transition-all border border-transparent"><span class="font-mono text-sm text-light">116</span><span class="font-mono text-[10px] text-muted">Coast Guard</span></a>
+<a href="tel:999" class="flex items-center justify-between p-3.5 card rounded-lg mb-2 cursor-pointer hover:border-coral/40 transition-all border border-transparent"><span class="font-mono text-sm text-light">999</span><span class="font-mono text-[11px] text-muted">Police</span></a>
+<a href="tel:114" class="flex items-center justify-between p-3.5 card rounded-lg mb-2 cursor-pointer hover:border-coral/40 transition-all border border-transparent"><span class="font-mono text-sm text-light">114</span><span class="font-mono text-[11px] text-muted">SAMU Ambulance</span></a>
+<a href="tel:115" class="flex items-center justify-between p-3.5 card rounded-lg mb-2 cursor-pointer hover:border-coral/40 transition-all border border-transparent"><span class="font-mono text-sm text-light">115</span><span class="font-mono text-[11px] text-muted">Fire Service</span></a>
+<a href="tel:116" class="flex items-center justify-between p-3.5 card rounded-lg cursor-pointer hover:border-coral/40 transition-all border border-transparent"><span class="font-mono text-sm text-light">116</span><span class="font-mono text-[11px] text-muted">Coast Guard</span></a>
 </div>
 </div>
 
-<div id="toast" class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-surface border border-p/30 rounded-xl px-4 py-2.5 font-mono text-[10px] text-p shadow-lg" style="box-shadow:0 4px 20px rgba(0,0,0,0.4)">
+<div id="toast" class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-surface border border-p/30 rounded-xl px-4 py-2.5 font-mono text-[11px] text-p shadow-lg" style="box-shadow:0 4px 20px rgba(0,0,0,0.4)">
 <span id="toast-text"></span>
 </div>
 
@@ -376,35 +515,35 @@ Instagram
 <div class="text-3xl mb-2">🌴</div>
 <div class="font-display text-xl font-bold mb-1">Save your pulse.</div>
 <div class="font-display text-xl font-bold text-p mb-2">Come back tomorrow.</div>
-<div class="font-mono text-[10px] text-muted leading-relaxed mb-6">Create a free account to keep your preferences,<br>get morning pulse notifications, and submit reports.</div>
+<div class="font-mono text-[11px] text-muted leading-relaxed mb-6">Create a free account to keep your preferences,<br>get morning pulse notifications, and submit reports.</div>
 
 <!-- Email signup -->
 <div id="signup-email-form">
-<input type="email" id="signup-email" placeholder="your@email.com" class="w-full bg-bg border border-border rounded-xl px-4 py-3 font-mono text-[12px] text-light placeholder:text-muted/40 focus:border-p focus:outline-none transition-colors mb-2"/>
-<input type="password" id="signup-pass" placeholder="Password (8+ characters)" class="w-full bg-bg border border-border rounded-xl px-4 py-3 font-mono text-[12px] text-light placeholder:text-muted/40 focus:border-p focus:outline-none transition-colors mb-3"/>
+<input type="email" id="signup-email" placeholder="your@email.com" class="w-full bg-bg border border-border rounded-xl px-4 py-3 font-mono text-[13px] text-light placeholder:text-muted/70 focus:border-p focus:outline-none transition-colors mb-2"/>
+<input type="password" id="signup-pass" placeholder="Password (8+ characters)" class="w-full bg-bg border border-border rounded-xl px-4 py-3 font-mono text-[13px] text-light placeholder:text-muted/70 focus:border-p focus:outline-none transition-colors mb-3"/>
 <button class="w-full py-3 bg-p text-[#03140d] rounded-xl text-xs font-display font-bold cursor-pointer hover:bg-[#00ffcc] transition-all mb-3" onclick="signupEmail()">Create account</button>
 </div>
 
 <!-- Divider -->
 <div class="flex items-center gap-3 mb-3">
 <div class="flex-1 h-[0.5px] bg-border"></div>
-<span class="font-mono text-[8px] text-muted tracking-wider">OR</span>
+<span class="font-mono text-[10px] text-muted tracking-wider">OR</span>
 <div class="flex-1 h-[0.5px] bg-border"></div>
 </div>
 
 <!-- OAuth buttons -->
-<button class="w-full py-2.5 bg-bg border border-border rounded-xl text-[11px] font-body text-light cursor-pointer hover:border-p/30 transition-colors mb-2 flex items-center justify-center gap-2" onclick="signupGoogle()">
+<button class="w-full py-2.5 bg-bg border border-border rounded-xl text-[12px] font-body text-light cursor-pointer hover:border-p/30 transition-colors mb-2 flex items-center justify-center gap-2" onclick="signupGoogle()">
 <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
 Continue with Google
 </button>
 
-<button class="w-full py-2.5 bg-bg border border-border rounded-xl text-[11px] font-body text-light cursor-pointer hover:border-p/30 transition-colors mb-4 flex items-center justify-center gap-2" onclick="signupApple()">
+<button class="w-full py-2.5 bg-bg border border-border rounded-xl text-[12px] font-body text-light cursor-pointer hover:border-p/30 transition-colors mb-4 flex items-center justify-center gap-2" onclick="signupApple()">
 <svg width="14" height="14" viewBox="0 0 24 24" fill="#E8F2EC"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
 Continue with Apple
 </button>
 
 <!-- Skip -->
-<div class="font-mono text-[10px] text-muted cursor-pointer hover:text-light transition-colors" onclick="skipSignup()">skip for now</div>
+<div class="font-mono text-[11px] text-muted cursor-pointer hover:text-light transition-colors" onclick="skipSignup()">skip for now</div>
 </div>
 </div>
 
@@ -412,32 +551,32 @@ Continue with Apple
 <div id="login-modal" class="hidden fixed inset-0 z-50 bg-[rgba(3,7,14,0.9)] flex items-center justify-center px-4">
 <div class="bg-surface border border-border rounded-2xl p-6 w-[320px] text-center">
 <div class="font-display text-xl font-bold mb-1">Welcome back</div>
-<div class="font-mono text-[10px] text-muted leading-relaxed mb-5">Sign in to your PulsIO account</div>
+<div class="font-mono text-[11px] text-muted leading-relaxed mb-5">Sign in to your PulsIO account</div>
 
-<input type="email" id="login-email" placeholder="your@email.com" class="w-full bg-bg border border-border rounded-xl px-4 py-3 font-mono text-[12px] text-light placeholder:text-muted/40 focus:border-p focus:outline-none transition-colors mb-2"/>
-<input type="password" id="login-pass" placeholder="Password" class="w-full bg-bg border border-border rounded-xl px-4 py-3 font-mono text-[12px] text-light placeholder:text-muted/40 focus:border-p focus:outline-none transition-colors mb-3"/>
+<input type="email" id="login-email" placeholder="your@email.com" class="w-full bg-bg border border-border rounded-xl px-4 py-3 font-mono text-[13px] text-light placeholder:text-muted/70 focus:border-p focus:outline-none transition-colors mb-2"/>
+<input type="password" id="login-pass" placeholder="Password" class="w-full bg-bg border border-border rounded-xl px-4 py-3 font-mono text-[13px] text-light placeholder:text-muted/70 focus:border-p focus:outline-none transition-colors mb-3"/>
 
 <button class="w-full py-3 bg-p text-[#03140d] rounded-xl text-xs font-display font-bold cursor-pointer hover:bg-[#00ffcc] transition-all mb-3" onclick="loginEmail()">Sign in</button>
 
 <div class="flex items-center gap-3 mb-3">
 <div class="flex-1 h-[0.5px] bg-border"></div>
-<span class="font-mono text-[8px] text-muted tracking-wider">OR</span>
+<span class="font-mono text-[10px] text-muted tracking-wider">OR</span>
 <div class="flex-1 h-[0.5px] bg-border"></div>
 </div>
 
-<button class="w-full py-2.5 bg-bg border border-border rounded-xl text-[11px] font-body text-light cursor-pointer hover:border-p/30 transition-colors mb-2 flex items-center justify-center gap-2" onclick="signupGoogle()">
+<button class="w-full py-2.5 bg-bg border border-border rounded-xl text-[12px] font-body text-light cursor-pointer hover:border-p/30 transition-colors mb-2 flex items-center justify-center gap-2" onclick="signupGoogle()">
 <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
 Google
 </button>
 
-<button class="w-full py-2.5 bg-bg border border-border rounded-xl text-[11px] font-body text-light cursor-pointer hover:border-p/30 transition-colors mb-4 flex items-center justify-center gap-2" onclick="signupApple()">
+<button class="w-full py-2.5 bg-bg border border-border rounded-xl text-[12px] font-body text-light cursor-pointer hover:border-p/30 transition-colors mb-4 flex items-center justify-center gap-2" onclick="signupApple()">
 <svg width="14" height="14" viewBox="0 0 24 24" fill="#E8F2EC"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
 Apple
 </button>
 
 <div class="flex justify-between">
-<div class="font-mono text-[10px] text-p cursor-pointer hover:underline" onclick="forgotPassword()">Forgot password?</div>
-<div class="font-mono text-[10px] text-muted cursor-pointer hover:text-light transition-colors" onclick="closeLogin()">Cancel</div>
+<div class="font-mono text-[11px] text-p cursor-pointer hover:underline" onclick="forgotPassword()">Forgot password?</div>
+<div class="font-mono text-[11px] text-muted cursor-pointer hover:text-light transition-colors" onclick="closeLogin()">Cancel</div>
 </div>
 </div>
 </div>
@@ -447,18 +586,18 @@ Apple
 <div class="bg-surface border border-p/30 rounded-2xl p-6 w-[320px] text-center">
 <div class="text-3xl mb-2">✅</div>
 <div class="font-display text-xl font-bold text-p mb-2">You're in!</div>
-<div class="font-mono text-[10px] text-muted leading-relaxed mb-4">Your account is ready. Your pulse resets at midnight.<br>We'll send you a morning pulse notification at 7am.</div>
+<div class="font-mono text-[11px] text-muted leading-relaxed mb-4">Your account is ready. Your pulse resets at midnight.<br>We'll send you a morning pulse notification at 7am.</div>
 <div class="flex gap-2 mb-4">
-<div class="flex-1 glass rounded-lg p-2 text-center">
-<div class="text-[7px] font-mono text-muted uppercase">Tier</div>
+<div class="flex-1 card rounded-lg p-3 text-center">
+<div class="eyebrow">Tier</div>
 <div class="text-sm font-display font-bold text-amber">Free</div>
 </div>
-<div class="flex-1 glass rounded-lg p-2 text-center">
-<div class="text-[7px] font-mono text-muted uppercase">Pulses</div>
+<div class="flex-1 card rounded-lg p-3 text-center">
+<div class="eyebrow">Pulses</div>
 <div class="text-sm font-display font-bold text-p">1/day</div>
 </div>
-<div class="flex-1 glass rounded-lg p-2 text-center">
-<div class="text-[7px] font-mono text-muted uppercase">Device</div>
+<div class="flex-1 card rounded-lg p-3 text-center">
+<div class="eyebrow">Device</div>
 <div class="text-sm font-display font-bold text-sky">1</div>
 </div>
 </div>
@@ -477,151 +616,151 @@ Apple
 
 <!-- Account section -->
 <div class="mb-5">
-<div class="font-mono text-[8px] tracking-[0.15em] uppercase text-muted mb-3">Account</div>
-<div class="glass rounded-xl overflow-hidden">
-<div class="flex items-center gap-3 p-3 border-b border-border">
+<div class="eyebrow mb-3">Account</div>
+<div class="card rounded-xl overflow-hidden">
+<div class="flex items-center gap-3 px-4 py-3.5 border-b border-border">
 <div class="w-10 h-10 rounded-full bg-p-dim border border-p/30 flex items-center justify-center"><span class="text-p text-sm">M</span></div>
 <div class="flex-1">
 <div class="font-display text-sm font-bold" id="settings-name">Not signed in</div>
-<div class="font-mono text-[9px] text-muted" id="settings-email">Sign in to save your preferences</div>
+<div class="font-mono text-[11px] text-muted" id="settings-email">Sign in to save your preferences</div>
 </div>
-<div class="font-mono text-[8px] text-amber bg-a-dim border border-amber/20 px-2 py-0.5 rounded-full" id="settings-tier">FREE</div>
+<div class="font-mono text-[10px] text-amber bg-a-dim border border-amber/20 px-2 py-0.5 rounded-full" id="settings-tier">FREE</div>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="openUpgrade();closeSettings()">
-<span class="text-[11px]">Upgrade plan</span>
-<span class="font-mono text-[9px] text-p">View tiers →</span>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="openUpgrade();closeSettings()">
+<span class="text-[12px]">Upgrade plan</span>
+<span class="font-mono text-[11px] text-p">View tiers →</span>
 </div>
-<div class="flex justify-between items-center p-3 cursor-pointer hover:bg-p-dim transition-colors" onclick="showToast('Pulse history coming soon')">
-<span class="text-[11px]">Pulse history</span>
-<span class="font-mono text-[9px] text-muted">View →</span>
+<div class="flex justify-between items-center px-4 py-3.5 cursor-pointer hover:bg-p-dim transition-colors" onclick="showToast('Pulse history coming soon')">
+<span class="text-[12px]">Pulse history</span>
+<span class="font-mono text-[11px] text-muted">View →</span>
 </div>
 </div>
 </div>
 
 <!-- Subscription section -->
 <div class="mb-5">
-<div class="font-mono text-[8px] tracking-[0.15em] uppercase text-muted mb-3">Subscription</div>
-<div class="glass rounded-xl overflow-hidden">
-<div class="flex justify-between items-center p-3 border-b border-border">
-<span class="text-[11px]">Current plan</span>
-<span class="font-mono text-[9px] text-amber" id="settings-plan">Explorer (Free)</span>
+<div class="eyebrow mb-3">Subscription</div>
+<div class="card rounded-xl overflow-hidden">
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<span class="text-[12px]">Current plan</span>
+<span class="font-mono text-[11px] text-amber" id="settings-plan">Explorer (Free)</span>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border">
-<span class="text-[11px]">Pulses remaining</span>
-<span class="font-mono text-[9px] text-p" id="settings-pulses">1/1 today</span>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<span class="text-[12px]">Pulses remaining</span>
+<span class="font-mono text-[11px] text-p" id="settings-pulses">1/1 today</span>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border">
-<span class="text-[11px]">Devices</span>
-<span class="font-mono text-[9px] text-muted" id="settings-devices">1 of 1</span>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<span class="text-[12px]">Devices</span>
+<span class="font-mono text-[11px] text-muted" id="settings-devices">1 of 1</span>
 </div>
-<div class="flex justify-between items-center p-3 cursor-pointer hover:bg-p-dim transition-colors" onclick="closeSettings();openTopup()">
-<span class="text-[11px]">Buy pulse top-up</span>
-<span class="font-mono text-[9px] text-amber">5 for MUR 75 →</span>
+<div class="flex justify-between items-center px-4 py-3.5 cursor-pointer hover:bg-p-dim transition-colors" onclick="closeSettings();openTopup()">
+<span class="text-[12px]">Buy pulse top-up</span>
+<span class="font-mono text-[11px] text-amber">5 for MUR 75 →</span>
 </div>
 </div>
 </div>
 
 <!-- Notifications section -->
 <div class="mb-5">
-<div class="font-mono text-[8px] tracking-[0.15em] uppercase text-muted mb-3">Notifications</div>
-<div class="glass rounded-xl overflow-hidden">
-<div class="flex justify-between items-center p-3 border-b border-border">
-<div><div class="text-[11px]">Morning Pulse</div><div class="font-mono text-[8px] text-muted mt-0.5">Daily summary at your chosen time</div></div>
-<div class="relative w-9 h-5 bg-p/30 rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
+<div class="eyebrow mb-3">Notifications</div>
+<div class="card rounded-xl overflow-hidden">
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<div><div class="text-[12px]">Morning Pulse</div><div class="font-mono text-[10px] text-muted mt-0.5">Daily summary at your chosen time</div></div>
+<div class="sw relative w-9 h-5 bg-p/30 rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border">
-<div><div class="text-[11px]">CEB alerts</div><div class="font-mono text-[8px] text-muted mt-0.5">Power cuts in your district</div></div>
-<div class="relative w-9 h-5 bg-p/30 rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<div><div class="text-[12px]">CEB alerts</div><div class="font-mono text-[10px] text-muted mt-0.5">Power cuts in your district</div></div>
+<div class="sw relative w-9 h-5 bg-p/30 rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border">
-<div><div class="text-[11px]">CWA alerts</div><div class="font-mono text-[8px] text-muted mt-0.5">Water disruptions in your area</div></div>
-<div class="relative w-9 h-5 bg-p/30 rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<div><div class="text-[12px]">CWA alerts</div><div class="font-mono text-[10px] text-muted mt-0.5">Water disruptions in your area</div></div>
+<div class="sw relative w-9 h-5 bg-p/30 rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border">
-<div><div class="text-[11px]">Cyclone warnings</div><div class="font-mono text-[8px] text-muted mt-0.5">Cannot be disabled — safety critical</div></div>
-<div class="relative w-9 h-5 bg-p/30 rounded-full cursor-not-allowed opacity-60"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<div><div class="text-[12px]">Cyclone warnings</div><div class="font-mono text-[10px] text-muted mt-0.5">Cannot be disabled — safety critical</div></div>
+<div class="sw relative w-9 h-5 bg-p/30 rounded-full cursor-not-allowed opacity-60"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border">
-<div><div class="text-[11px]">Breaking news</div><div class="font-mono text-[8px] text-muted mt-0.5">Major news and incidents</div></div>
-<div class="relative w-9 h-5 bg-surface border border-border rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-muted rounded-full transition-transform"></div></div>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<div><div class="text-[12px]">Breaking news</div><div class="font-mono text-[10px] text-muted mt-0.5">Major news and incidents</div></div>
+<div class="sw relative w-9 h-5 bg-surface border border-border rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-muted rounded-full transition-transform"></div></div>
 </div>
 <div class="flex justify-between items-center p-3">
-<div><div class="text-[11px]">Weekly digest</div><div class="font-mono text-[8px] text-muted mt-0.5">Email summary every Monday</div></div>
-<div class="relative w-9 h-5 bg-p/30 rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
+<div><div class="text-[12px]">Weekly digest</div><div class="font-mono text-[10px] text-muted mt-0.5">Email summary every Monday</div></div>
+<div class="sw relative w-9 h-5 bg-p/30 rounded-full cursor-pointer" onclick="toggleSwitch(this)"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-p rounded-full transition-transform" style="transform:translateX(16px)"></div></div>
 </div>
 </div>
 </div>
 
 <!-- Preferences section -->
 <div class="mb-5">
-<div class="font-mono text-[8px] tracking-[0.15em] uppercase text-muted mb-3">Preferences</div>
-<div class="glass rounded-xl overflow-hidden">
-<div class="flex justify-between items-center p-3 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="closeMorning();document.getElementById('morning-modal').classList.remove('hidden')">
-<div><div class="text-[11px]">Morning Pulse time</div></div>
-<span class="font-mono text-[9px] text-p" id="settings-morning">07:00 →</span>
+<div class="eyebrow mb-3">Preferences</div>
+<div class="card rounded-xl overflow-hidden">
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="closeMorning();document.getElementById('morning-modal').classList.remove('hidden')">
+<div><div class="text-[12px]">Morning Pulse time</div></div>
+<span class="font-mono text-[11px] text-p" id="settings-morning">07:00 →</span>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border">
-<div><div class="text-[11px]">Language</div></div>
-<select class="bg-transparent font-mono text-[9px] text-p border-none outline-none cursor-pointer" onchange="showToast('Language: '+this.value)">
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border">
+<div><div class="text-[12px]">Language</div></div>
+<select class="bg-transparent font-mono text-[11px] text-p border-none outline-none cursor-pointer" onchange="showToast('Language: '+this.value)">
 <option value="English" style="background:#081626">English</option>
 <option value="Français" style="background:#081626">Français</option>
 </select>
 </div>
-<div class="flex justify-between items-center p-3 cursor-pointer hover:bg-p-dim transition-colors" onclick="showToast('District updated')">
-<div><div class="text-[11px]">My district</div></div>
-<span class="font-mono text-[9px] text-p">Vacoas-Phoenix →</span>
+<div class="flex justify-between items-center px-4 py-3.5 cursor-pointer hover:bg-p-dim transition-colors" onclick="showToast('District updated')">
+<div><div class="text-[12px]">My district</div></div>
+<span class="font-mono text-[11px] text-p">Vacoas-Phoenix →</span>
 </div>
 </div>
 </div>
 
 <!-- Data & Privacy section -->
 <div class="mb-5">
-<div class="font-mono text-[8px] tracking-[0.15em] uppercase text-muted mb-3">Data & Privacy</div>
-<div class="glass rounded-xl overflow-hidden">
-<div class="flex justify-between items-center p-3 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="showToast('Cache cleared')">
-<span class="text-[11px]">Clear cached data</span>
-<span class="font-mono text-[9px] text-muted">12.4 MB →</span>
+<div class="eyebrow mb-3">Data & Privacy</div>
+<div class="card rounded-xl overflow-hidden">
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="showToast('Cache cleared')">
+<span class="text-[12px]">Clear cached data</span>
+<span class="font-mono text-[11px] text-muted">12.4 MB →</span>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="window.open('https://pulsio.mu/privacy')">
-<span class="text-[11px]">Privacy policy</span>
-<span class="font-mono text-[9px] text-muted">View →</span>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="window.open('https://pulsio.mu/privacy')">
+<span class="text-[12px]">Privacy policy</span>
+<span class="font-mono text-[11px] text-muted">View →</span>
 </div>
-<div class="flex justify-between items-center p-3 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="window.open('https://pulsio.mu/terms')">
-<span class="text-[11px]">Terms of service</span>
-<span class="font-mono text-[9px] text-muted">View →</span>
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="window.open('https://pulsio.mu/terms')">
+<span class="text-[12px]">Terms of service</span>
+<span class="font-mono text-[11px] text-muted">View →</span>
 </div>
-<div class="flex justify-between items-center p-3 cursor-pointer hover:bg-p-dim transition-colors">
-<span class="text-[11px]">Export my data</span>
-<span class="font-mono text-[9px] text-muted">Request →</span>
+<div class="flex justify-between items-center px-4 py-3.5 cursor-pointer hover:bg-p-dim transition-colors">
+<span class="text-[12px]">Export my data</span>
+<span class="font-mono text-[11px] text-muted">Request →</span>
 </div>
 </div>
 </div>
 
 <!-- Support section -->
 <div class="mb-5">
-<div class="font-mono text-[8px] tracking-[0.15em] uppercase text-muted mb-3">Support</div>
-<div class="glass rounded-xl overflow-hidden">
-<div class="flex justify-between items-center p-3 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="showToast('FAQ coming soon')">
-<span class="text-[11px]">FAQ</span>
-<span class="font-mono text-[9px] text-muted">View →</span>
+<div class="eyebrow mb-3">Support</div>
+<div class="card rounded-xl overflow-hidden">
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border cursor-pointer hover:bg-p-dim transition-colors" onclick="showToast('FAQ coming soon')">
+<span class="text-[12px]">FAQ</span>
+<span class="font-mono text-[11px] text-muted">View →</span>
 </div>
-<div class="flex justify-between items-center p-3 cursor-pointer hover:bg-p-dim transition-colors" onclick="window.open('mailto:support@pulsio.mu')">
-<span class="text-[11px]">Contact support</span>
-<span class="font-mono text-[9px] text-p">support@pulsio.mu →</span>
+<div class="flex justify-between items-center px-4 py-3.5 cursor-pointer hover:bg-p-dim transition-colors" onclick="window.open('mailto:support@pulsio.mu')">
+<span class="text-[12px]">Contact support</span>
+<span class="font-mono text-[11px] text-p">support@pulsio.mu →</span>
 </div>
 </div>
 </div>
 
 <!-- Danger zone -->
 <div class="mb-5">
-<div class="glass rounded-xl overflow-hidden">
-<div class="flex justify-between items-center p-3 border-b border-border cursor-pointer hover:bg-c-dim transition-colors" onclick="showToast('Sign out — coming soon')">
-<span class="text-[11px] text-coral">Sign out</span>
-<span class="font-mono text-[9px] text-coral">→</span>
+<div class="card rounded-xl overflow-hidden">
+<div class="flex justify-between items-center px-4 py-3.5 border-b border-border cursor-pointer hover:bg-c-dim transition-colors" onclick="showToast('Sign out — coming soon')">
+<span class="text-[12px] text-coral">Sign out</span>
+<span class="font-mono text-[11px] text-coral">→</span>
 </div>
-<div class="flex justify-between items-center p-3 cursor-pointer hover:bg-c-dim transition-colors" onclick="if(confirm('Delete your account? This cannot be undone.'))showToast('Account deletion requested — processed within 72 hours')">
-<span class="text-[11px] text-coral/60">Delete account</span>
-<span class="font-mono text-[9px] text-coral/60">→</span>
+<div class="flex justify-between items-center px-4 py-3.5 cursor-pointer hover:bg-c-dim transition-colors" onclick="if(confirm('Delete your account? This cannot be undone.'))showToast('Account deletion requested — processed within 72 hours')">
+<span class="text-[12px] text-coral/60">Delete account</span>
+<span class="font-mono text-[11px] text-coral/60">→</span>
 </div>
 </div>
 </div>
@@ -629,8 +768,8 @@ Apple
 <!-- App info -->
 <div class="text-center mb-8">
 <div class="font-display text-sm font-bold mb-0.5"><span class="text-light">Puls</span><span class="text-p">IO</span></div>
-<div class="font-mono text-[8px] text-muted">Version 1.0.0 · Build 1</div>
-<div class="font-mono text-[8px] text-muted mt-0.5">© 2026 Chetak Infinity Limited</div>
+<div class="font-mono text-[10px] text-muted">Version 1.0.0 · Build 1</div>
+<div class="font-mono text-[10px] text-muted mt-0.5">© 2026 Chetak Infinity Limited</div>
 </div>
 
 </div>
@@ -639,63 +778,63 @@ Apple
 
 <!-- Pulse top-up modal -->
 <div id="topup-modal" class="hidden fixed inset-0 z-50 bg-[rgba(3,7,14,0.86)] flex items-center justify-center px-4">
-<div class="bg-surface border border-border rounded-2xl p-5 w-[320px]">
+<div class="bg-surface border border-border rounded-2xl p-6 w-[320px]">
 <div class="flex justify-between items-center mb-2"><span class="font-display text-base font-bold">Top Up Pulses</span><span class="text-muted text-sm cursor-pointer hover:text-light" onclick="closeTopup()">✕</span></div>
-<div class="font-mono text-[10px] text-muted mb-4">Pulses never expire. Use them anytime.</div>
+<div class="font-mono text-[11px] text-muted mb-4">Pulses never expire. Use them anytime.</div>
 
 <!-- Pack options -->
 <div class="space-y-2 mb-4">
-<div class="topup-pack glass rounded-xl p-3 border border-transparent cursor-pointer hover:border-amber/30 transition-all" onclick="selectPack(this, 5, 75)">
+<div class="topup-pack card rounded-xl p-4 border border-transparent cursor-pointer hover:border-amber/30 transition-all" onclick="selectPack(this, 5, 75)">
 <div class="flex justify-between items-center">
 <div class="flex items-center gap-3">
 <div class="w-9 h-9 rounded-full bg-a-dim border border-amber/20 flex items-center justify-center font-display font-bold text-amber text-sm">5</div>
 <div>
 <div class="font-display text-sm font-bold">5 pulses</div>
-<div class="font-mono text-[8px] text-muted">MUR 15 per pulse</div>
+<div class="font-mono text-[10px] text-muted">MUR 15 per pulse</div>
 </div>
 </div>
-<div class="font-mono text-sm text-amber font-medium">MUR 75</div>
+<div class="font-mono text-sm text-amber font-medium"><span class="unit">MUR</span> 75</div>
 </div>
 </div>
 
-<div class="topup-pack glass rounded-xl p-3 border border-p/30 cursor-pointer hover:border-p transition-all" onclick="selectPack(this, 15, 200)">
-<div class="text-[7px] font-mono text-[#03140d] bg-p px-2 py-0.5 rounded inline-block mb-1.5">BEST VALUE</div>
+<div class="topup-pack card rounded-xl p-4 border border-p/30 cursor-pointer hover:border-p transition-all" onclick="selectPack(this, 15, 200)">
+<div class="text-[10px] font-mono text-[#03140d] bg-p px-2 py-0.5 rounded inline-block mb-1.5">BEST VALUE</div>
 <div class="flex justify-between items-center">
 <div class="flex items-center gap-3">
 <div class="w-9 h-9 rounded-full bg-p-dim border border-p/20 flex items-center justify-center font-display font-bold text-p text-sm">15</div>
 <div>
 <div class="font-display text-sm font-bold">15 pulses</div>
-<div class="font-mono text-[8px] text-muted">MUR 13.30 per pulse</div>
+<div class="font-mono text-[10px] text-muted">MUR 13.30 per pulse</div>
 </div>
 </div>
-<div class="font-mono text-sm text-p font-medium">MUR 200</div>
+<div class="font-mono text-sm text-p font-medium"><span class="unit">MUR</span> 200</div>
 </div>
 </div>
 
-<div class="topup-pack glass rounded-xl p-3 border border-transparent cursor-pointer hover:border-sky/30 transition-all" onclick="selectPack(this, 30, 350)">
+<div class="topup-pack card rounded-xl p-4 border border-transparent cursor-pointer hover:border-sky/30 transition-all" onclick="selectPack(this, 30, 350)">
 <div class="flex justify-between items-center">
 <div class="flex items-center gap-3">
 <div class="w-9 h-9 rounded-full bg-[rgba(74,184,255,0.08)] border border-sky/20 flex items-center justify-center font-display font-bold text-sky text-sm">30</div>
 <div>
 <div class="font-display text-sm font-bold">30 pulses</div>
-<div class="font-mono text-[8px] text-muted">MUR 11.70 per pulse</div>
+<div class="font-mono text-[10px] text-muted">MUR 11.70 per pulse</div>
 </div>
 </div>
-<div class="font-mono text-sm text-sky font-medium">MUR 350</div>
+<div class="font-mono text-sm text-sky font-medium"><span class="unit">MUR</span> 350</div>
 </div>
 </div>
 </div>
 
 <!-- Payment method -->
-<div class="font-mono text-[8px] tracking-[0.12em] uppercase text-muted mb-2">Pay with</div>
+<div class="eyebrow mb-2.5">Pay with</div>
 <div class="flex gap-2 mb-4">
-<div class="pay-method flex-1 glass rounded-lg p-2 text-center cursor-pointer border border-p/30 transition-all" onclick="selectPayMethod(this,'card')">
+<div class="pay-method flex-1 card rounded-lg p-3 text-center cursor-pointer border border-p/30 transition-all" onclick="selectPayMethod(this,'card')">
 <div class="text-sm mb-0.5">💳</div>
-<div class="font-mono text-[8px] text-p">Card</div>
+<div class="font-mono text-[10px] text-p">Card</div>
 </div>
-<div class="pay-method flex-1 glass rounded-lg p-2 text-center cursor-pointer border border-transparent hover:border-amber/30 transition-all" onclick="selectPayMethod(this,'crypto')">
+<div class="pay-method flex-1 card rounded-lg p-3 text-center cursor-pointer border border-transparent hover:border-amber/30 transition-all" onclick="selectPayMethod(this,'crypto')">
 <div class="text-sm mb-0.5">🪙</div>
-<div class="font-mono text-[8px] text-muted">Crypto</div>
+<div class="font-mono text-[10px] text-muted">Crypto</div>
 </div>
 
 </div>
@@ -704,8 +843,8 @@ Apple
 <button class="w-full py-3 bg-p text-[#03140d] rounded-xl text-xs font-display font-bold cursor-pointer hover:bg-[#00ffcc] transition-all" id="topup-buy-btn" onclick="purchaseTopup()">Buy 15 pulses · MUR 200</button>
 
 <div class="text-center mt-3">
-<span class="font-mono text-[9px] text-muted">or </span>
-<span class="font-mono text-[9px] text-p cursor-pointer hover:underline" onclick="closeTopup();openUpgrade()">upgrade for unlimited →</span>
+<span class="font-mono text-[11px] text-muted">or </span>
+<span class="font-mono text-[11px] text-p cursor-pointer hover:underline" onclick="closeTopup();openUpgrade()">upgrade for unlimited →</span>
 </div>
 </div>
 </div>
@@ -715,10 +854,10 @@ Apple
 <div class="bg-surface border border-p/30 rounded-2xl p-6 w-[300px] text-center">
 <div class="text-4xl mb-3">⚡</div>
 <div class="font-display text-xl font-bold text-p mb-1" id="purchase-amount">15 pulses added!</div>
-<div class="font-mono text-[10px] text-muted mb-4">Your new balance:</div>
-<div class="glass rounded-xl p-4 mb-5">
+<div class="font-mono text-[11px] text-muted mb-4">Your new balance:</div>
+<div class="card rounded-xl p-4 mb-5">
 <div class="text-3xl font-display font-extrabold text-p" id="purchase-balance">16</div>
-<div class="font-mono text-[9px] text-muted mt-1">pulses available</div>
+<div class="font-mono text-[11px] text-muted mt-1">pulses available</div>
 </div>
 <button class="w-full py-3 bg-p text-[#03140d] rounded-xl text-xs font-display font-bold cursor-pointer hover:bg-[#00ffcc] transition-all" onclick="closePurchaseSuccess()">Fire a pulse now ◎</button>
 </div>
@@ -730,33 +869,33 @@ Apple
 <div class="bg-surface border border-border rounded-2xl p-6 w-[320px] text-center">
 <div class="text-3xl mb-2">🌅</div>
 <div class="font-display text-lg font-bold mb-1">Morning Pulse</div>
-<div class="font-mono text-[10px] text-muted leading-relaxed mb-5">Get a personalised island summary<br>every morning before you start your day.</div>
+<div class="font-mono text-[11px] text-muted leading-relaxed mb-5">Get a personalised island summary<br>every morning before you start your day.</div>
 
-<div class="font-mono text-[8px] tracking-[0.12em] uppercase text-muted mb-3">When do you want your pulse?</div>
+<div class="eyebrow mb-3">When do you want your pulse?</div>
 
 <div class="flex gap-2 mb-5 justify-center">
-<div class="morning-time glass rounded-xl px-4 py-3 text-center cursor-pointer border border-transparent hover:border-p/30 transition-all" onclick="pickMorningTime(this,'06:00')">
+<div class="morning-time card rounded-xl px-4 py-3 text-center cursor-pointer border border-transparent hover:border-p/30 transition-all" onclick="pickMorningTime(this,'06:00')">
 <div class="font-display text-lg font-bold text-muted">6</div>
-<div class="font-mono text-[8px] text-muted">AM</div>
+<div class="font-mono text-[10px] text-muted">AM</div>
 </div>
-<div class="morning-time glass rounded-xl px-4 py-3 text-center cursor-pointer border border-p/30 transition-all" onclick="pickMorningTime(this,'07:00')">
+<div class="morning-time card rounded-xl px-4 py-3 text-center cursor-pointer border border-p/30 transition-all" onclick="pickMorningTime(this,'07:00')">
 <div class="font-display text-lg font-bold text-p">7</div>
-<div class="font-mono text-[8px] text-p">AM</div>
+<div class="font-mono text-[10px] text-p">AM</div>
 </div>
-<div class="morning-time glass rounded-xl px-4 py-3 text-center cursor-pointer border border-transparent hover:border-p/30 transition-all" onclick="pickMorningTime(this,'08:00')">
+<div class="morning-time card rounded-xl px-4 py-3 text-center cursor-pointer border border-transparent hover:border-p/30 transition-all" onclick="pickMorningTime(this,'08:00')">
 <div class="font-display text-lg font-bold text-muted">8</div>
-<div class="font-mono text-[8px] text-muted">AM</div>
+<div class="font-mono text-[10px] text-muted">AM</div>
 </div>
-<div class="morning-time glass rounded-xl px-4 py-3 text-center cursor-pointer border border-transparent hover:border-p/30 transition-all" onclick="pickMorningTime(this,'09:00')">
+<div class="morning-time card rounded-xl px-4 py-3 text-center cursor-pointer border border-transparent hover:border-p/30 transition-all" onclick="pickMorningTime(this,'09:00')">
 <div class="font-display text-lg font-bold text-muted">9</div>
-<div class="font-mono text-[8px] text-muted">AM</div>
+<div class="font-mono text-[10px] text-muted">AM</div>
 </div>
 </div>
 
 <!-- Preview of morning pulse -->
-<div class="glass rounded-xl p-3 mb-5 text-left">
-<div class="font-mono text-[7px] text-muted tracking-wider uppercase mb-2">Preview — your morning pulse</div>
-<div class="font-mono text-[9px] text-light leading-relaxed">
+<div class="card rounded-xl p-4 mb-5 text-left">
+<div class="eyebrow mb-2.5">Preview — your morning pulse</div>
+<div class="font-mono text-[11px] text-light leading-relaxed">
 <span class="text-p">☀️ Good morning!</span> Here's your island pulse:<br><br>
 <span class="text-amber">27°C</span> partly cloudy in Vacoas<br>
 <span class="text-p">PulsScore: 78</span> — great day ahead<br>
@@ -767,18 +906,56 @@ Apple
 </div>
 
 <button class="w-full py-3 bg-p text-[#03140d] rounded-xl text-xs font-display font-bold cursor-pointer hover:bg-[#00ffcc] transition-all mb-2" onclick="enableMorningPulse()">Enable Morning Pulse</button>
-<div class="font-mono text-[10px] text-muted cursor-pointer hover:text-light transition-colors" onclick="closeMorning()">not now</div>
+<div class="font-mono text-[11px] text-muted cursor-pointer hover:text-light transition-colors" onclick="closeMorning()">not now</div>
 </div>
 </div>
 
 <div id="spent-modal" class="hidden fixed inset-0 z-50 bg-[rgba(3,7,14,0.86)] flex items-center justify-center">
-<div class="bg-surface border border-border rounded-2xl p-7 w-[300px] text-center">
+<div class="bg-surface border border-border rounded-2xl p-6 w-[300px] text-center">
 <div class="text-3xl mb-3">◎</div>
 <div class="font-display text-lg font-bold mb-1.5">Daily pulse used</div>
-<div class="font-mono text-[11px] text-muted leading-relaxed mb-5">You've used your free pulse for today.<br>The island will be here tomorrow. 🌴</div>
+<div class="font-mono text-[12px] text-muted leading-relaxed mb-5">You've used your free pulse for today.<br>The island will be here tomorrow. 🌴</div>
 <button class="w-full py-2.5 bg-a-dim border border-amber/40 rounded-xl text-amber text-xs font-display font-semibold mb-2 cursor-pointer hover:bg-amber/20" onclick="closeSpent();openTopup()">Buy pulses →</button>
 <button class="w-full py-2.5 bg-p-dim border border-p/40 rounded-xl text-p text-xs font-display font-semibold cursor-pointer hover:bg-p-glow">Upgrade · Unlimited pulses ↑</button>
-<div class="text-[10px] text-muted mt-3.5 cursor-pointer hover:text-light" onclick="closeSpent()">or check again tomorrow</div>
+<div class="text-[11px] text-muted mt-3.5 cursor-pointer hover:text-light" onclick="closeSpent()">or check again tomorrow</div>
+</div>
+</div>
+
+<!-- News feed — live from Supabase -->
+<div id="news-modal" class="hidden fixed inset-0 z-50 flex flex-col">
+<div class="flex items-center justify-between px-4 py-3 border-b border-border bg-[rgba(4,8,14,0.99)]">
+<div class="flex items-center gap-2.5">
+<span class="font-display text-base font-bold">Island News</span>
+<span class="text-[10px] font-mono tracking-[0.12em] bg-c-dim border border-coral/40 text-coral px-2 py-0.5 rounded-full"><span class="live-dot">●</span> LIVE</span>
+</div>
+<span class="text-muted text-lg cursor-pointer hover:text-light" onclick="closeNews()">✕</span>
+</div>
+<div id="news-list" class="flex-1 overflow-y-auto hide-scroll px-4 py-1" style="background:#060E18"></div>
+<div class="px-4 py-2 border-t border-border bg-[rgba(4,8,14,0.99)] text-center flex-shrink-0">
+<span class="font-mono text-[10px] text-muted-2">Headlines only — full articles at each source</span>
+</div>
+</div>
+
+<!-- News article detail -->
+<div id="news-detail" class="hidden fixed inset-0 z-[60] flex items-center justify-center px-4">
+<div class="border border-border rounded-2xl w-[340px] max-w-full max-h-[82vh] overflow-y-auto hide-scroll">
+<div class="p-5 pb-0">
+<div class="flex justify-between items-center mb-3.5">
+<span id="nd-cat" class="text-[10px] font-mono tracking-[0.12em] uppercase px-2 py-0.5 rounded-full border"></span>
+<span class="text-muted text-base cursor-pointer hover:text-light" onclick="closeNewsDetail()">✕</span>
+</div>
+<div id="nd-headline" class="font-display text-lg font-bold leading-snug mb-4"></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Source</span><span id="nd-source" class="font-mono text-[11px] text-sky"></span></div>
+<div class="flex justify-between items-center py-2.5 text-[11px]"><span class="text-muted">Published</span><span id="nd-time" class="font-mono text-[11px] text-muted"></span></div>
+<div id="nd-summary-wrap" class="card rounded-lg p-3.5 mt-2 hidden">
+<div id="nd-summary-label" class="eyebrow mb-1.5">Excerpt</div>
+<div id="nd-summary" class="text-[12px] text-muted leading-relaxed"></div>
+</div>
+</div>
+<div class="p-5 pt-4">
+<button id="nd-open" class="w-full py-3 bg-p text-[#03140d] rounded-xl text-xs font-display font-bold cursor-pointer hover:bg-[#00ffcc] transition-all" onclick="openNewsSource()"></button>
+<div class="font-mono text-[10px] text-muted-2 text-center mt-2">Excerpt only — read the full story at the source</div>
+</div>
 </div>
 </div>
 
@@ -948,7 +1125,7 @@ function ppTourist(name, desc, rating, hours) {
       '<div class="pp-row"><span class="pp-label">Rating</span><span class="pp-val" style="color:#F5A623">'+stars+' '+rating+'</span></div>'+
       '<div class="pp-row"><span class="pp-label">Hours</span><span class="pp-val">'+hours+'</span></div>'+
     '</div>'+
-    '<div style="padding:4px 12px 8px;font-size:9px;color:rgba(232,242,236,0.5);line-height:1.5">'+desc+'</div>'+
+    '<div style="padding:2px 14px 12px;font-size:11px;color:rgba(232,242,236,0.55);line-height:1.6">'+desc+'</div>'+
     '<div class="pp-footer">'+
       '<div class="pp-btn pp-btn-teal" onclick="event.stopPropagation()">Add to itinerary</div>'+
     '</div>'+
@@ -964,7 +1141,7 @@ function ppEvent(name, time, venue, desc) {
       '<div class="pp-row"><span class="pp-label">Time</span><span class="pp-val" style="color:#B09AFF">'+time+'</span></div>'+
       '<div class="pp-row"><span class="pp-label">Venue</span><span class="pp-val">'+venue+'</span></div>'+
     '</div>'+
-    '<div style="padding:4px 12px 8px;font-size:9px;color:rgba(232,242,236,0.5);line-height:1.5">'+desc+'</div>'+
+    '<div style="padding:2px 14px 12px;font-size:11px;color:rgba(232,242,236,0.55);line-height:1.6">'+desc+'</div>'+
   '</div>';
 }
 
@@ -1077,9 +1254,18 @@ function addMarkers() {
     const isPlane = p.layer === 'flights';
     const isShip = p.layer === 'marine';
     const isCEB = p.c === '#F5A623' && p.layer === 'weather';
+    const isUrgent = p.c === '#FF5A5A';
+    const isLive = isPlane || isCEB || isUrgent;   // only live/critical markers breathe + glow
     const size = (isPlane || isShip) ? 12 : isCEB ? 11 : 10;
-    el.style.cssText = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + p.c + ';box-shadow:0 0 ' + (isPlane ? '10' : isCEB ? '8' : '6') + 'px ' + p.c + ';transition:transform 0.2s ease' + (isPlane ? ';animation:planePulse 2s ease-in-out infinite' : '') + (isCEB ? ';animation:planePulse 1.5s ease-in-out infinite' : '');
-    wrap.onmouseenter = () => el.style.transform = 'scale(1.8)';
+    el.style.cssText = 'position:relative;width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + p.c +
+      ';box-shadow:0 0 0 1.5px rgba(6,14,24,0.9)' + (isLive ? ',0 0 10px ' + p.c + '59' : '') +
+      ';transition:transform 240ms cubic-bezier(.22,1,.36,1)' +
+      (isLive ? ';animation:planePulse ' + (isPlane ? '2s' : '1.5s') + ' ease-in-out infinite' : '');
+    const core = document.createElement('div');
+    const cs = Math.max(3, Math.round(size * 0.34));
+    core.style.cssText = 'position:absolute;top:50%;left:50%;width:' + cs + 'px;height:' + cs + 'px;margin:' + (-cs / 2) + 'px 0 0 ' + (-cs / 2) + 'px;border-radius:50%;background:rgba(255,255,255,0.92);pointer-events:none';
+    el.appendChild(core);
+    wrap.onmouseenter = () => el.style.transform = 'scale(1.5)';
     wrap.onmouseleave = () => el.style.transform = 'scale(1)';
     wrap.appendChild(el);
 
@@ -1147,7 +1333,7 @@ function setTier(tier) {
         const l = document.createElement('span');
         l.className = 'lock-icon';
         l.textContent = '🔒';
-        l.style.cssText = 'font-size:6px;position:absolute;top:-2px;right:-2px';
+        l.style.cssText = 'font-size:9px;position:absolute;top:-3px;right:-3px';
         btn.style.position = 'relative';
         btn.appendChild(l);
       }
@@ -1165,7 +1351,7 @@ function setTier(tier) {
         const l = document.createElement('span');
         l.className = 'lock-icon';
         l.textContent = ' 🔒';
-        l.style.fontSize = '8px';
+        l.style.fontSize = '10px';
         btn.appendChild(l);
       }
     } else {
@@ -2182,8 +2368,10 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   const tt = document.getElementById('toast-text');
   tt.textContent = msg;
-  t.classList.remove('hidden');
-  setTimeout(() => t.classList.add('hidden'), 3000);
+  clearTimeout(t._fade); clearTimeout(t._hide);
+  t.classList.remove('hidden', 'out');
+  t._fade = setTimeout(() => t.classList.add('out'), 2800);
+  t._hide = setTimeout(() => { t.classList.add('hidden'); t.classList.remove('out'); }, 3000);
 }
 
 // ── MAP NAVIGATION ──────────────────────────────────────
@@ -2547,17 +2735,146 @@ function setTool(b) {
   filterMarkers();
 }
 
+// ── NEWS FEED — live from Supabase ──────────────────────
+const SB_URL = 'https://beyplrfqhfklylmmrxmw.supabase.co';
+const SB_KEY = 'sb_publishable_v7VVy6T1fGD7chyPqG_RDg_bRykgvlf';
+let sbClient = null;
+
+function sb() {
+  if (!sbClient) sbClient = supabase.createClient(SB_URL, SB_KEY);
+  return sbClient;
+}
+
+const NEWS_COLORS = {
+  breaking: '#FF5A5A', crime: '#FF5A5A', traffic: '#F5A623',
+  weather: '#4AB8FF', community: '#4AB8FF', politics: '#B09AFF',
+  economy: '#3ED96E', sports: '#3ED96E', tourism: '#00D4A8',
+  general: '#93A39B'
+};
+
+let newsItems = [];
+let newsDetailItem = null;
+
+// Feed content is external — always escape before it touches innerHTML
+function esc(t) {
+  const d = document.createElement('div');
+  d.textContent = t == null ? '' : t;
+  return d.innerHTML;
+}
+
+function relTime(iso) {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  const d = Math.floor(s / 86400);
+  return d === 1 ? 'yesterday' : d + 'd ago';
+}
+
+function fmtNewsTime(iso) {
+  const d = new Date(iso);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const pad = n => String(n).padStart(2, '0');
+  return d.getDate() + ' ' + months[d.getMonth()] + ' · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' · ' + relTime(iso);
+}
+
+async function loadNews() {
+  const list = document.getElementById('news-list');
+  if (!newsItems.length) list.innerHTML = '<div class="font-mono text-[11px] text-muted text-center py-10">Loading island news…</div>';
+  try {
+    const { data, error } = await sb().from('pulsio_news')
+      .select('headline,summary,source,category,source_url,published_at')
+      .order('published_at', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    newsItems = data || [];
+    renderNews();
+    updateTicker();
+  } catch (err) {
+    if (!newsItems.length) list.innerHTML = '<div class="font-mono text-[11px] text-coral text-center py-10">Couldn\'t load news — check your connection</div>';
+  }
+}
+
+function renderNews() {
+  const list = document.getElementById('news-list');
+  if (!newsItems.length) {
+    list.innerHTML = '<div class="font-mono text-[11px] text-muted text-center py-10">No news right now — check back soon</div>';
+    return;
+  }
+  list.innerHTML = newsItems.map((a, i) => {
+    const c = NEWS_COLORS[a.category] || NEWS_COLORS.general;
+    return '<div class="flex gap-2.5 items-start py-3 rowline cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="openNewsDetail(' + i + ')">' +
+      '<div class="w-1.5 h-1.5 rounded-full mt-[7px] flex-shrink-0" style="background:' + c + '"></div>' +
+      '<div class="min-w-0">' +
+        '<div class="text-[13px] leading-snug text-light">' + esc(a.headline) + '</div>' +
+        '<div class="font-mono text-[10px] mt-1"><span class="text-muted">' + esc(a.source) + '</span><span class="text-muted-2"> · </span><span style="color:' + c + '">' + esc(a.category || 'general') + '</span><span class="text-muted-2"> · ' + relTime(a.published_at) + '</span></div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function updateTicker() {
+  const t = document.getElementById('news-ticker');
+  if (!t || !newsItems.length) return;
+  t.textContent = newsItems.slice(0, 6).map(a => a.headline).join('  ·  ');
+}
+
+function openNews() {
+  document.getElementById('news-modal').classList.remove('hidden');
+  loadNews();
+}
+
+function closeNews() { document.getElementById('news-modal').classList.add('hidden'); }
+
+function openNewsDetail(i) {
+  const a = newsItems[i];
+  if (!a) return;
+  newsDetailItem = a;
+  const c = NEWS_COLORS[a.category] || NEWS_COLORS.general;
+  const cat = document.getElementById('nd-cat');
+  cat.textContent = a.category || 'general';
+  cat.style.color = c;
+  cat.style.borderColor = c + '55';
+  cat.style.background = c + '1F';
+  document.getElementById('nd-headline').textContent = a.headline;
+  document.getElementById('nd-source').textContent = a.source;
+  document.getElementById('nd-time').textContent = fmtNewsTime(a.published_at);
+  const summary = (a.summary || '').trim();
+  const wrap = document.getElementById('nd-summary-wrap');
+  if (summary && summary !== a.headline) {
+    document.getElementById('nd-summary-label').textContent = 'Excerpt — via ' + a.source;
+    document.getElementById('nd-summary').textContent = summary;
+    wrap.classList.remove('hidden');
+  } else {
+    wrap.classList.add('hidden');
+  }
+  document.getElementById('nd-open').textContent = 'Read at ' + a.source + ' ↗';
+  document.getElementById('news-detail').classList.remove('hidden');
+}
+
+function closeNewsDetail() { document.getElementById('news-detail').classList.add('hidden'); }
+
+function openNewsSource() {
+  if (newsDetailItem && newsDetailItem.source_url) window.open(newsDetailItem.source_url, '_blank', 'noopener');
+}
+
 // ── INIT ────────────────────────────────────────────────
 buildPips();
 setTier('free');
 if (document.getElementById('onboarding').style.display === 'none') initMap();
+loadNews();
 </script>
 <!-- Tier switcher — testing only, remove before production -->
-<div style="position:fixed;bottom:60px;right:8px;z-index:99;display:flex;flex-direction:column;gap:3px">
+<div id="tier-switcher" style="position:fixed;bottom:60px;right:8px;z-index:99;display:none;flex-direction:column;gap:3px">
 <div style="font-size:7px;font-family:'IBM Plex Mono',monospace;color:rgba(232,242,236,0.3);text-align:center;margin-bottom:2px">TEST TIER</div>
 <button onclick="setTier('free')" style="font-size:8px;font-family:'IBM Plex Mono',monospace;background:rgba(245,165,39,0.15);border:0.5px solid rgba(245,165,39,0.3);color:#F5A623;padding:3px 8px;border-radius:4px;cursor:pointer">Free</button>
 <button onclick="setTier('t1')" style="font-size:8px;font-family:'IBM Plex Mono',monospace;background:rgba(0,212,168,0.1);border:0.5px solid rgba(0,212,168,0.3);color:#00D4A8;padding:3px 8px;border-radius:4px;cursor:pointer">T1</button>
 <button onclick="setTier('t2')" style="font-size:8px;font-family:'IBM Plex Mono',monospace;background:rgba(74,184,255,0.1);border:0.5px solid rgba(74,184,255,0.3);color:#4AB8FF;padding:3px 8px;border-radius:4px;cursor:pointer">T2</button>
 </div>
+<script>
+// Testing-only tier switcher — opt in with ?debug or #debug
+if (location.search.indexOf('debug') > -1 || location.hash.indexOf('debug') > -1) {
+  document.getElementById('tier-switcher').style.display = 'flex';
+}
+</script>
 </body>
 </html>
