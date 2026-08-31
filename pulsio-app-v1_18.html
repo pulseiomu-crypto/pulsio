@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <script>try{tailwind.config={darkMode:"class",theme:{extend:{colors:{bg:"#060E18",surface:"#081626",panel:"rgba(8,22,38,0.97)","p":"#00D4A8","p-dim":"rgba(0,212,168,0.08)","p-glow":"rgba(0,212,168,0.22)",blue:"#1B4FD8",blue2:"#2563EB",amber:"#F5A623","a-dim":"rgba(245,165,39,0.12)",coral:"#FF5A5A","c-dim":"rgba(255,90,90,0.12)",sky:"#4AB8FF",green:"#3ED96E",purple:"#B09AFF",light:"#E8F2EC",muted:"rgba(232,242,236,0.55)","muted-2":"rgba(232,242,236,0.34)",border:"rgba(232,242,236,0.09)","border-s":"rgba(232,242,236,0.15)",border2:"rgba(0,212,168,0.40)"},fontFamily:{display:["Syne","sans-serif"],mono:["IBM Plex Mono","monospace"],body:["Instrument Sans","sans-serif"]}}}}}catch(e){}</script>
 <style>
@@ -165,6 +166,14 @@ a[href^="tel"]:active,.glass[onclick]:active,.card[onclick]:active{transform:sca
 #toast.out{opacity:0;transform:translate(-50%,10px)}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
 
+/* ═══ NEWS FEED ═══════════════════════════════════════════════════ */
+#news-modal{background:rgba(3,7,14,0.95);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%)}
+#news-modal:not(.hidden){animation:msheet 340ms var(--ease) both}
+#news-detail{background:rgba(3,7,14,0.72);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%)}
+#news-detail:not(.hidden){animation:mfade var(--dur-fast) var(--ease) both}
+#news-detail:not(.hidden)>div{animation:mrise 300ms var(--ease) both}
+#news-detail>div{background:var(--surface-2);box-shadow:var(--e-2),var(--lift)}
+
 /* ═══ 34 · TOGGLE SWITCHES ════════════════════════════════════════ */
 .sw{transition:background-color 220ms var(--ease),border-color 220ms var(--ease)}
 .sw>div{transition:transform 300ms var(--ease-spring),background-color 220ms var(--ease)!important}
@@ -192,6 +201,7 @@ a[href^="tel"]:active,.glass[onclick]:active,.card[onclick]:active{transform:sca
   #signup-modal:not(.hidden),#login-modal:not(.hidden),#signup-success:not(.hidden),
   #topup-modal:not(.hidden),#purchase-success:not(.hidden),#morning-modal:not(.hidden),
   #spent-modal:not(.hidden),#settings-modal:not(.hidden),
+  #news-modal:not(.hidden),#news-detail:not(.hidden),#news-detail:not(.hidden)>div,
   #upgrade-modal:not(.hidden)>div,#emergency-modal:not(.hidden)>div,#signup-modal:not(.hidden)>div,
   #login-modal:not(.hidden)>div,#signup-success:not(.hidden)>div,#topup-modal:not(.hidden)>div,
   #purchase-success:not(.hidden)>div,#morning-modal:not(.hidden)>div,#spent-modal:not(.hidden)>div,
@@ -321,9 +331,10 @@ a[href^="tel"]:active,.glass[onclick]:active,.card[onclick]:active{transform:sca
 </div>
 </div>
 
-<div class="px-4 py-1.5 bg-[rgba(3,6,11,0.99)] border-t border-border flex items-center gap-2.5 flex-shrink-0 overflow-hidden">
+<div class="px-4 py-1.5 bg-[rgba(3,6,11,0.99)] border-t border-border flex items-center gap-2.5 flex-shrink-0 overflow-hidden cursor-pointer group" onclick="openNews()">
 <span class="text-[10px] font-mono tracking-wider bg-c-dim border border-coral/30 text-coral px-1.5 py-0.5 rounded flex-shrink-0 uppercase">News</span>
-<div class="text-[11px] font-mono text-muted whitespace-nowrap" style="animation:tick 40s linear infinite">Port Louis: Metro extension approved · Blue Bay lagoon rated excellent · Record tourism Q2 · SEMDEX +0.8% · Grand Baie festival this weekend</div>
+<div class="flex-1 min-w-0 overflow-hidden"><div id="news-ticker" class="text-[11px] font-mono text-muted whitespace-nowrap inline-block" style="animation:tick 40s linear infinite">Loading island news…</div></div>
+<span class="text-[10px] font-mono text-muted-2 group-hover:text-p flex-shrink-0 transition-colors">All news →</span>
 </div>
 
 <div class="flex justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 bg-[rgba(3,6,11,0.99)] border-t border-border flex-shrink-0 z-20">
@@ -896,6 +907,44 @@ Apple
 <button class="w-full py-2.5 bg-a-dim border border-amber/40 rounded-xl text-amber text-xs font-display font-semibold mb-2 cursor-pointer hover:bg-amber/20" onclick="closeSpent();openTopup()">Buy pulses →</button>
 <button class="w-full py-2.5 bg-p-dim border border-p/40 rounded-xl text-p text-xs font-display font-semibold cursor-pointer hover:bg-p-glow">Upgrade · Unlimited pulses ↑</button>
 <div class="text-[11px] text-muted mt-3.5 cursor-pointer hover:text-light" onclick="closeSpent()">or check again tomorrow</div>
+</div>
+</div>
+
+<!-- News feed — live from Supabase -->
+<div id="news-modal" class="hidden fixed inset-0 z-50 flex flex-col">
+<div class="flex items-center justify-between px-4 py-3 border-b border-border bg-[rgba(4,8,14,0.99)]">
+<div class="flex items-center gap-2.5">
+<span class="font-display text-base font-bold">Island News</span>
+<span class="text-[10px] font-mono tracking-[0.12em] bg-c-dim border border-coral/40 text-coral px-2 py-0.5 rounded-full"><span class="live-dot">●</span> LIVE</span>
+</div>
+<span class="text-muted text-lg cursor-pointer hover:text-light" onclick="closeNews()">✕</span>
+</div>
+<div id="news-list" class="flex-1 overflow-y-auto hide-scroll px-4 py-1" style="background:#060E18"></div>
+<div class="px-4 py-2 border-t border-border bg-[rgba(4,8,14,0.99)] text-center flex-shrink-0">
+<span class="font-mono text-[10px] text-muted-2">Headlines only — full articles at each source</span>
+</div>
+</div>
+
+<!-- News article detail -->
+<div id="news-detail" class="hidden fixed inset-0 z-[60] flex items-center justify-center px-4">
+<div class="border border-border rounded-2xl w-[340px] max-w-full max-h-[82vh] overflow-y-auto hide-scroll">
+<div class="p-5 pb-0">
+<div class="flex justify-between items-center mb-3.5">
+<span id="nd-cat" class="text-[10px] font-mono tracking-[0.12em] uppercase px-2 py-0.5 rounded-full border"></span>
+<span class="text-muted text-base cursor-pointer hover:text-light" onclick="closeNewsDetail()">✕</span>
+</div>
+<div id="nd-headline" class="font-display text-lg font-bold leading-snug mb-4"></div>
+<div class="flex justify-between items-center py-2.5 rowline text-[11px]"><span class="text-muted">Source</span><span id="nd-source" class="font-mono text-[11px] text-sky"></span></div>
+<div class="flex justify-between items-center py-2.5 text-[11px]"><span class="text-muted">Published</span><span id="nd-time" class="font-mono text-[11px] text-muted"></span></div>
+<div id="nd-summary-wrap" class="card rounded-lg p-3.5 mt-2 hidden">
+<div id="nd-summary-label" class="eyebrow mb-1.5">Excerpt</div>
+<div id="nd-summary" class="text-[12px] text-muted leading-relaxed"></div>
+</div>
+</div>
+<div class="p-5 pt-4">
+<button id="nd-open" class="w-full py-3 bg-p text-[#03140d] rounded-xl text-xs font-display font-bold cursor-pointer hover:bg-[#00ffcc] transition-all" onclick="openNewsSource()"></button>
+<div class="font-mono text-[10px] text-muted-2 text-center mt-2">Excerpt only — read the full story at the source</div>
+</div>
 </div>
 </div>
 
@@ -1767,10 +1816,133 @@ function setTool(b) {
   filterMarkers();
 }
 
+// ── NEWS FEED — live from Supabase ──────────────────────
+const SB_URL = 'https://beyplrfqhfklylmmrxmw.supabase.co';
+const SB_KEY = 'sb_publishable_v7VVy6T1fGD7chyPqG_RDg_bRykgvlf';
+let sbClient = null;
+
+function sb() {
+  if (!sbClient) sbClient = supabase.createClient(SB_URL, SB_KEY);
+  return sbClient;
+}
+
+const NEWS_COLORS = {
+  breaking: '#FF5A5A', crime: '#FF5A5A', traffic: '#F5A623',
+  weather: '#4AB8FF', community: '#4AB8FF', politics: '#B09AFF',
+  economy: '#3ED96E', sports: '#3ED96E', tourism: '#00D4A8',
+  general: '#93A39B'
+};
+
+let newsItems = [];
+let newsDetailItem = null;
+
+// Feed content is external — always escape before it touches innerHTML
+function esc(t) {
+  const d = document.createElement('div');
+  d.textContent = t == null ? '' : t;
+  return d.innerHTML;
+}
+
+function relTime(iso) {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  const d = Math.floor(s / 86400);
+  return d === 1 ? 'yesterday' : d + 'd ago';
+}
+
+function fmtNewsTime(iso) {
+  const d = new Date(iso);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const pad = n => String(n).padStart(2, '0');
+  return d.getDate() + ' ' + months[d.getMonth()] + ' · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' · ' + relTime(iso);
+}
+
+async function loadNews() {
+  const list = document.getElementById('news-list');
+  if (!newsItems.length) list.innerHTML = '<div class="font-mono text-[11px] text-muted text-center py-10">Loading island news…</div>';
+  try {
+    const { data, error } = await sb().from('pulsio_news')
+      .select('headline,summary,source,category,source_url,published_at')
+      .order('published_at', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    newsItems = data || [];
+    renderNews();
+    updateTicker();
+  } catch (err) {
+    if (!newsItems.length) list.innerHTML = '<div class="font-mono text-[11px] text-coral text-center py-10">Couldn\'t load news — check your connection</div>';
+  }
+}
+
+function renderNews() {
+  const list = document.getElementById('news-list');
+  if (!newsItems.length) {
+    list.innerHTML = '<div class="font-mono text-[11px] text-muted text-center py-10">No news right now — check back soon</div>';
+    return;
+  }
+  list.innerHTML = newsItems.map((a, i) => {
+    const c = NEWS_COLORS[a.category] || NEWS_COLORS.general;
+    return '<div class="flex gap-2.5 items-start py-3 rowline cursor-pointer hover:bg-p-dim rounded px-1 -mx-1 transition-colors" onclick="openNewsDetail(' + i + ')">' +
+      '<div class="w-1.5 h-1.5 rounded-full mt-[7px] flex-shrink-0" style="background:' + c + '"></div>' +
+      '<div class="min-w-0">' +
+        '<div class="text-[13px] leading-snug text-light">' + esc(a.headline) + '</div>' +
+        '<div class="font-mono text-[10px] mt-1"><span class="text-muted">' + esc(a.source) + '</span><span class="text-muted-2"> · </span><span style="color:' + c + '">' + esc(a.category || 'general') + '</span><span class="text-muted-2"> · ' + relTime(a.published_at) + '</span></div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function updateTicker() {
+  const t = document.getElementById('news-ticker');
+  if (!t || !newsItems.length) return;
+  t.textContent = newsItems.slice(0, 6).map(a => a.headline).join('  ·  ');
+}
+
+function openNews() {
+  document.getElementById('news-modal').classList.remove('hidden');
+  loadNews();
+}
+
+function closeNews() { document.getElementById('news-modal').classList.add('hidden'); }
+
+function openNewsDetail(i) {
+  const a = newsItems[i];
+  if (!a) return;
+  newsDetailItem = a;
+  const c = NEWS_COLORS[a.category] || NEWS_COLORS.general;
+  const cat = document.getElementById('nd-cat');
+  cat.textContent = a.category || 'general';
+  cat.style.color = c;
+  cat.style.borderColor = c + '55';
+  cat.style.background = c + '1F';
+  document.getElementById('nd-headline').textContent = a.headline;
+  document.getElementById('nd-source').textContent = a.source;
+  document.getElementById('nd-time').textContent = fmtNewsTime(a.published_at);
+  const summary = (a.summary || '').trim();
+  const wrap = document.getElementById('nd-summary-wrap');
+  if (summary && summary !== a.headline) {
+    document.getElementById('nd-summary-label').textContent = 'Excerpt — via ' + a.source;
+    document.getElementById('nd-summary').textContent = summary;
+    wrap.classList.remove('hidden');
+  } else {
+    wrap.classList.add('hidden');
+  }
+  document.getElementById('nd-open').textContent = 'Read at ' + a.source + ' ↗';
+  document.getElementById('news-detail').classList.remove('hidden');
+}
+
+function closeNewsDetail() { document.getElementById('news-detail').classList.add('hidden'); }
+
+function openNewsSource() {
+  if (newsDetailItem && newsDetailItem.source_url) window.open(newsDetailItem.source_url, '_blank', 'noopener');
+}
+
 // ── INIT ────────────────────────────────────────────────
 buildPips();
 setTier('free');
 if (document.getElementById('onboarding').style.display === 'none') initMap();
+loadNews();
 </script>
 <!-- Tier switcher — testing only, remove before production -->
 <div id="tier-switcher" style="position:fixed;bottom:60px;right:8px;z-index:99;display:none;flex-direction:column;gap:3px">
