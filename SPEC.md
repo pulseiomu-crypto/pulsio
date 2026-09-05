@@ -336,6 +336,12 @@ Grounded in Apple's Human Interface Guidelines (read 2026-09-05 via the rendered
 
 **What's lost without live coordinates:** sub-district precision and live tracking — **neither critical for v1.**
 
+### Implementation notes
+- **On-device proximity requires the POI set on the device.** Because "nearest X" is computed on the phone (the privacy rule forbids sending coordinates to the server), the app needs a **local copy of the POI set** (the ~806 active POIs) — the server can't answer "nearest shelter" for coordinates it's not allowed to receive.
+- **Sync it, don't fetch per query.** The local POI copy should be **synced and cached on the device** (refreshed when the POI table changes), not fetched from the server on every proximity lookup — per-query fetching would be slow, would defeat offline use, and puts a location-shaped request pattern back on the network.
+- **This local copy is the foundation of the offline mode we deferred.** A device-resident POI store + last-pulse cache *is* the offline substrate. So build the **sync layer properly** (versioned, incremental, resilient) rather than as a shortcut — it pays for both proximity now and offline later, and there's already an offline banner in the app anticipating it (see §1).
+- **Constrain `district` to an enum of the nine districts.** The column is currently nullable free `text` with no check — it should be an enum / check-constrained to the nine district values, so bad or free-typed values can't enter and downstream reads are safe.
+
 ### Record for later
 - **Manually-picked districts go stale** — tourists move between districts. Worth a **gentle prompt to update**, or **re-offering location** once the user has seen the value. (Ties to the November tracking work in §9, which is where finer location would be reconsidered — under legal review.)
 
