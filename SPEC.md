@@ -181,7 +181,7 @@ These are features the product **promises** (in tier descriptions, schema, or fo
 
 ### Known gaps the ledger carries (stated as fact, not open questions)
 
-- **No location layer exists anywhere in the app.** There is no geolocation, no "nearest X" logic, no district resolution. Yet many features *assume* one: nearest station for "your" weather, nearest shelter, nearest pharmacy, CEB cuts filtered to the user's district, and all preference/priority-based personalisation. This is a foundational build item, not a wiring gap.
+- **No location layer exists anywhere in the app.** There is no geolocation, no "nearest X" logic, no district resolution. Yet many features *assume* one: nearest station for "your" weather, nearest shelter, nearest pharmacy, CEB cuts filtered to the user's district, and all preference/priority-based personalisation. This is a foundational build item, not a wiring gap. **See §10 for the full location & district model — including the hard privacy rule (district only, never coordinates).**
 - **PulsScore is only partly measured.** The `calculate_pulsscore` SQL function combines six components, but **four of the six aren't really measured**:
   - `traffic_score` and `air_score` — **hardcoded placeholder constants** inside the function.
   - `beach_score` — **derived from weather** (wind + UV), not independently observed.
@@ -297,7 +297,51 @@ Grounded in Apple's Human Interface Guidelines (read 2026-09-05 via the rendered
 
 ---
 
-## 10. One-line summary per surface (for the rebuild triage)
+## 10. Location & district model
+
+**Status:** 🔴 NOT BUILT — and **foundational**. Nothing in the app currently knows where the user is, yet many features assume it: nearest weather station for "your" temperature, nearest shelter, nearest pharmacy, CEB/CWA alerts for the user's district, and preference-based personalisation. This must be **designed in, not retrofitted.** (`pulsio_profiles.district` already exists — nullable free `text`, no default, **no check constraint** — but nothing sets it; the settings "District" control is a toast today.)
+
+### The model — one field, source-agnostic
+- The only location state is a **single `district` field** on the user's profile, valued as **one of Mauritius's nine districts**.
+- **GPS fills it automatically when granted; the user picks it manually when not.**
+- Everything downstream **reads that one field** — features don't care, and can't tell, which way it was set.
+- The nine districts (constrain the column to these — it's currently unconstrained): **Port Louis, Pamplemousses, Rivière du Rempart, Flacq, Grand Port, Savanne, Plaines Wilhems, Moka, Rivière Noire (Black River).**
+
+### 🔒 Privacy constraint — HARD RULE (non-negotiable)
+- **Store the district only. Never coordinates.** The server sees **one of nine district values, nothing finer** — ever.
+- The app **may show the user their own live position** on the map (standard blue dot — their own data, shown back to them). Raw coordinates are **never sent to or stored on the server.**
+- **Proximity is computed on-device.** Nearest shelter, nearest pharmacy, nearest weather station — all computed **on the device from the local POI data**; only the *result* is used. Coordinates never leave the phone.
+- **Rationale (record):** Mauritius's **Data Protection Act 2017** is GDPR-modelled with an active Commissioner, and location is **personal data** under it. Storing continuous position would require a lawful basis, genuine consent, data minimisation and a retention policy — and **no v1 feature actually requires it.** District-only is **proportionate, defensible, and leaks nothing.** Revisit only for the **November itinerary live-tracking feature (§9)**, which will need proper legal review and a privacy policy regardless.
+
+### Flow
+1. **Onboarding explains why location helps** — *before* any system prompt.
+2. **System permission request is asked in context, at the point of first use** — not cold on an early onboarding screen. Per Apple's HIG (§8), in-context prompts are declined far less often.
+3. **Granted →** district is set automatically (derived on-device from GPS, then only the district string is stored).
+4. **Declined →** show the district picker with **honest framing**, verbatim:
+   > "PulsIO works best when it knows where you are. Without it, pick your district and we'll show alerts and conditions for that area."
+
+   **Do not** tell users features will be unavailable — it isn't true when a fallback exists, and coercive permission framing is an **App Store review risk** (§8).
+5. **District is editable in settings, permanently** — including for users who granted location. A tourist may want conditions where they're *headed*, and GPS near a district boundary can be wrong.
+
+**If a user declines *and* skips the picker:** features that genuinely need a district show a **quiet inline prompt at the point of use** — "Set your district to see alerts near you" — rather than failing silently or nagging.
+
+### What the district-only fallback still supports
+| Feature | Works at district precision? | How |
+|---|---|---|
+| CEB power-cut alerts | ✅ | Published by district anyway (`pulsio_ceb.district`) |
+| CWA water alerts | ✅ | Published by district anyway (`pulsio_cwa.district`) |
+| "Your" weather | ✅ | Nearest of the **10 stations**, chosen on-device |
+| Nearest shelter / pharmacy | ✅ | Computed on-device from local POI data |
+| Community reports | ✅ (no location needed at all) | User taps the map to place them — lat/lng arrive with the submission (see §1) |
+
+**What's lost without live coordinates:** sub-district precision and live tracking — **neither critical for v1.**
+
+### Record for later
+- **Manually-picked districts go stale** — tourists move between districts. Worth a **gentle prompt to update**, or **re-offering location** once the user has seen the value. (Ties to the November tracking work in §9, which is where finer location would be reconsidered — under legal review.)
+
+---
+
+## 11. One-line summary per surface (for the rebuild triage)
 
 - **News** → the only thing that actually works. Port it as-is (schema is stable).
 - **ALERTS panel** → closest to pure wiring: all three sources exist and are live (`pulsio_ceb`, `pulsio_cwa`, `pulsio_cyclone`). Low risk.
