@@ -234,7 +234,70 @@ This deliberately **mirrors the cyclone-shelter approach**: extract structured f
 
 ---
 
-## 7. One-line summary per surface (for the rebuild triage)
+## 7. Panel behaviour (October scope)
+
+**Status:** 🟠 TARGET DESIGN for October — differs from what's in `pulsio-app-v1_18.html` today (which has a fixed right panel with four tabs Live/Guide/Alerts/Report, and on mobile just widens that same panel to full width). Recording the locked October model so the rebuild targets it, not the current web layout.
+
+### Desktop — one panel slot on the right
+- There is **one** panel slot. **Filters live there by default.**
+- The **report form** or the **pulse result** *replaces* the filters in that slot; **filters are restored when it closes.**
+- The **report panel collapses rather than closes** — anything typed is preserved, never lost.
+
+### Mobile — no sidebar
+- **No sidebar.** Filters are a **collapsed chip.**
+- Panels open as **bottom sheets** with **peek / half / full** detents (maps to iOS sheet detents — custom-small / medium / large).
+- The detents exist so **the map stays visible after the pulse reveal** — the sheet never has to take the whole screen.
+
+### v1 tabs: Live and Report only
+- **Live** and **Report** are the only panel tabs for v1.
+- **Alerts folds into the filters list** (not a standalone tab).
+- **Guide returns later**, alongside the **itinerary builder** (see §9).
+
+---
+
+## 8. Apple HIG & App Store review compliance
+
+Grounded in Apple's Human Interface Guidelines (read 2026-09-05 via the rendered pages at developer.apple.com/design/human-interface-guidelines — [Layout](https://developer.apple.com/design/human-interface-guidelines/layout), [Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility), [Sheets](https://developer.apple.com/design/human-interface-guidelines/sheets)) plus the App Store Review Guidelines for the enforced items. **Distinction that matters:** the HIG items below are *recommendations* Apple expects but rarely rejects for; the review items are *enforced at submission* — get them wrong and the app is rejected or crashes.
+
+### HIG — recommended, and what affects our layout/build
+| Item | Apple's guidance | Why it affects us |
+|---|---|---|
+| **Safe areas** | Respect system-defined safe areas, margins and guides; extend backgrounds/content to the display edges while keeping controls clear of the notch, Dynamic Island and home indicator. | Our full-bleed map + bottom fire dock + bottom sheets sit exactly where the home indicator and Dynamic Island are. Must use `safeAreaInsets` / `safeAreaLayoutGuide`. |
+| **Minimum tap target** | Give every control a hit region of **at least 44×44 pt** (Accessibility). | Direct violation today (see below). Fire dock, tool bar, and dense LIVE rows must be resized. |
+| **Sheet detents** | iOS sheets can be resizable (grabber, medium/large/custom detents); a **nonmodal** sheet lets people keep interacting with the parent view without dismissing it. Show one sheet at a time; use full-screen for complex/prolonged flows. | This is exactly the peek/half/full mobile model in §7 — implement with `presentationDetents`; nonmodal so the map behind stays interactive. |
+| **Navigation patterns** | Use platform-standard navigation; place primary/back/close controls per platform convention (Cancel leading, Done trailing on sheets). | The report/pulse sheets and settings must follow standard sheet button placement, not the web app's custom `✕` chrome. |
+| **Dynamic Type** | Support Dynamic Type so text scales to the user's chosen size; avoid fixed font sizes. | The web app is built on **fixed pixel sizes** (`text-[10px]`, `text-[11px]`, mono numerics). Native build must use text styles that scale. |
+
+### App Store review — ENFORCED (not optional)
+- **Account deletion** — *if we offer signup*, the app must let users **initiate account deletion from within the app** (Review Guideline 5.1.1(v)). We plan signup → this becomes mandatory.
+- **In-App Purchase for digital goods** — pulse packs / tier subscriptions are digital goods and **must use Apple IAP** on iOS (Guideline 3.1.1); can't route iOS users to Paddle/NOWPayments for them. (Consistent with the payment routing in §4/§5.)
+- **Privacy manifests + Nutrition Labels** — a `PrivacyInfo.xcprivacy` privacy manifest (declaring data collection and required-reason API use) and accurate App Privacy labels are required at submission.
+- **Permission purpose strings** — every permission needs an `Info.plist` usage-description string or the app is rejected/crashes. **Location especially**: `NSLocationWhenInUseUsageDescription` (and a justified reason for any Always/background use). Apple scrutinises location at review, and users frequently decline it — see §9.
+
+### Current layout is non-compliant (evidence)
+- **Tap targets under 44pt** — tool-bar buttons are `min-w-[42px]` with `py-1` (~26–30pt tall); pulse counter `min-w-[28px]`; many LIVE/ALERTS tap rows are `text-[10px]/[11px]` single-line. All below 44×44 pt.
+- **No safe-area handling at all** — zero `safe-area-inset` / `env(safe-area-inset-*)` usage; the viewport meta is `maximum-scale=1.0, user-scalable=no` with **no `viewport-fit=cover`**, so insets aren't even available and pinch-zoom is disabled (an accessibility problem in its own right).
+- **No Dynamic Type** — all type is fixed-pixel.
+
+> These are expected for a web prototype; they're logged here because the **native rebuild must fix them from the start**, not retrofit them.
+
+---
+
+## 9. November itinerary release (planned — NOT October scope)
+
+**Status:** 🔵 PLANNED for the November itinerary release. Explicitly **not** in October scope. Recorded so it isn't lost.
+
+- **Itinerary builder** — returns the **Guide** surface (see §7).
+- **Live Activities + Dynamic Island** — show the **current stop and next stop** at a glance without opening the app.
+- **Navigation hand-off** — hand off to **Apple Maps or Google Maps** for turn-by-turn; the **itinerary advances automatically** as the user reaches each stop.
+
+### Constraints (record these)
+- **Breaks platform parity.** Live Activities and Dynamic Island are **iOS-only** — no Android or web equivalent. This is the **first feature that breaks parity** across platforms; Android/web will need a different (lesser) treatment or none.
+- **Requires background location + geofencing.** Auto-progression means detecting arrival at each stop **while the maps app owns the screen** after hand-off — so it needs **background location and geofencing**, not just when-in-use. Apple **scrutinises this permission at review** (§8), and **users often decline** it, so the feature must degrade gracefully when background location isn't granted (fall back to manual "next stop").
+
+---
+
+## 10. One-line summary per surface (for the rebuild triage)
 
 - **News** → the only thing that actually works. Port it as-is (schema is stable).
 - **ALERTS panel** → closest to pure wiring: all three sources exist and are live (`pulsio_ceb`, `pulsio_cwa`, `pulsio_cyclone`). Low risk.
