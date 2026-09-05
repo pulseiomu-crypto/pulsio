@@ -108,7 +108,7 @@ Project `beyplrfqhfklylmmrxmw`. Row counts and freshness observed 2026-09-05.
 
 | Table | Purpose | Rows | Last write | Pipeline running? | Consumed by app? |
 |---|---|---:|---|---|---|
-| `pulsio_news` | Island news feed | 499 | 2026-09-05 | 🟢 yes | 🟢 **yes** |
+| `pulsio_news` | Island news feed (has `lat`/`lng`, currently **never populated** — see §6 for the pinning design) | 499 | 2026-09-05 | 🟢 yes | 🟢 **yes** |
 | `pulsio_weather` | Per-station weather (10 stations) | 16,904 | 2026-09-05 | 🟢 yes | 🔴 no (LIVE tab hardcoded) |
 | `pulsio_score` | Computed PulsScore + 6 sub-scores (via `calculate_pulsscore`; 4 of 6 not really measured — see §5) | 1,692 | 2026-09-05 | 🟢 yes (computed) | 🔴 no (topbar `78` hardcoded) |
 | `pulsio_ceb` | Power-cut outages | 146 | 2026-09-04 | 🟢 yes | 🔴 no |
@@ -200,7 +200,41 @@ These are features the product **promises** (in tier descriptions, schema, or fo
 
 ---
 
-## 6. One-line summary per surface (for the rebuild triage)
+## 6. News map pinning (design spec — NOT built)
+
+**Status:** 🔴 NOT BUILT. `pulsio_news` has `lat`/`lng` columns but **nothing populates them today** — every news row currently lands with null coordinates, so no news can appear on the map. This section records the locked approach for how a news pin *should* be created, so it isn't lost again.
+
+### The approach — extract with Claude, verify against the POI table
+
+The news parser already makes a Claude call per article. That existing call gains **two fields**:
+
+1. **Place name** — a Mauritian place explicitly named in the headline, if one is clearly mentioned.
+2. **Confidence level** — how sure the extraction is.
+
+Claude **must be allowed to return nothing.** Most articles (national politics, economy, sport) have no location, and a `null` is the *correct* answer there — not a failure to be filled in.
+
+The extracted name is then **matched against `pulsio_poi`** — the real coordinate source. A pin is created **only on a match**:
+
+- Match found → use the POI's verified `lat`/`lng` for the pin.
+- Claude returns a name that **isn't** in the table → **no pin.** The model's own recollection of Mauritian geography is explicitly **not** treated as a source of truth; only the POI table's verified coordinates are.
+
+This deliberately **mirrors the cyclone-shelter approach**: extract structured facts from unstructured text, verify against a real coordinate source, and record confidence per row.
+
+### The coordinate source (`pulsio_poi`)
+
+- Used as the verified place gazetteer: **793 real places** for matching, **including all 31 towns** with verified coordinates.
+- *(Observed in DB 2026-09-05 for reconciliation: table holds **942 rows total, 806 active, all 942 geocoded, all 31 towns present**. The 793 is the intended verified-place matching set; the surplus rows are inactive/other-type POIs. Confirm which exact predicate defines the 793 before implementing the match.)*
+
+### Constraints (locked — record these)
+
+- **Unambiguous only.** Pin only where the location is unambiguous. Ambiguous or low-confidence extractions get **no pin**, never a guess. A wrong pin on a map people rely on **during emergencies** is worse than no pin at all. This is the governing principle.
+- **Expected yield: ~⅓ of articles at most** are pinnable. A low pin rate is expected and correct, not a bug.
+- **No new Claude call.** Location extraction **rides on the existing news Claude call** — do not add a second call. But note the cost asymmetry: **news is deliberately uncached and runs every cycle**, so unlike the other parsers, added tokens here are paid **on every run**. Keep the added prompt/output minimal.
+- **Community reports need none of this.** Users tap the map to place a report, so `lat`/`lng` arrive with the submission — extraction/verification applies to news only, not `pulsio_reports`.
+
+---
+
+## 7. One-line summary per surface (for the rebuild triage)
 
 - **News** → the only thing that actually works. Port it as-is (schema is stable).
 - **ALERTS panel** → closest to pure wiring: all three sources exist and are live (`pulsio_ceb`, `pulsio_cwa`, `pulsio_cyclone`). Low risk.
