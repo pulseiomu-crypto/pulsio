@@ -113,12 +113,12 @@ Project `beyplrfqhfklylmmrxmw`. Row counts and freshness observed 2026-09-05.
 | `pulsio_score` | Computed PulsScore + 6 sub-scores (via `calculate_pulsscore`; 4 of 6 not really measured — see §5) | 1,692 | 2026-09-05 | 🟢 yes (computed) | 🔴 no (topbar `78` hardcoded) |
 | `pulsio_ceb` | Power-cut outages | 146 | 2026-09-04 | 🟢 yes | 🔴 no |
 | `pulsio_cwa` | Water supply issues | 0 | — | 🟢 yes (no active events) | 🔴 no |
-| `pulsio_cyclone` | Cyclone bulletins | 0 | — | 🟢 yes (none active) | 🔴 no |
+| `pulsio_cyclone` | Cyclone bulletins | 0 | — | 🟢 yes (none active) | 🔴 no — ⚠️ `class` check (0–5) is wrong vs official MMS classes; schema fix in §15 |
 | `pulsio_fuel` | Fuel prices (mogas/diesel) | 2 | 2026-09-05 | 🟢 yes | 🔴 no |
 | `pulsio_poi` | Points of interest (18 types: pharmacy, fuel, shelter, police…) | 942 | 2026-08-31 | 🟠 seeded, not on live cron | 🔴 no (map uses ~15 hardcoded markers) |
 | `pulsio_marine` | Live ships (jsonb blob) | 0 | — | 🔴 empty | 🔴 no (markers hardcoded) |
 | `pulsio_flights` | Live flights (jsonb blob) | 0 | — | 🔴 empty | 🔴 no (markers hardcoded) |
-| `pulsio_events` | Events/happenings | 0 | — | 🔴 empty | 🔴 no UI |
+| `pulsio_events` | Events/happenings | 0 | — | 🟠 manual entry (NerveCentre, §13) — no scraping | 🟠 October: pulse panel + map (§13/§14) |
 
 > **Pipeline sources actively logging** (`pulsio_pipeline` run log, 10,157 rows): `news`, `weather`, `cwa`, `ceb`, `fuel`, `cyclone` — running roughly every ~10 min. `score` is computed on the same cadence. `poi` was bulk-seeded (last touched Aug 31). `marine`/`flights`/`events` have **no pipeline feeding them yet**.
 
@@ -171,9 +171,9 @@ These are features the product **promises** (in tier descriptions, schema, or fo
 | **Morning Pulse delivery** | Onboarding, signup success ("we'll send you a morning pulse at 7am"), `source='scheduled'` | Prefs stored locally; no push/SMS/email delivery mechanism | 🔴 NOT BUILT |
 | **Real auth** | Signup/login modals | localStorage flag only | 🔴 NOT BUILT |
 | **Payments** | Upgrade + top-up | Stub in app; provider **decided** — Apple IAP (iOS), Google Play Billing (Android), Paddle + NOWPayments (web). Schema's `stripe_customer_id` is legacy from an early draft, not the plan. | 🔴 NOT BUILT (integration) |
-| **Multi-language (fr/cr)** | Settings, `profiles.language` | English only | 🔴 NOT BUILT |
+| **Localisation (EN + FR)** | Settings, `profiles.language` | English only today; **French is in the October scope, Creole abandoned** (§22) | 🟠 PARTIAL (decided) |
 | **Hotel referral program** | `pulsio_hotels`/`pulsio_referrals`, `referral_hotel` | DB only, no UI | 🔴 NOT BUILT (app) |
-| **Events layer** | `pulsio_events`, score `events_score`, onboarding | Table empty, no UI, no pipeline | 🔴 NOT BUILT |
+| **Events** | `pulsio_events`, score `events_score`, onboarding | Table empty; **now in October scope via manual entry in NerveCentre** (can't be scraped) — see §13 | 🟠 PARTIAL (decided) |
 | **Admin Control Centre / NerveCentre** | Folder + migration | DB side live; app not built | 🔴 NOT BUILT (app) |
 | **Android app** | `App Frontend Android/` | Empty folder | 🔴 NOT BUILT |
 | **iOS/Mac app** | `App Frontend IOS:Mac OS/` | Empty folder | 🔴 NOT BUILT (**this rebuild**) |
@@ -187,11 +187,11 @@ These are features the product **promises** (in tier descriptions, schema, or fo
   - `beach_score` — **derived from weather** (wind + UV), not independently observed.
   - `events_score` — read from `pulsio_events`, which is **empty**, so effectively a constant.
   - Only `weather_score` (and `safety_score`) reflect actual inputs. The headline PulsScore is therefore weather-dominated today; the six-factor breakdown shown in the UI overstates what's measured.
-- **Several LIVE-tab fields have no source at all:**
-  - `USD/MUR` exchange rate — no FX table, no pipeline source.
-  - `Tide` and `Sea state` — no source table or feed.
-  - `Sunset` — computable (astronomical), but nothing currently produces it.
-  These are build-from-scratch, not disconnected feeds.
+- **LIVE-tab fields without a source — now resolved by decision (§14):**
+  - `USD/MUR` exchange rate and `Tide` — **dropped** from the pulse panel (no source, not worth building for October).
+  - `Sunset` — **kept**, computed on-device from date + coordinates.
+  - `Sea state` — **is** sourceable: MMS officially defines high (6–9m) / very high (9–14m) / phenomenal (>14m), so it comes from the cyclone/marine feed, **correcting the earlier "no source" note** (§15).
+  - The freed rows are replaced with nearest CEB outage, community reports near you, cyclone status, and today's events (§14).
 
 ### ❓ Still open — confirm against the design lock
 
@@ -351,14 +351,13 @@ Grounded in Apple's Human Interface Guidelines (read 2026-09-05 via the rendered
 
 **Status today:** 🔴 stub. `pulsio_reports` has a full schema but 0 rows; the app's Report tab only fires a toast and writes nothing (§1, §4). This section is the **October build definition** — the feature ships in the launch cut.
 
-### Submission is mobile-only — by design
-Reporting **requires a phone**: you're standing in front of a flooded road, not opening a laptop. So:
-- **iPhone creates reports.** **iPad and desktop/web display reports on the map normally but cannot create them.** Where the report button would be, show a short line: *"Reports are submitted from the PulsIO mobile app."*
-- **This is the first deliberate exception to the web-parity rule** — chosen, not a gap. Record it as such: parity is the default, and this is an intentional, documented divergence because the capture context (camera + being physically at the incident) only exists on the phone.
-- *(iPad is treated as desktop here — display-only. If iPad should also create reports, that's a one-line decision to flip; flagged rather than assumed.)*
-- **Supersedes** the earlier FRONTEND §G note that had the report form opening in the iPad/desktop right panel.
+### Submission is device-only (iPhone + iPad) — by design
+Reporting **requires a camera and being physically at the incident**: you report a flooded road standing in front of it, not from a laptop. So:
+- **iPhone and iPad create reports.** iPad qualifies — it has a camera and GPS, and Vision face-blurring works identically; the rule that matters is "camera + at the location," which iPad satisfies.
+- **Desktop and web display reports on the map normally but cannot create them.** Where the report button would be, show a short line: *"Reports are submitted from the PulsIO mobile app."*
+- **This is the first deliberate exception to the web-parity rule** — chosen, not a gap. Parity is the default; this is an intentional, documented divergence because the capture context only exists on a device with a camera in hand at the scene.
 
-### Submission flow (iPhone)
+### Submission flow (iPhone + iPad)
 1. Tap **Report**.
 2. Pick **one of the ten locked categories** — icon grid, one tap (power_cut, water_cut, accident, hazard, flood, traffic, jellyfish, event, infrastructure, other).
 3. **Map opens with a pin at current location, draggable** to correct it. (This is the one place raw coordinates are sent — the user explicitly places them; consistent with §10.)
@@ -367,6 +366,8 @@ Reporting **requires a phone**: you're standing in front of a flooded road, not 
 6. **Submit.**
 
 **Photos are required in spirit** — Meg's position is the feature is useless without them. Treat a photo as effectively mandatory (a report without one is low-value and should be discouraged in the UI).
+
+**Reports may be featured.** Good community reports are posted to PulsIO's own Instagram daily (the acquisition channel, §16). Add a line to the submission flow noting a report **may be featured**, and route anything to be amplified through the moderation layer first (§16).
 
 ### Photo handling — on-device, before upload
 All of this happens **on the phone before anything is uploaded**:
@@ -411,7 +412,144 @@ Apple requires any app with user-generated content to provide: **(1) a way to re
 
 ---
 
-## 12. One-line summary per surface (for the rebuild triage)
+## 12. Segments (scope model)
+
+**Decision:** replace the four-tab segment row (All / Tourist / Mauritian / Pro) with a **single pill in the top bar** showing the current mode; tap → a **sheet** to switch.
+- Available modes are selectable; **Pro sits at the bottom with a lock** and one line on what it unlocks. Tapping Pro **opens the upgrade flow** (§18/upgrade).
+- **Why a lock, not a greyed-out tab:** a greyed tab reads as *"this app is limited"*; a designed lock reads as *"there's more here."*
+- **Segment becomes the parent scope**, with **filters nesting under it and showing live counts.** This makes the **empty-map problem structurally impossible** — you always see the scope's populated layers.
+- Reclaims **~37px of mobile chrome** (the tab row).
+- The **"remove ads" upgrade prompt should live in this moment** (selling T1 at the point of intent) rather than relying on the ad slot to do the selling.
+
+---
+
+## 13. Events (manual entry via NerveCentre)
+
+**Decision:** events are **entered manually in NerveCentre** (§3) — Mauritian events live on Instagram stories and DMs and **cannot be scraped**. `pulsio_events` exists; it needs an admin form and app surfaces, both in the October cut.
+
+**Events form (NerveCentre):** name · venue **or** location (click-to-place, like POIs) · start + end datetime · category · description · source link · active flag · **recurrence** (so "every Saturday" is entered once, not 52 times).
+
+**Behaviour:**
+- Events **auto-expire once they're over** (per end datetime / recurrence rule).
+- **Today's events appear in the pulse result panel** (§14) and on the map.
+
+---
+
+## 14. Pulse result panel — composition & preference curation
+
+**Row composition (October).** Four rows had no data source; resolved:
+- **Drop** `USD/MUR` and `Tide` (no source, not worth building now).
+- **Keep** `Sunset` — computed on-device from date + coordinates.
+- **Replace** the rest with: **nearest CEB outage**, **community reports near you** ("3 near you", §11), **cyclone status** (§15), and **today's events** (§13).
+- Retained sourced rows: temperature/feels-like/humidity/wind/UV (`pulsio_weather`, nearest station on-device), PulsScore (`pulsio_score`), fuel (`pulsio_fuel`), **sea state** (MMS-defined, §15).
+
+**Preference-based curation — in scope for October.** Onboarding already collects preferences (§ onboarding), so **not using them is worse than not asking.**
+- Preferences **reorder** the snapshot, they don't **filter** it: a commuter sees traffic first; a fisherman sees sea conditions first.
+- **Default order** (signed-out, or anyone who skipped onboarding): **cyclone and outages first** (the urgent items), then weather, then the rest.
+- Curation is pure ordering by stored priorities — it needs **no location** and no server round-trip.
+
+---
+
+## 15. Cyclone terminology & MMS wording
+
+**Decision:** use the official **Mauritius Meteorological Services (MMS)** wording **exactly**. Record it here so the app and pipeline agree.
+
+**Cyclone warning classes** (roman numerals):
+- **Class I** — issued 36–48 hours before gusts of 120 km/h are expected.
+- **Class II** — allows 12 hours of daylight before those gusts.
+- **Class III** — allows 6 hours of daylight before.
+- **Class IV** — gusts of 120 km/h recorded and expected to continue.
+- **Safety Bulletin** — issued when lifting Class III or IV.
+- **Termination** — risk abated, cyclone moving away.
+
+**Storm classification** (separate axis from warning class):
+tropical depression (51–62 km/h) · moderate tropical storm · severe tropical storm · tropical cyclone (118–165) · intense tropical cyclone (166+) · very intense tropical cyclone.
+
+**Rain warnings:** heavy rain (25mm in 30 min) · heavy rain watch (issued 12–24 h ahead) · torrential rain (100mm widespread, continuing several hours).
+
+**Sea state (officially defined → sourceable from MMS):** high (6–9m) · very high (9–14m) · phenomenal (>14m). This **corrects the earlier "sea state has no source"** note (§5) — it feeds the pulse panel (§14).
+
+**⚠️ Schema fix required (`pulsio_cyclone`).** The `class` column is an integer check **0–5**, which does not match the official model. It needs to represent **warning class** (I–IV + Safety Bulletin + Termination) **separately** from **storm classification** (the six-step scale above) — i.e. two enum-constrained fields, not one 0–5 int. **This is a live table fed by the external `pulsio-backend` pipeline (SPEC caveat §2), so the migration and the parser must change together** — do not alter the constraint in isolation. *(Recorded here as a required change; not applied in this pass.)*
+
+---
+
+## 16. Shareable cards (the acquisition channel)
+
+**Decision:** shareable cards are **the acquisition channel**, treated as a first-class feature — **three types**:
+1. **Pulse result card** — the snapshot.
+2. **PulsScore card** — **needs rebuilding**: it's currently hardcoded to `78` and shares as **plain text**, so it **cannot reach Instagram Stories at all** (§ PulsScore).
+3. **Community report card** — for a specific incident (§11).
+
+**Rules:**
+- Cards stay **separate**, but the user can choose to **share more than one at once**.
+- **All export as real images, not text**, carrying the **PulsIO name** and a **way back** for whoever receives it (link / QR).
+- Produce a **1080×1920 Instagram-Stories** version **alongside** a **WhatsApp-shaped** one.
+- These cards go on **PulsIO's own Instagram daily**, along with good community reports (§11) — so the report submission flow notes a report **may be featured**, and the **moderation layer (§11) checks anything before it's amplified.**
+
+---
+
+## 17. Device limits (stated, not enforced for October)
+
+**Decision:** keep **"up to 3 devices"** as a tier benefit on the pricing page, but **do not build enforcement** for October.
+- Enforcement needs device registration + management; **Apple restricts persistent identifiers**; and at MUR 150–400 **account sharing isn't a meaningful leak**. A legitimate user hitting a wall after changing phones costs more in support than the sharing does.
+- **Do build "sign out of all devices"** in settings — that covers the real security case cheaply.
+- **Revisit with evidence** if abuse actually appears. (Supersedes the device-count enforcement implied by the tier table in §3.)
+
+---
+
+## 18. Top-ups & subscriptions (IAP)
+
+**Decision:** top-ups are offered on the **spent screen**, but **subscriptions lead** and top-ups are secondary — *"Traveller gives you 10 every month for MUR 150"* first, *"or buy 5 now for MUR 75"* beneath. Top-ups **cannibalise recurring revenue** if pushed too hard.
+- **StoreKit types:** top-ups are **IAP consumables**; subscriptions are **auto-renewables**.
+- **Critical:** because top-ups **never expire**, the balance **must be stored server-side against the account** (`pulsio_profiles.pulse_topup_balance` already exists), **not on the device** — otherwise a reinstall loses it, which becomes a refund request.
+
+---
+
+## 19. Shelters (verified vs approximate)
+
+**Decision:** shelters are normally a POI category users toggle on; **during an active cyclone warning they become prominent** — surfaced in the pulse panel (§14), **shown on the map by default**, and **reachable without signing in** (per the emergency-unlock rule, § emergency).
+
+**Precision split** (`pulsio_poi` type `shelter`, 149 rows = 13 + 136):
+- **Only the 13 verified shelters appear as map pins.**
+- **The 136 approximate ones appear in the searchable list only** (§20) — name, village, phone number, **no pin** — clearly labelled *"location approximate, call to confirm."*
+- This gives users everything we know **without implying precision we don't have.**
+- **NerveCentre task:** verifying an approximate shelter is a ~2-minute satellite check each — a good **pre-cyclone-season** job to delegate.
+
+---
+
+## 20. Search & the POI pin/search split
+
+**Principle:** 942 POIs plotted at once would bury the live signals. **You browse a beach; you search for a pharmacy.**
+
+**Pinned on the map:** beaches, landmarks, waterfalls, hikes, parks, viewpoints, airport, ferry terminals, marinas, hospitals, **verified shelters** (§19).
+
+**Searchable only (no pins):** pharmacies, supermarkets, malls, police stations, clinics, towns.
+
+**Toggleable layer, off by default:** fuel.
+
+**Search surface:** find POIs by **name or category**, **sorted by distance**, each result showing **distance** and tapping through to the map. Distance is computed **on-device** (location privacy rule, §10). Search is also **where the 136 approximate shelters live** (§19).
+
+---
+
+## 21. Error & status messaging (P / U / S codes)
+
+**Principle (final wording is a later copy pass, done in one go with the rest of the app's text):** the user sees **plain language and what to do about it**, with the **code small and muted underneath** — not *"Error P-103"* but *"You've used today's pulse. Next one at midnight."* with `P-103` beneath.
+- **P codes** — mostly **expected states**; informative, **never alarming**.
+- **U codes** — **always offer a next step**.
+- **S codes** — **our fault**: apologise briefly, say whether it's temporary, and if **NerveCentre has posted a status notice** for that source (`pulsio_status`), **show that** instead of a generic message.
+
+---
+
+## 22. Localisation (English + French)
+
+**Decision:** **English and French at launch; Creole is abandoned.**
+- **Approach:** machine-translate, then have a **French-speaking Mauritian review** — pure machine translation reads wrong in ways native speakers notice, and clumsy French would undercut an app claiming to be for Mauritius.
+- **Crucial:** **externalise all strings from day one in both codebases** (app + NerveCentre). Hardcoded strings would make any future language an archaeology project.
+- **Meg's phrasing to honour:** *"se faire connaître"* (not *"notoriété"*); *"gagner en crédibilité"* (not *"adaptation rapide"*).
+
+---
+
+## 23. One-line summary per surface (for the rebuild triage)
 
 - **News** → the only thing that actually works. Port it as-is (schema is stable).
 - **ALERTS panel** → closest to pure wiring: all three sources exist and are live (`pulsio_ceb`, `pulsio_cwa`, `pulsio_cyclone`). Low risk.

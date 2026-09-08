@@ -250,9 +250,10 @@ Both carry a **"Remove ads ↑"** affordance → opens Upgrade (§ screen J).
 
 **Data** — writes `pulsio_reports` ⚙️ (native must actually persist; today it's a toast stub — SPEC §1). Confirmations update `confirmations` / `confirmed_by`; 2h expiry per schema.
 
-**Platforms** — **submission is iPhone-only, by design** (SPEC §11 — the first deliberate web-parity exception; you report standing at the incident, phone in hand).
+**Platforms** — **submission is device-only: iPhone + iPad** (SPEC §11 — the first deliberate web-parity exception; the rule is "camera + physically at the incident," which both satisfy; Vision blurring works identically on iPad).
 - **iPhone:** opens as a bottom sheet (the "Report" panel); flow per SPEC §11 (category → draggable pin → photo → optional line → submit). The report sheet **collapses rather than closes** so a half-written report survives (SPEC §7).
-- **iPad / desktop / web:** **display reports on the map, but cannot create them.** Where the report button would be, show: *"Reports are submitted from the PulsIO mobile app."* (iPad treated as desktop; flip is a one-line decision — SPEC §11.)
+- **iPad:** same create flow, presented in the shared iPad/desktop layout (report replaces filters in the right panel slot; collapses rather than closes, SPEC §7).
+- **Desktop / web:** **display reports on the map, but cannot create them.** Where the report button would be, show: *"Reports are submitted from the PulsIO mobile app."*
 
 **Tiers** — available to all tiers equally (community feature, not gated).
 
