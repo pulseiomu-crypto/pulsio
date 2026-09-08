@@ -69,7 +69,7 @@ Surface names refer to `pulsio-app-v1_18.html`.
 | **LIVE** tab | Temp, PulsScore, humidity, wind, UV, sea state, tide, sunset, fuel MUR/L, USD/MUR, CEB cuts, cyclone | `#tab-live` | `pulsio_weather`, `pulsio_score`, `pulsio_fuel`, `pulsio_ceb`, `pulsio_cyclone` (+ needs: FX, tide, sea state, sunset sources — **none exist**) | Sources exist & live for weather/score/fuel/ceb/cyclone — **none wired**; every value is static HTML (e.g. `27°C`, score `78`, fuel `63.20`, FX `45.82`). `USD/MUR`, `tide`, `sea state` have **no source**; `sunset` is computable but unproduced. Also needs a **location layer** (which station is "yours") that doesn't exist. | 🟡 HARDCODED |
 | **GUIDE** tab | Best beach today, lagoon/snorkel/jellyfish/crowd status, emergency | `#tab-guide` | Beach/marine model, `pulsio_reports` (jellyfish) | No beach model built; all static | 🟡 HARDCODED |
 | **ALERTS** tab | CEB cuts, CWA low-pressure, cyclone station status | `#tab-alerts` | `pulsio_ceb`, `pulsio_cwa`, `pulsio_cyclone` | Sources exist (CEB has 146 rows) — **not wired**; alerts are static list | 🟡 HARDCODED |
-| **REPORT** tab | Pick category (10 types) + description, submit community report | `#tab-report` / `submitReport()` | `pulsio_reports` (write) | Table exists with full schema (confirmations, expiry, geo) — **not wired**; submit only fires a toast, writes nothing | 🟠 PARTIAL |
+| **REPORT** tab | Pick category (10 types) + description, submit community report | `#tab-report` / `submitReport()` | `pulsio_reports` (write) | Table exists with full schema (confirmations, expiry, geo) — **not wired**; submit only fires a toast, writes nothing. **Full October definition in §11.** | 🟠 PARTIAL |
 
 ### News
 
@@ -147,7 +147,7 @@ Migration `nervecentre_log_and_status` + the empty `Pipeline/Control Centre app 
 | `pulsio_users` | Account + tier + daily pulse quota + `stripe_customer_id` | 0 | 🔵 BACKEND-ONLY | `stripe_customer_id` is **legacy** from an early draft. Actual payment routing is decided: Apple IAP (iOS), Google Play Billing (Android), Paddle + NOWPayments (web). |
 | `pulsio_profiles` | Profile: display name, type, district, tier, pulses, morning-pulse prefs, language, priorities, device count, `referral_hotel` | 0 | 🔵 BACKEND-ONLY | FK to `auth.users` — real auth was intended |
 | `pulsio_pulses` | Log of each pulse fired (geo, tier, source app/api/scheduled) | 0 | 🔵 BACKEND-ONLY | `source='api'` implies a planned API; `'scheduled'` implies morning-pulse automation |
-| `pulsio_reports` | Community reports (10 categories, confirmations, 2h expiry, geo, image) | 0 | 🔵 BACKEND-ONLY | Fully designed; frontend submit is a no-op toast |
+| `pulsio_reports` | Community reports (10 categories, confirmations, 2h expiry, geo, image) | 0 | 🔵 BACKEND-ONLY | Fully designed; frontend submit is a no-op toast. **Full October definition + moderation + schema deltas in §11.** |
 | `pulsio_hotels` | Hotel partner program (slug, tracking code, tier starter/partner/premium) | 0 | 🔵 BACKEND-ONLY | Referral/QR growth channel — **no UI anywhere** |
 | `pulsio_referrals` | Hotel → user referral + conversion tracking | 0 | 🔵 BACKEND-ONLY | Ties to `pulsio_hotels` + `referral_hotel` on profile |
 | `pulsio_waitlist` | Marketing waitlist email capture | 1 | 🟢 (website) | Belongs to the marketing site, not the app |
@@ -347,7 +347,71 @@ Grounded in Apple's Human Interface Guidelines (read 2026-09-05 via the rendered
 
 ---
 
-## 11. One-line summary per surface (for the rebuild triage)
+## 11. Community Reports (October launch — full definition)
+
+**Status today:** 🔴 stub. `pulsio_reports` has a full schema but 0 rows; the app's Report tab only fires a toast and writes nothing (§1, §4). This section is the **October build definition** — the feature ships in the launch cut.
+
+### Submission is mobile-only — by design
+Reporting **requires a phone**: you're standing in front of a flooded road, not opening a laptop. So:
+- **iPhone creates reports.** **iPad and desktop/web display reports on the map normally but cannot create them.** Where the report button would be, show a short line: *"Reports are submitted from the PulsIO mobile app."*
+- **This is the first deliberate exception to the web-parity rule** — chosen, not a gap. Record it as such: parity is the default, and this is an intentional, documented divergence because the capture context (camera + being physically at the incident) only exists on the phone.
+- *(iPad is treated as desktop here — display-only. If iPad should also create reports, that's a one-line decision to flip; flagged rather than assumed.)*
+- **Supersedes** the earlier FRONTEND §G note that had the report form opening in the iPad/desktop right panel.
+
+### Submission flow (iPhone)
+1. Tap **Report**.
+2. Pick **one of the ten locked categories** — icon grid, one tap (power_cut, water_cut, accident, hazard, flood, traffic, jellyfish, event, infrastructure, other).
+3. **Map opens with a pin at current location, draggable** to correct it. (This is the one place raw coordinates are sent — the user explicitly places them; consistent with §10.)
+4. **Take or attach a photo.**
+5. Optional **one-line description**.
+6. **Submit.**
+
+**Photos are required in spirit** — Meg's position is the feature is useless without them. Treat a photo as effectively mandatory (a report without one is low-value and should be discouraged in the UI).
+
+### Photo handling — on-device, before upload
+All of this happens **on the phone before anything is uploaded**:
+- **Resize to ~1600px (~200KB).** Camera originals run 2–4MB and would burn Supabase storage and the user's mobile data.
+- **Detect and blur faces** using Apple's **Vision framework** — native, free, offline. Because it runs on-device, **the unblurred original never leaves the phone**, which is the correct position under Mauritius's Data Protection Act 2017 (§10).
+- **Optionally blur detected text regions** to catch number plates. This **will over-blur** (shop signs, etc.) — that is the **safe failure** for a two-hour incident report.
+- Show a brief line in the submission UI **asking users not to photograph people.**
+- ⚠️ **Claude cannot blur images** — it can only *describe* what's in them. The blurring **must be on-device** (Vision), never delegated to the moderation model.
+
+### Three-layer moderation — a real system, not an afterthought
+This is an **asset at exit**: acquirers worry about inheriting user-generated-content (UGC) liability, and a documented, working moderation stack is what de-risks that.
+
+1. **Automatic (model).** Every photo passes a **Claude vision check before it goes live**: does it match the claimed category, does it contain identifiable people the blur missed, is it inappropriate. Cost ≈ a few cents per report. Fail → held from publish / routed to the operator queue.
+2. **Community.** The existing **two-confirmation** mechanic to publish, **plus a flag action on every report**. **Two flags auto-hide** a report pending operator review.
+3. **Operator.** A **moderation queue in NerveCentre** (§3): *pending*, *flagged*, *recently published*, with **one-tap remove** and **block-user**.
+
+### `pulsio_moderation` — audit trail (new table, to add)
+Log **every** moderation decision — the audit trail due diligence asks for. Proposed shape:
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | bigint PK | |
+| `report_id` | bigint FK → `pulsio_reports` | |
+| `layer` | text | `auto` / `community` / `operator` |
+| `actor` | text/uuid | model id, or flagging user's id, or operator id |
+| `model_result` | jsonb | what the vision model returned (category match, people-detected, verdict, scores) |
+| `action` | text | `published` / `held` / `flagged` / `auto_hidden` / `removed` / `user_blocked` |
+| `reason` | text | free text / reason code |
+| `created_at` | timestamptz | default `now()` |
+
+**Related schema deltas on `pulsio_reports`:** add flag tracking (`flag_count int`, `flagged_by uuid[]`) and an **auto-hidden** state distinct from operator-removed (extend the `status` check with `hidden`; `removed` stays for operator action). **Block-user** sets a blocked flag on the profile so a blocked user's new reports are rejected/auto-hidden.
+
+### Confirmation radius
+A report is **confirmable only within 2km of the original pin.** District is too coarse — a Grand Baie report shouldn't be confirmable from the far side of Rivière du Rempart. (Distance is computed on-device from the confirming user's location; only the confirm action reaches the server.)
+
+### Where reports appear
+- **On the map** — as pins (published/confirmed only).
+- **In the pulse result panel** — a summarised line, e.g. *"3 community reports near you"* (§ pulse result / FRONTEND §E).
+
+### App Store review — UGC requirements (must be implemented, not just specced)
+Apple requires any app with user-generated content to provide: **(1) a way to report objectionable content, (2) a way to remove it, and (3) the ability to block a user.** The three layers above satisfy all three — flag action (report), operator remove (remove), block-user (block). **Verify these are actually shipped and functional, not just written down here** — this is checked at review.
+
+---
+
+## 12. One-line summary per surface (for the rebuild triage)
 
 - **News** → the only thing that actually works. Port it as-is (schema is stable).
 - **ALERTS panel** → closest to pure wiring: all three sources exist and are live (`pulsio_ceb`, `pulsio_cwa`, `pulsio_cyclone`). Low risk.
