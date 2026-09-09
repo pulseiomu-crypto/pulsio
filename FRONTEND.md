@@ -75,7 +75,7 @@ Per `RESTYLE-NOTES.md` — finish changes only, nothing in its Flag B changes:
 
 **Interaction:** attempting an act presents a **sign-in sheet**; on success, the original action **resumes** where it left off (e.g. the half-typed report is submitted). Never block browsing to force sign-in. Signed-out quota is tracked on-device (Keychain); signing in binds it to the server profile.
 
-**Account:** Sign in with Apple + email. Because we offer sign-up, **in-app account deletion is mandatory** (SPEC §8, Review 5.1.1(v)) — lives in Settings (§ screen I).
+**Account:** sign in with **Google, Apple, or email magic link — no passwords.** Because we offer sign-up, **in-app account deletion is mandatory** (SPEC §8, Review 5.1.1(v)) — lives in Settings (§ screen I).
 
 ---
 
@@ -287,7 +287,7 @@ Both carry a **"Remove ads ↑"** affordance → opens Upgrade (§ screen J).
 ### I. Settings & account
 
 **Elements**
-- **Account:** Sign in with Apple / email; when signed in — display name, tier, **manage subscription** (→ system IAP management), **Sign out**, and **Delete account** (mandatory in-app, SPEC §8).
+- **Account:** sign in with **Google, Apple, or email magic link (no passwords)**; when signed in — display name, tier, **manage subscription** (→ system IAP management), **Sign out**, **Sign out of all devices** (SPEC §17), and **Delete account** (mandatory in-app, SPEC §8).
 - **District** — editable permanently (SPEC §10 step 5); shows current source (GPS/manual); re-request location option.
 - **Devices** — "N of {tier max}" (device management is display-oriented for Oct; enforcement per tier).
 - **Notifications / Morning Pulse** ⏳ — toggle + time picker present, but **delivery is deferred**; setting persists to profile, no push sent in Oct (SPEC §5). Label honestly ("coming soon") rather than implying delivery.
