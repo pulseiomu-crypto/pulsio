@@ -653,13 +653,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "We sent a sign-in link and a 6-digit code to %@."
+            "value": "We sent a sign-in link and a code to %@."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "needs_review",
-            "value": "Nous avons envoyé un lien de connexion et un code à 6 chiffres à %@."
+            "value": "Nous avons envoyé un lien de connexion et un code à %@."
           }
         }
       }
@@ -1146,13 +1146,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The code is 6 digits — check the email and try again."
+            "value": "That code doesn't look right — check the email and try again."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "needs_review",
-            "value": "Le code comporte 6 chiffres — vérifiez l'e-mail et réessayez."
+            "value": "Ce code ne semble pas valide — vérifiez l'e-mail et réessayez."
           }
         }
       }

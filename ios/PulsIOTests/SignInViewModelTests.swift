@@ -12,13 +12,13 @@ struct SignInViewModelTests {
         #expect(!SignInViewModel.looksLikeEmail(s))
     }
 
-    @Test(arguments: ["123456", "000000"])
-    func acceptsSixDigitCodes(s: String) {
+    @Test(arguments: ["123456", "000000", "92947593", "1234567890"])
+    func acceptsCodesOfSupabaseLength(s: String) {
         #expect(SignInViewModel.looksLikeCode(s))
     }
 
-    @Test(arguments: ["", "12345", "1234567", "12345a", "12 345"])
-    func rejectsNonSixDigitCodes(s: String) {
+    @Test(arguments: ["", "12345", "12345678901", "12345a", "12 345"])
+    func rejectsOtherCodes(s: String) {
         #expect(!SignInViewModel.looksLikeCode(s))
     }
 }

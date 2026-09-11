@@ -57,16 +57,14 @@ links — observed with Gmail on 2026-09-11).
   only) deletes `auth.users` and everything cascading; `pulsio_emergency_state` view (public-read).
 - Callback deep link: `pulsio://auth-callback` (Info.plist `CFBundleURLTypes`, handled in `PulsIOApp.onOpenURL`).
 
-### Supabase dashboard configuration required (not scriptable from here)
+### Supabase dashboard configuration (done 2026-09-11 unless marked)
 
-Authentication → URL Configuration
-- **Site URL**: `https://pulsio.mu` (currently `http://localhost:3000`).
-- **Redirect URLs**: add `pulsio://auth-callback` (otherwise links bounce to the Site URL).
+Authentication → URL Configuration — **done**: Site URL `https://pulsio.mu`; `pulsio://auth-callback` on the redirect list.
+Authentication → SMTP — **done**: custom SMTP via Google Workspace (`noreply@pulsio.mu`).
+Authentication → Email Templates — **done**: *Confirm signup* and *Magic Link* both carry `{{ .Token }}`.
+Note the project's email OTP length is **8 digits** (Auth → Settings); the app accepts 6–10.
 
-Authentication → Email Templates → *Confirm signup* **and** *Magic Link*: include the code so scanners
-can't burn the sign-in, e.g. `Your PulsIO code: {{ .Token }}` alongside `{{ .ConfirmationURL }}`.
-
-Authentication → Providers
+Authentication → Providers — **still to do**
 - **Apple**: enable; add `mu.pulsio.app` to *Authorized Client IDs* (native flow — no Services ID/secret needed).
 - **Google**: enable with a *Web application* OAuth client ID + secret from Google Cloud; add the Supabase
   callback `https://beyplrfqhfklylmmrxmw.supabase.co/auth/v1/callback` as an authorised redirect URI there.
@@ -81,3 +79,22 @@ Apple Developer (for Sign in with Apple to work at all, simulator included)
 - State is local to a feature by default; only session/tier/preferences/district are app-level.
 - Adding a screen touches: one `Features/` folder, one line in `App/RootView.swift`, a repository method if
   it needs new data, and string keys. Nothing else.
+
+## Running the auth smoke tests end to end
+
+Signed-out checks run with the normal `test` action. The stateful ones opt in through `TEST_RUNNER_*`
+environment variables (xcodebuild forwards them to the runner) and expect a specific simulator state:
+
+```sh
+# sends a real email; the code is either autofilled (macOS Mail + AutoFill on this Mac types it into the
+# focused one-time-code field) or read from the inbox and written to the file
+TEST_RUNNER_MAGIC_LINK_EMAIL=you@example.com TEST_RUNNER_MAGIC_LINK_CODE_FILE=/tmp/code.txt \
+  xcodebuild ... test -only-testing:PulsIOUITests/AuthSmokeTests/testEmailCodeSignInEndToEnd
+TEST_RUNNER_SIGN_OUT=1        xcodebuild ... -only-testing:PulsIOUITests/AuthSmokeTests/testSignOut
+TEST_RUNNER_SIGN_OUT_ALL=1    xcodebuild ... -only-testing:PulsIOUITests/AuthSmokeTests/testSignOutOfAllDevices
+TEST_RUNNER_DELETE_ACCOUNT=1  xcodebuild ... -only-testing:PulsIOUITests/AuthSmokeTests/testDeleteAccount
+```
+
+Verified 2026-09-11 on iPhone 17 / iOS 26.5: gate → email → link + code → session → profile row created by
+the trigger → Account sheet → sign out (`scope=local`) → sign out everywhere (`scope=global`) → delete
+account (auth.users, sessions, identities and profile all gone).

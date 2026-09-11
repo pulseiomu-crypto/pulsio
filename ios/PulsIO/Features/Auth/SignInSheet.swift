@@ -199,7 +199,7 @@ struct SignInSheet: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: Metrics.Space.sm) {
-                TextField(text: $model.code, prompt: Text(verbatim: "123456").foregroundColor(Palette.muted2)) {
+                TextField(text: $model.code, prompt: Text(verbatim: "12345678").foregroundColor(Palette.muted2)) {
                     Text("auth.code.label")
                 }
                 .textContentType(.oneTimeCode)

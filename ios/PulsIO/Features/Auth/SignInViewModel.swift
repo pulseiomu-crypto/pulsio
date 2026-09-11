@@ -58,8 +58,9 @@ final class SignInViewModel {
         errorKey = nil
     }
 
+    /// Supabase's email OTP length is a project setting (6–10 digits; this project uses 8).
     nonisolated static func looksLikeCode(_ s: String) -> Bool {
-        s.count == 6 && s.allSatisfy(\.isNumber)
+        (6...10).contains(s.count) && s.allSatisfy(\.isNumber)
     }
 
     private func run(success: Phase = .idle, _ work: () async throws -> Void) async {
