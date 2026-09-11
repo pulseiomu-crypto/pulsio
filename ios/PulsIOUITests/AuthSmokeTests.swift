@@ -92,6 +92,30 @@ final class AuthSmokeTests: XCTestCase {
         app.buttons["account.done"].tap()
     }
 
+    /// Google door: taps "Continue with Google", accepts the system web-auth prompt, then waits for a person
+    /// to complete Google's sign-in in the simulator. Ends on the Account sheet showing the Google provider.
+    func testGoogleSignIn() throws {
+        guard ProcessInfo.processInfo.environment["GOOGLE_SIGN_IN"] == "1" else {
+            throw XCTSkip("Set GOOGLE_SIGN_IN=1 and complete Google's login by hand in the simulator")
+        }
+        app.buttons["root.account"].tap()
+        XCTAssertTrue(app.buttons["signin.google"].waitForExistence(timeout: 5))
+        app.buttons["signin.google"].tap()
+
+        // ASWebAuthenticationSession asks "PulsIO wants to use supabase.co to sign in" — a SpringBoard alert.
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let proceed = springboard.buttons["Continue"]
+        if proceed.waitForExistence(timeout: 15) { proceed.tap() }
+        sleep(5)
+        attachScreen(named: "google-web-auth")
+
+        XCTAssertTrue(app.buttons["signin.google"].waitForNonExistence(timeout: 480), "Google sign-in was not completed in time")
+        app.buttons["root.account"].tap()
+        XCTAssertTrue(app.staticTexts["Signed in with Google"].waitForExistence(timeout: 10), "Account should show the Google provider")
+        attachScreenshot(named: "account-google")
+        app.buttons["account.done"].tap()
+    }
+
     /// Run only while signed in: Sign out returns the profile button to the gate.
     func testSignOut() throws {
         guard ProcessInfo.processInfo.environment["SIGN_OUT"] == "1" else {
@@ -137,6 +161,14 @@ final class AuthSmokeTests: XCTestCase {
         XCTAssertTrue(app.buttons["root.account"].waitForExistence(timeout: 10))
         app.buttons["root.account"].tap()
         XCTAssertTrue(app.buttons["signin.apple"].waitForExistence(timeout: 5))
+    }
+
+    /// Whole-screen capture — needed when another process (SpringBoard, the web-auth sheet) is on top.
+    private func attachScreen(named name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     private func attachScreenshot(named name: String) {
