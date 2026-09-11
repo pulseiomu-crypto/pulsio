@@ -86,8 +86,8 @@ Signed-out checks run with the normal `test` action. The stateful ones opt in th
 environment variables (xcodebuild forwards them to the runner) and expect a specific simulator state:
 
 ```sh
-# sends a real email; the code is either autofilled (macOS Mail + AutoFill on this Mac types it into the
-# focused one-time-code field) or read from the inbox and written to the file
+# sends a real email; the code is either typed into the simulator by hand, or read from the inbox and
+# written to the file for the test to type
 TEST_RUNNER_MAGIC_LINK_EMAIL=you@example.com TEST_RUNNER_MAGIC_LINK_CODE_FILE=/tmp/code.txt \
   xcodebuild ... test -only-testing:PulsIOUITests/AuthSmokeTests/testEmailCodeSignInEndToEnd
 TEST_RUNNER_SIGN_OUT=1        xcodebuild ... -only-testing:PulsIOUITests/AuthSmokeTests/testSignOut

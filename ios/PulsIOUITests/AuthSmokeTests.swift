@@ -46,9 +46,9 @@ final class AuthSmokeTests: XCTestCase {
         attachScreenshot(named: "magic-link-sent")
     }
 
-    /// Full email door: send the link, then either the system autofills the emailed code (macOS Mail +
-    /// AutoFill types it into the focused `.oneTimeCode` field on this machine) or the code is dropped into
-    /// `MAGIC_LINK_CODE_FILE` by whoever is reading the inbox and we type it. Ends on the Account sheet.
+    /// Full email door: send the link, then wait for the emailed code to arrive one of two ways — a person
+    /// types it into the simulator by hand, or whoever is reading the inbox drops it into `MAGIC_LINK_CODE_FILE`
+    /// and the test types it. Ends on the Account sheet.
     func testEmailCodeSignInEndToEnd() throws {
         let env = ProcessInfo.processInfo.environment
         guard let email = env["MAGIC_LINK_EMAIL"], !email.isEmpty, let codeFile = env["MAGIC_LINK_CODE_FILE"] else {
@@ -64,9 +64,9 @@ final class AuthSmokeTests: XCTestCase {
 
         let deadline = Date().addingTimeInterval(240)
         var code: String?
-        var autofilled = false
-        while Date() < deadline, code == nil, !autofilled {
-            if !app.buttons["signin.verifyCode"].exists { autofilled = true; break }
+        var enteredByHand = false
+        while Date() < deadline, code == nil, !enteredByHand {
+            if !app.buttons["signin.verifyCode"].exists { enteredByHand = true; break }
             if let raw = try? String(contentsOfFile: codeFile, encoding: .utf8) {
                 let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
                 if (6...10).contains(trimmed.count), trimmed.allSatisfy(\.isNumber) { code = trimmed }
@@ -80,7 +80,7 @@ final class AuthSmokeTests: XCTestCase {
             codeField.typeText(code)
             app.buttons["signin.verifyCode"].tap()
         } else {
-            XCTAssertTrue(autofilled, "no code appeared in \(codeFile) within 240s and the gate did not close")
+            XCTAssertTrue(enteredByHand, "no code appeared in \(codeFile) within 240s and the gate did not close")
         }
 
         // Sheet closes on sign-in; the profile button now opens Account.
