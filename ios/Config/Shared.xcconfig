@@ -1,0 +1,8 @@
+// Shared build configuration. Values here flow into Info.plist via $(VAR) references.
+// The publishable key is public by design (it ships in the web app too); RLS is the security boundary.
+// NOTE: "$()" is the xcconfig idiom for a literal "//" — otherwise it starts a comment.
+SUPABASE_URL = https:/$()/beyplrfqhfklylmmrxmw.supabase.co
+SUPABASE_PUBLISHABLE_KEY = sb_publishable_v7VVy6T1fGD7chyPqG_RDg_bRykgvlf
+
+// Signing. Leave empty for simulator builds; set to your Apple Developer Team ID for device builds/archives.
+DEVELOPMENT_TEAM =

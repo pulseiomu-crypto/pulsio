@@ -1,0 +1,19 @@
+{
+  "$comment": "Hand-authored fixed enums shared by iOS, web and NerveCentre (ARCHITECTURE.md §3, kind 2). Codegen to Swift/TS is not built yet: until it is, ios/PulsIO/Contracts/Enums/*.swift mirror these by hand and must be updated in the same commit.",
+  "newsCategory": {
+    "source": "pulsio_news.category (text, default 'general')",
+    "values": [
+      "breaking",
+      "crime",
+      "traffic",
+      "weather",
+      "community",
+      "politics",
+      "economy",
+      "sports",
+      "tourism",
+      "general"
+    ],
+    "fallback": "general"
+  }
+}

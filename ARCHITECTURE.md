@@ -207,7 +207,7 @@ Web is a **thin client over the same brain and the same contracts**, not a re-im
   - **Animation:** same PulseFX *concept* over the web map's `project/unproject` (§5).
 - **The mental model:** iOS and web are two skins with identical wiring diagrams. If a feature behaves differently between them for any reason other than the platform-glue list above, that's a bug, not a variation.
 
-**Web framework — open, with a recommendation.** Undecided. **Recommendation: React + TypeScript (Vite).** Reasons: it has the strongest first-party support for the two SDKs this build leans on — **MapLibre GL JS** and **supabase-js** — the largest hiring/AI-assistance pool, and a component model that maps cleanly onto the feature-module structure in §4 (a `Features/` folder per surface, repositories in a `Data/` layer, generated types from `contracts/`). The lighter alternative is **SvelteKit** (smaller bundle, less boilerplate) at the cost of ecosystem depth. TS is assumed either way, since `contracts/` generates TypeScript. **To be ratified** before the web build starts.
+**Web framework — decided (ratified 2026-09-10): React + TypeScript, built with Vite.** Reasons: it has the strongest first-party support for the two SDKs this build leans on — **MapLibre GL JS** and **supabase-js** — the largest hiring/AI-assistance pool, and a component model that maps cleanly onto the feature-module structure in §4 (a `Features/` folder per surface, repositories in a `Data/` layer, generated types from `contracts/`). SvelteKit was the considered alternative (smaller bundle, less boilerplate) and was set aside for ecosystem depth. TS is a given since `contracts/` generates TypeScript. The web app lives at `web/` in this repo, sibling to `ios/` (§1 topology).
 
 ---
 
@@ -227,4 +227,4 @@ Named honestly, because this is where it breaks first.
 
 ---
 
-*Planning document. No code yet. Built on SPEC.md + FRONTEND.md; grounded in the live Supabase function set (`calculate_pulsscore`, `confirm_report`, `expire_old_reports`, `reset_daily_pulses`) and the `pulsio-backend` pipeline shape.*
+*Planning document; the iOS scaffold in `ios/` is the first code built against it (2026-09-10). Built on SPEC.md + FRONTEND.md; grounded in the live Supabase function set (`calculate_pulsscore`, `confirm_report`, `expire_old_reports`, `reset_daily_pulses`) and the `pulsio-backend` pipeline shape.*
