@@ -54,6 +54,7 @@ targets:
         PRODUCT_NAME: PulsIO
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: PulsIO/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: PulsIO/Resources/PulsIO.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
@@ -71,17 +72,32 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: mu.pulsio.app.tests
         GENERATE_INFOPLIST_FILE: YES
 
+  PulsIOUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: PulsIOUITests
+    dependencies:
+      - target: PulsIO
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: mu.pulsio.app.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: PulsIO
+
 schemes:
   PulsIO:
     build:
       targets:
         PulsIO: all
         PulsIOTests: [test]
+        PulsIOUITests: [test]
     run:
       config: Debug
     test:
       config: Debug
       targets:
         - PulsIOTests
+        - PulsIOUITests
     archive:
       config: Release

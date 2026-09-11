@@ -1,9 +1,12 @@
 import Foundation
 
 /// Composition root: the one place that knows which concrete repositories the app runs on.
-/// Features only ever see protocols from `Data/`, injected through the SwiftUI environment.
+/// Features only ever see protocols from `Data/` (via the environment) and the app-level stores.
+@MainActor
 struct AppEnvironment {
     let news: any NewsRepository
+    let session: SessionStore
+    let gate: AccessGate
 
     static func live() -> AppEnvironment {
         let config: SupabaseConfig
@@ -14,6 +17,15 @@ struct AppEnvironment {
             fatalError("PulsIO cannot start: \(error.localizedDescription)")
         }
         let gateway = SupabaseGateway(config: config)
-        return AppEnvironment(news: SupabaseNewsRepository(gateway: gateway))
+        let session = SessionStore(
+            auth: SupabaseAuthRepository(gateway: gateway),
+            profiles: SupabaseProfileRepository(gateway: gateway),
+            emergencies: SupabaseEmergencyRepository(gateway: gateway)
+        )
+        return AppEnvironment(
+            news: SupabaseNewsRepository(gateway: gateway),
+            session: session,
+            gate: AccessGate(session: session)
+        )
     }
 }

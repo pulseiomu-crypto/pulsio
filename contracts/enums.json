@@ -15,5 +15,33 @@
       "general"
     ],
     "fallback": "general"
+  },
+  "tier": {
+    "source": "pulsio_profiles.tier (text, default 'free', CHECK)",
+    "values": [
+      "free",
+      "t1",
+      "t2",
+      "pro"
+    ],
+    "fallback": "free"
+  },
+  "userType": {
+    "source": "pulsio_profiles.user_type (text, default 'mauritian', CHECK)",
+    "values": [
+      "mauritian",
+      "tourist",
+      "pro"
+    ],
+    "fallback": "mauritian"
+  },
+  "language": {
+    "source": "pulsio_profiles.language (text, default 'en', CHECK). 'cr' exists in the CHECK but Creole is dropped (SPEC §22); clients never offer it.",
+    "values": [
+      "en",
+      "fr",
+      "cr"
+    ],
+    "fallback": "en"
   }
 }
