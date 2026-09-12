@@ -1,30 +1,53 @@
 import SwiftUI
 
 /// App shell. Navigation registration lives here (ARCHITECTURE §4): a new screen is one new `Features/`
-/// module plus one entry in this file. The shell is a single stack around the news feed until the map lands;
-/// it also hosts the two app-level sheets — sign-in (from `AccessGate`) and account.
+/// module plus one entry in this file. The map is the root surface (FRONTEND §B); news and account open
+/// as sheets from the top bar; the sign-in gate is an app-level sheet driven by `AccessGate`.
 struct RootView: View {
     @Environment(SessionStore.self) private var session
     @Environment(AccessGate.self) private var gate
     @State private var isShowingAccount = false
+    @State private var isShowingNews = false
 
     var body: some View {
         @Bindable var gate = gate
         NavigationStack {
-            NewsFeedView()
+            MapScreen()
+                .toolbarBackground(.hidden, for: .navigationBar)
                 .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Text(verbatim: "PulsIO")
+                            .font(Typography.display(17, weight: .heavy))
+                            .foregroundStyle(Palette.ink)
+                            .fixedSize()
+                            .padding(.horizontal, Metrics.Space.xs)
+                            .accessibilityAddTraits(.isHeader)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { isShowingNews = true } label: {
+                            Image(systemName: "newspaper")
+                                .foregroundStyle(Palette.ink)
+                        }
+                        .accessibilityLabel(Text("news.title"))
+                        .accessibilityIdentifier("root.news")
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             // FRONTEND §I: signed-out, the profile button opens sign-in rather than settings.
                             if session.isSignedIn { isShowingAccount = true } else { gate.presentSignIn() }
                         } label: {
                             Image(systemName: session.isSignedIn ? "person.crop.circle.fill" : "person.crop.circle")
-                                .foregroundStyle(session.isSignedIn ? Palette.teal : Palette.muted)
+                                .foregroundStyle(session.isSignedIn ? Palette.teal : Palette.ink)
                         }
                         .accessibilityLabel(Text("account.title"))
                         .accessibilityIdentifier("root.account")
                     }
                 }
+        }
+        .sheet(isPresented: $isShowingNews) {
+            NavigationStack { NewsFeedView() }
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $gate.isPresentingSignIn, onDismiss: { gate.cancel() }) {
             SignInSheet()

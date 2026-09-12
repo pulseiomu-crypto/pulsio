@@ -25,6 +25,12 @@ packages:
   Supabase:
     url: https://github.com/supabase/supabase-swift
     from: 2.55.0
+  MapLibre:
+    url: https://github.com/maplibre/maplibre-gl-native-distribution
+    from: 6.31.0
+  GRDB:
+    url: https://github.com/groue/GRDB.swift
+    from: 7.11.0
 
 settings:
   base:
@@ -48,6 +54,10 @@ targets:
     dependencies:
       - package: Supabase
         product: Supabase
+      - package: MapLibre
+        product: MapLibre
+      - package: GRDB
+        product: GRDB
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: mu.pulsio.app

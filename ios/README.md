@@ -30,7 +30,9 @@ PulsIO/
   Contracts/      row models + fixed enums mirroring the schema / contracts/*.json — not feature code
   Data/           the ONE data department: SupabaseGateway + repositories (all network here)
     Auth/         AuthRepository — the only file that knows Supabase Auth
-  Platform/       device services; today: Auth/AppleSignInNonce (CryptoKit)
+    Sync/         POISync — pulls poi_changes_since deltas into the POIStore
+  Platform/       device services: Auth/AppleSignInNonce (CryptoKit), POIStore/ (GRDB on-device POI set)
+  Map/            MapSurface protocol (project/unproject/camera/markers) + MapLibreSurface (the only MapLibre import) + MapStyle
   DesignSystem/   tokens (Palette, Typography, Metrics), components, semantic mappings — the finish, once
   Features/       one folder per screen: View + ViewModel; a feature knows its repository, nothing else
   Localization/   Localizable.xcstrings (EN + FR) — no string literals in views
@@ -39,8 +41,29 @@ PulsIOTests/      unit tests (Swift Testing)
 PulsIOUITests/    simulator smoke tests (XCUITest); some steps opt in via env — see AuthSmokeTests
 ```
 
-Departments not yet populated (they arrive with their first feature): `Map/` (MapSurface + MapLibre
-adapter), `PulseFX/`.
+Department not yet populated (arrives with its first feature): `PulseFX/`.
+
+## Map & POIs
+
+- **Basemap**: ESRI World Dark Gray canvas (raster, keyless; Carto's keyless tiles are watermarked now),
+  darkened toward the palette in `Map/MapStyle.swift`. Max zoom 16 (ESRI's limit).
+- **POIs live on the device** (`Platform/POIStore`, GRDB, SPEC §10/ARCHITECTURE §8) and are synced by
+  version: `poi_changes_since(p_since, p_limit)` returns inserts/updates/deactivations and tombstones in
+  `version` order; `POISync` pages until caught up and stores the high-water mark. Runs on launch and on
+  foreground. The RPC is SECURITY DEFINER on purpose — table RLS hides `active=false` rows, but devices must
+  learn about deactivations, and the 136 approximate shelters (active=false) are needed for search-only
+  display. Migration: `poi_versioned_sync`.
+- **What's plotted** is a contract (`contracts/enums.json` → `POIDisplayRules`, SPEC §20): pinned =
+  beach, landmark, waterfall, hike, park, viewpoint, airport, ferry, marina, hospital, shelter (active only —
+  the 13 verified; approximate shelters never get a pin); layer (off by default) = fuel; search-only =
+  pharmacy, supermarket, mall, police, clinic, town. Types §20 doesn't mention (helipad, restaurant, hotel,
+  market, other) stay hidden.
+- **Colour is meaning** (`DesignSystem/Semantics/POIType+Tint.swift`): teal tourist, sky marine/transport,
+  coral emergency (hospital, shelter — shelters emphasised with a light stroke), green fuel.
+- **Attribution**: "POI © OpenStreetMap contributors · Basemap © Esri" is always on screen (ODbL), plus
+  MapLibre's ⓘ button carrying ESRI's full credit line.
+- Not in this pass: user location / blue dot (needs the in-context permission flow, SPEC §10), search,
+  segment tabs, map labels for pins (needs a glyph server), Rodrigues.
 
 ## Auth — browse freely, sign in to act
 

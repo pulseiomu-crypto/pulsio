@@ -43,5 +43,61 @@
       "cr"
     ],
     "fallback": "en"
+  },
+  "poiType": {
+    "source": "pulsio_poi.type (text, CHECK)",
+    "values": [
+      "beach",
+      "airport",
+      "landmark",
+      "viewpoint",
+      "hospital",
+      "fuel",
+      "restaurant",
+      "hotel",
+      "market",
+      "park",
+      "other",
+      "shelter",
+      "clinic",
+      "pharmacy",
+      "police",
+      "supermarket",
+      "mall",
+      "waterfall",
+      "hike",
+      "ferry",
+      "marina",
+      "helipad",
+      "town"
+    ],
+    "fallback": "other"
+  },
+  "poiDisplay": {
+    "$comment": "SPEC §20 pin/search split + §19 shelters. 'pinned' types are plotted when active; shelters only when active (= the 13 verified ones; the 136 approximate rows are active=false and search-only). 'layer' types are toggleable, off by default. 'searchOnly' are never plotted. Types in none of these lists (restaurant, hotel, market, other, helipad) are not surfaced by SPEC §20 and stay hidden until it says otherwise.",
+    "pinned": [
+      "beach",
+      "landmark",
+      "waterfall",
+      "hike",
+      "park",
+      "viewpoint",
+      "airport",
+      "ferry",
+      "marina",
+      "hospital",
+      "shelter"
+    ],
+    "layer": [
+      "fuel"
+    ],
+    "searchOnly": [
+      "pharmacy",
+      "supermarket",
+      "mall",
+      "police",
+      "clinic",
+      "town"
+    ]
   }
 }
