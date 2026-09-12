@@ -64,10 +64,15 @@ Authentication → SMTP — **done**: custom SMTP via Google Workspace (`noreply
 Authentication → Email Templates — **done**: *Confirm signup* and *Magic Link* both carry `{{ .Token }}`.
 Note the project's email OTP length is **8 digits** (Auth → Settings); the app accepts 6–10.
 
-Authentication → Providers — **still to do**
-- **Apple**: enable; add `mu.pulsio.app` to *Authorized Client IDs* (native flow — no Services ID/secret needed).
-- **Google**: enable with a *Web application* OAuth client ID + secret from Google Cloud; add the Supabase
-  callback `https://beyplrfqhfklylmmrxmw.supabase.co/auth/v1/callback` as an authorised redirect URI there.
+Authentication → Providers
+- **Google** — **done** (2026-09-12): Web-application OAuth client in Google Cloud with the Supabase callback
+  `https://beyplrfqhfklylmmrxmw.supabase.co/auth/v1/callback` as redirect URI; enabled in Supabase with the
+  client ID + secret. Verified end to end on the simulator: web-auth sheet → Google consent →
+  `pulsio://auth-callback` → session with `provider=google`, profile `display_name` seeded from Google's name.
+  Note: Supabase's OAuth state expires after **5 minutes** — a login that takes longer lands on the Site URL
+  with `OAuth state has expired`; the user just retries.
+- **Apple** — **still to do** (blocked on the Developer membership clearing): enable; add `mu.pulsio.app` to
+  *Authorized Client IDs* (native flow — no Services ID/secret needed).
 
 Apple Developer (for Sign in with Apple to work at all, simulator included)
 - Register App ID `mu.pulsio.app` with the *Sign in with Apple* capability; put the Team ID in
@@ -90,6 +95,7 @@ environment variables (xcodebuild forwards them to the runner) and expect a spec
 # written to the file for the test to type
 TEST_RUNNER_MAGIC_LINK_EMAIL=you@example.com TEST_RUNNER_MAGIC_LINK_CODE_FILE=/tmp/code.txt \
   xcodebuild ... test -only-testing:PulsIOUITests/AuthSmokeTests/testEmailCodeSignInEndToEnd
+TEST_RUNNER_GOOGLE_SIGN_IN=1  xcodebuild ... -only-testing:PulsIOUITests/AuthSmokeTests/testGoogleSignIn   # you complete Google's login in the simulator
 TEST_RUNNER_SIGN_OUT=1        xcodebuild ... -only-testing:PulsIOUITests/AuthSmokeTests/testSignOut
 TEST_RUNNER_SIGN_OUT_ALL=1    xcodebuild ... -only-testing:PulsIOUITests/AuthSmokeTests/testSignOutOfAllDevices
 TEST_RUNNER_DELETE_ACCOUNT=1  xcodebuild ... -only-testing:PulsIOUITests/AuthSmokeTests/testDeleteAccount
@@ -97,4 +103,4 @@ TEST_RUNNER_DELETE_ACCOUNT=1  xcodebuild ... -only-testing:PulsIOUITests/AuthSmo
 
 Verified 2026-09-11 on iPhone 17 / iOS 26.5: gate → email → link + code → session → profile row created by
 the trigger → Account sheet → sign out (`scope=local`) → sign out everywhere (`scope=global`) → delete
-account (auth.users, sessions, identities and profile all gone).
+account (auth.users, sessions, identities and profile all gone). Google door verified 2026-09-12 the same way.
