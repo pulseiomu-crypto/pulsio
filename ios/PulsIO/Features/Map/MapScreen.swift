@@ -15,7 +15,7 @@ struct MapScreen: View {
     @State private var showScore = false
     @State private var showShare = false
     @State private var model: MapViewModel?
-    @State private var surface = MapLibreSurface()
+    @State private var surface = MapLibreSurface(basemap: UserDefaults.standard.string(forKey: Basemap.defaultsKey).flatMap(Basemap.init(rawValue:)) ?? .default)
     @State private var showPrimer = false
     @State private var showPicker = false
     @State private var showSpent = false
@@ -79,6 +79,11 @@ struct MapScreen: View {
                 model = m
                 await m.start()
                 #if DEBUG
+                // Design/QA hook: start the camera somewhere specific ("lat,lng,zoom"). Debug builds only.
+                if let spec = ProcessInfo.processInfo.environment["MAP_CAMERA"] {
+                    let parts = spec.split(separator: ",").compactMap { Double($0) }
+                    if parts.count == 3 { surface.setCamera(MapCamera(latitude: parts[0], longitude: parts[1], zoom: parts[2]), animated: false) }
+                }
                 // Design/QA hook: play the ceremony without spending a pulse. Debug builds only.
                 if ProcessInfo.processInfo.environment["PULSEFX_PREVIEW"] == "1" {
                     try? await Task.sleep(for: .seconds(2))
@@ -153,6 +158,7 @@ struct MapScreen: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel(Text("location.locateMe"))
                     .accessibilityIdentifier("map.locate")
+                    BasemapSwitcher(selected: model.basemap) { model.setBasemap($0) }
                 }
             }
             Spacer()
@@ -214,6 +220,33 @@ struct MapScreen: View {
 }
 
 // MARK: - Pieces
+
+/// Three keyless ESRI basemaps (dark default, satellite, street) — a compact vertical pill of symbols.
+private struct BasemapSwitcher: View {
+    let selected: Basemap
+    let onSelect: (Basemap) -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(Basemap.allCases) { basemap in
+                Button { onSelect(basemap) } label: {
+                    Image(systemName: basemap.symbol)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(basemap == selected ? Palette.teal : Palette.muted)
+                        .frame(width: 44, height: 44)
+                        .background(basemap == selected ? Palette.teal.opacity(0.14) : .clear, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(basemap.label))
+                .accessibilityValue(Text(verbatim: basemap == selected ? "on" : "off"))
+                .accessibilityIdentifier("map.basemap.\(basemap.rawValue)")
+            }
+        }
+        .padding(2)
+        .background(Palette.deep.opacity(0.92), in: Capsule())
+        .overlay(Capsule().stroke(Palette.hairStrong, lineWidth: Metrics.hairline))
+    }
+}
 
 /// The PulsScore pill (FRONTEND §B top bar): score + verdict, tap → PulsScore.
 private struct ScorePill: View {

@@ -7,6 +7,7 @@ import Observation
 @Observable
 final class MapViewModel {
     private(set) var enabledLayers: Set<POIType> = []
+    private(set) var basemap: Basemap
     private(set) var markers: [MapMarker] = []
     private(set) var selected: POIRecord?
     private(set) var loadError: String?
@@ -18,10 +19,14 @@ final class MapViewModel {
     private var plotted: [String: POIRecord] = [:]
     private var emergencyActive = false
 
-    init(store: POIStore, sync: POISync, session: SessionStore) {
+    private let defaults: UserDefaults
+
+    init(store: POIStore, sync: POISync, session: SessionStore, defaults: UserDefaults = .standard) {
         self.store = store
         self.sync = sync
         self.session = session
+        self.defaults = defaults
+        basemap = defaults.string(forKey: Basemap.defaultsKey).flatMap(Basemap.init(rawValue:)) ?? .default
     }
 
     var syncPhase: POISync.Phase { sync.phase }
@@ -30,6 +35,14 @@ final class MapViewModel {
         self.surface = surface
         surface.onMarkerTap = { [weak self] marker in self?.select(marker) }
         surface.setMarkers(markers)
+    }
+
+    /// Persisted between sessions.
+    func setBasemap(_ basemap: Basemap) {
+        guard basemap != self.basemap else { return }
+        self.basemap = basemap
+        defaults.set(basemap.rawValue, forKey: Basemap.defaultsKey)
+        surface?.setBasemap(basemap)
     }
 
     /// Show whatever the device already has, then catch up with the server and show the result.

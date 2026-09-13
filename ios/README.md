@@ -113,8 +113,11 @@ spending. Opt-in UI test: `TEST_RUNNER_PULSE_FLOW=1` on a signed-in, unspent fre
 
 ## Map & POIs
 
-- **Basemap**: ESRI World Dark Gray canvas (raster, keyless; Carto's keyless tiles are watermarked now),
-  darkened toward the palette in `Map/MapStyle.swift`. Max zoom 16 (ESRI's limit).
+- **Basemaps** (SPEC §25): three keyless ESRI layers in `Map/MapStyle.swift` — dark (default, darkened
+  toward the palette, max zoom 16), satellite (World Imagery + place labels), street. Switcher on the map,
+  persisted as `map.basemap`. Swapping a style drops all layers; `MapLibreSurface` re-adds the POI layers in
+  `didFinishLoading`. Markers are a **double ring** (dark halo layer + light stroke) so they read on imagery.
+  Debug builds accept `MAP_CAMERA=lat,lng,zoom` to start somewhere specific (used by `BasemapTests`).
 - **POIs live on the device** (`Platform/POIStore`, GRDB, SPEC §10/ARCHITECTURE §8) and are synced by
   version: `poi_changes_since(p_since, p_limit)` returns inserts/updates/deactivations and tombstones in
   `version` order; `POISync` pages until caught up and stores the high-water mark. Runs on launch and on

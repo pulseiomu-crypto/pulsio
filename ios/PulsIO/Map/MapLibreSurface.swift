@@ -12,13 +12,14 @@ final class MapLibreSurface: NSObject, MapSurface {
 
     private static let sourceID = "poi"
     private static let circleLayerID = "poi-circles"
+    private static let haloLayerID = "poi-halo"
     private var markers: [String: MapMarker] = [:]
     private var pendingMarkers: [MapMarker]?
     private var features: [MLNPointFeature] = []
     private var litMarkers: Set<String>?
 
-    init(initialCamera: MapCamera = .mauritius) {
-        mapView = MLNMapView(frame: .zero, styleJSON: MapStyle.esriDarkGrayJSON)
+    init(initialCamera: MapCamera = .mauritius, basemap: Basemap = .default) {
+        mapView = MLNMapView(frame: .zero, styleJSON: MapStyle.json(for: basemap))
         super.init()
         mapView.delegate = self
         mapView.minimumZoomLevel = 7.5
@@ -96,6 +97,9 @@ final class MapLibreSurface: NSObject, MapSurface {
         } else {
             let source = MLNShapeSource(identifier: Self.sourceID, features: features, options: nil)
             style.addSource(source)
+            // Double ring (as NerveCentre): a dark halo layer beneath, a light stroke on the pin above, so pins
+            // read on the dark canvas AND over turquoise lagoons and cane fields on imagery.
+            style.addLayer(Self.makeHaloLayer(source: source))
             style.addLayer(Self.makeCircleLayer(source: source))
         }
     }
@@ -117,7 +121,34 @@ final class MapLibreSurface: NSObject, MapSurface {
         mapView.showsUserLocation = shows
     }
 
+    /// Setting a new style drops every source and layer; the POI layers come back in `didFinishLoading`.
+    func setBasemap(_ basemap: Basemap) {
+        mapView.styleJSON = MapStyle.json(for: basemap)
+    }
+
     // MARK: Styling
+
+    /// Pin radius by zoom; emphasised markers (shelters) ~40% larger. `zoom` may only feed a top-level
+    /// interpolate, so the halo gets its own stops (+2.5) rather than an arithmetic wrapper.
+    private static func radius(plus extra: Double) -> [Any] {
+        let e: [Any] = ["boolean", ["get", "emphasis"], false]
+        return [
+            "interpolate", ["linear"], ["zoom"],
+            8, ["case", e, 4.5 + extra, 3.2 + extra],
+            11, ["case", e, 7 + extra, 5 + extra],
+            14, ["case", e, 11 + extra, 8 + extra],
+        ]
+    }
+
+    /// The dark outer ring: a slightly larger abyss disc under each pin.
+    private static func makeHaloLayer(source: MLNShapeSource) -> MLNCircleStyleLayer {
+        let layer = MLNCircleStyleLayer(identifier: haloLayerID, source: source)
+        layer.circleColor = NSExpression(forConstantValue: UIColor(Palette.abyss))
+        layer.circleRadius = NSExpression(mglJSONObject: radius(plus: 2.5))
+        layer.circleOpacity = NSExpression(mglJSONObject: ["case", ["boolean", ["get", "lit"], true], 0.9, 0])
+        layer.circleStrokeWidth = NSExpression(forConstantValue: 0)
+        return layer
+    }
 
     private static func makeCircleLayer(source: MLNShapeSource) -> MLNCircleStyleLayer {
         let layer = MLNCircleStyleLayer(identifier: circleLayerID, source: source)
@@ -126,13 +157,9 @@ final class MapLibreSurface: NSObject, MapSurface {
         let emphasis: [Any] = ["boolean", ["get", "emphasis"], false]
         layer.circleColor = NSExpression(mglJSONObject: ["to-color", ["get", "tint"], Palette.Hex.string(Palette.Hex.muted)])
         // Grows with zoom; emphasised markers (shelters) ~40% larger.
-        layer.circleRadius = NSExpression(mglJSONObject: [
-            "interpolate", ["linear"], ["zoom"],
-            8, ["case", emphasis, 4.5, 3.2],
-            11, ["case", emphasis, 7, 5],
-            14, ["case", emphasis, 11, 8],
-        ])
-        layer.circleStrokeColor = NSExpression(mglJSONObject: ["case", emphasis, "#E8F2EC", "rgba(6,14,24,0.9)"])
+        layer.circleRadius = NSExpression(mglJSONObject: radius(plus: 0))
+        // The light inner ring — the second half of the double ring.
+        layer.circleStrokeColor = NSExpression(forConstantValue: UIColor(Palette.bone))
         layer.circleStrokeWidth = NSExpression(mglJSONObject: ["case", emphasis, 2, 1.2])
         layer.circleOpacity = NSExpression(mglJSONObject: ["case", ["boolean", ["get", "lit"], true], 0.95, 0])
         layer.circleStrokeOpacity = NSExpression(mglJSONObject: ["case", ["boolean", ["get", "lit"], true], 1, 0])
@@ -155,6 +182,8 @@ extension MapLibreSurface: @preconcurrency MLNMapViewDelegate {
         if let pending = pendingMarkers {
             pendingMarkers = nil
             setMarkers(pending)
+        } else if !features.isEmpty {
+            pushFeatures()   // a basemap swap dropped the POI layers; put them back
         }
     }
 }

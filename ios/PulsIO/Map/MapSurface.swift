@@ -50,4 +50,7 @@ protocol MapSurface: AnyObject {
 
     /// The user's own position, drawn by the map for the user only (SPEC §10). Enable only once authorised.
     func setShowsUserLocation(_ shows: Bool)
+
+    /// Swap the basemap; markers and camera survive the swap.
+    func setBasemap(_ basemap: Basemap)
 }

@@ -594,4 +594,14 @@ Neutral hairlines stay neutral; teal is rationed to live/active (RESTYLE-NOTES �
 
 ---
 
+## 25. Basemaps (decided 2026-09-13)
+
+**The consumer app gets a basemap switcher** — this **supersedes** the earlier decision that basemap switching was NerveCentre-only.
+- **Three keyless ESRI layers, the same ones NerveCentre uses:** *dark* (World Dark Gray Canvas + Reference — **default**, pulled toward the brand abyss), *satellite* (World Imagery + Boundaries & Places labels), *street* (World Street Map). Carto's keyless tiles are watermarked, hence ESRI.
+- **Control:** a minimal vertical pill of three symbols in the app's own design language (not NerveCentre's raw control), top-right under the locate button. **Persisted between sessions** (`map.basemap`).
+- **Markers on bright imagery:** the semantic palette was designed against the dark canvas; teal/amber/coral pins get lost over turquoise lagoons and green cane fields. Every marker therefore carries NerveCentre's **double ring** — a dark (abyss) halo beneath and a light (bone) stroke on the pin — so pins read on both dark and bright basemaps. Verified over Flic-en-Flac on satellite and street (2026-09-13).
+- Attribution per layer goes through MapLibre's ⓘ; the always-visible strip stays "POI © OpenStreetMap contributors · Basemap © Esri".
+
+---
+
 *Compiled from `pulsio-app-v1_18.html`, Supabase project `beyplrfqhfklylmmrxmw` (24 tables, 5 migrations, 0 edge functions), and the on-disk Pulsio source tree. No fixes or plans proposed — ledger only, as requested.*
