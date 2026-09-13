@@ -62,6 +62,8 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>PulsIO uses your location to work out which of Mauritius's districts you're in, so alerts and conditions match where you are. Your position stays on this phone — only the district is ever saved.</string>
 	<key>SupabaseURL</key>
 	<string>$(SUPABASE_URL)</string>
 	<key>SupabasePublishableKey</key>

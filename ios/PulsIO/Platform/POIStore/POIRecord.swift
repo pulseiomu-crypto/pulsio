@@ -20,6 +20,7 @@ struct POIRecord: Codable, Hashable, Sendable, Identifiable, FetchableRecord, Pe
     /// Audience segments (`all`, `tourist`, `mauritian`, `pro`), stored as JSON.
     var seg: [String]
     var active: Bool
+    var locationPrecision: LocationPrecision
     var version: Int64
     var updatedAt: Date?
 
@@ -40,15 +41,16 @@ struct POIRecord: Codable, Hashable, Sendable, Identifiable, FetchableRecord, Pe
         rating = change.rating
         seg = change.seg ?? ["all"]
         active = change.active
+        locationPrecision = change.locationPrecision ?? .exact
         version = change.version
         updatedAt = change.updatedAt
     }
 
     init(id: Int64, type: POIType, name: String, lat: Double, lng: Double, district: String? = nil, phone: String? = nil,
          hours: String? = nil, description: String? = nil, rating: Double? = nil, seg: [String] = ["all"],
-         active: Bool = true, version: Int64, updatedAt: Date? = nil) {
+         active: Bool = true, locationPrecision: LocationPrecision = .exact, version: Int64, updatedAt: Date? = nil) {
         self.id = id; self.type = type; self.name = name; self.lat = lat; self.lng = lng; self.district = district
         self.phone = phone; self.hours = hours; self.description = description; self.rating = rating; self.seg = seg
-        self.active = active; self.version = version; self.updatedAt = updatedAt
+        self.active = active; self.locationPrecision = locationPrecision; self.version = version; self.updatedAt = updatedAt
     }
 }

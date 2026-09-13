@@ -306,6 +306,7 @@ Grounded in Apple's Human Interface Guidelines (read 2026-09-05 via the rendered
 - **GPS fills it automatically when granted; the user picks it manually when not.**
 - Everything downstream **reads that one field** — features don't care, and can't tell, which way it was set.
 - The nine districts (constrain the column to these — it's currently unconstrained): **Port Louis, Pamplemousses, Rivière du Rempart, Flacq, Grand Port, Savanne, Plaines Wilhems, Moka, Rivière Noire (Black River).**
+  *Applied 2026-09-13:* `pulsio_profiles.district` is CHECK-constrained to exactly these nine, spelled as the pipeline already writes them (`'Black River'`). **Open:** `pulsio_ceb` also emits `'Rodrigues'` — outside the nine. Either Rodrigues becomes a tenth value or its alerts stay unreachable by district; decide before the alerts panel.
 
 ### 🔒 Privacy constraint — HARD RULE (non-negotiable)
 - **Store the district only. Never coordinates.** The server sees **one of nine district values, nothing finer** — ever.
@@ -512,6 +513,7 @@ tropical depression (51–62 km/h) · moderate tropical storm · severe tropical
 **Precision split** (`pulsio_poi` type `shelter`, 149 rows = 13 + 136):
 - **Only the 13 verified shelters appear as map pins.**
 - **The 136 approximate ones appear in the searchable list only** (§20) — name, village, phone number, **no pin** — clearly labelled *"location approximate, call to confirm."*
+- **Schema (added 2026-09-13):** `pulsio_poi.location_precision` ∈ {`exact`, `approximate`}. Previously `active = false` doubled as "approximate", which search couldn't tell apart from "closed"; now `active` means open/closed and `location_precision` means pin-worthy or not. All 149 shelters are `active`; 13 are `exact`.
 - This gives users everything we know **without implying precision we don't have.**
 - **NerveCentre task:** verifying an approximate shelter is a ~2-minute satellite check each — a good **pre-cyclone-season** job to delegate.
 
@@ -526,6 +528,10 @@ tropical depression (51–62 km/h) · moderate tropical storm · severe tropical
 **Searchable only (no pins):** pharmacies, supermarkets, malls, police stations, clinics, towns.
 
 **Toggleable layer, off by default:** fuel.
+
+**Emergency-only (decided 2026-09-13):** helipads. Hidden normally; **plotted while a cyclone warning or emergency is active** (`pulsio_emergency_state`), the same trigger that makes shelters prominent (§19). **General pattern:** emergency-relevant categories surface during emergencies rather than cluttering the map the rest of the time — add future categories (e.g. evacuation points) to this list, not to the always-on set. Shelters: only rows with `location_precision = 'exact'` are ever pinned; the 136 approximate ones are search-only (§19 — a wrong shelter pin during a cyclone is dangerous). Not surfaced anywhere by this section: restaurant, hotel, market, other.
+
+**Semantic colour:** see §24.
 
 **Search surface:** find POIs by **name or category**, **sorted by distance**, each result showing **distance** and tapping through to the map. Distance is computed **on-device** (location privacy rule, §10). Search is also **where the 136 approximate shelters live** (§19).
 
@@ -561,6 +567,25 @@ tropical depression (51–62 km/h) · moderate tropical storm · severe tropical
 - **Accounts / billing / reports / morning pulse** → schema ready, app side is stubs → **build**.
 - **Admin Control Centre** → DB ready, app never built → **build**.
 - **Pipeline** → **exists and runs**: `pulseiomu-crypto/pulsio-backend`, pm2 on the Mac Mini (`~/pulsio-backend`) — six parsers + runner + monitor + parse cache. Not in this repo and not on the MacBook Air, so read it there before the rebuild depends on its behavior.
+
+---
+
+## 24. Semantic colour (record)
+
+Colour is meaning, not decoration. The one mapping, used by both clients (`DesignSystem/Semantics` on iOS):
+
+| Colour | Token | Meaning |
+|---|---|---|
+| Sky `#4AB8FF` | `sky` | weather and marine conditions (humidity, sea state) |
+| Amber `#F5A623` | `amber` | warnings (temperature extremes, CEB/CWA cuts) |
+| Coral `#FF5A5A` | `coral` | danger and emergency — LIVE/alerts, hospitals, cyclone shelters |
+| Green `#3ED96E` | `green` | good/safe, and fuel |
+| Purple `#B09AFF` | `purple` | events, and Pro |
+| Teal `#00D4A8` | `teal` | brand, live/active state, and tourist POIs (beaches, landmarks, waterfalls, hikes, parks, viewpoints) |
+| White `#FFFFFF` | `transport` | **transport infrastructure** — airport, ferry terminals, marinas, flights (decided 2026-09-13; white reads as infrastructure rather than a condition, and is what the HTML app used for flights) |
+| Bone @ 0.55 | `muted` | neutral / search-only categories |
+
+Neutral hairlines stay neutral; teal is rationed to live/active (RESTYLE-NOTES §1).
 
 ---
 

@@ -16,6 +16,7 @@ enum Palette {
         static let sky: UInt32 = 0x4AB8FF
         static let green: UInt32 = 0x3ED96E
         static let purple: UInt32 = 0xB09AFF
+        static let transport: UInt32 = 0xFFFFFF   // infrastructure — airport, ferry, marina, flights (SPEC §24)
         static let muted: UInt32 = 0x93A39B   // opaque stand-in for bone@0.55 on abyss, for map use
 
         static func string(_ value: UInt32) -> String { String(format: "#%06X", value) }
@@ -34,6 +35,7 @@ enum Palette {
     static let sky = Color(hex: Hex.sky)
     static let green = Color(hex: Hex.green)
     static let purple = Color(hex: Hex.purple)
+    static let transport = Color(hex: Hex.transport)
 
     // Text
     static let ink = bone

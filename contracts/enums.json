@@ -74,7 +74,7 @@
     "fallback": "other"
   },
   "poiDisplay": {
-    "$comment": "SPEC §20 pin/search split + §19 shelters. 'pinned' types are plotted when active; shelters only when active (= the 13 verified ones; the 136 approximate rows are active=false and search-only). 'layer' types are toggleable, off by default. 'searchOnly' are never plotted. Types in none of these lists (restaurant, hotel, market, other, helipad) are not surfaced by SPEC §20 and stay hidden until it says otherwise.",
+    "$comment": "SPEC §20 pin/search split, §19 shelters, and the emergency pattern: emergency-relevant categories surface only while pulsio_emergency_state says an emergency is active, so they don't clutter the map normally. 'pinned' types are plotted when active; shelters additionally need locationPrecision = exact (approximate shelters are search-only, never pinned). 'layer' types are toggleable, off by default. 'searchOnly' are never plotted. 'emergencyOnly' are plotted only during an active emergency. Types in none of these lists (restaurant, hotel, market, other) are not surfaced by SPEC §20 and stay hidden.",
     "pinned": [
       "beach",
       "landmark",
@@ -98,6 +98,32 @@
       "police",
       "clinic",
       "town"
+    ],
+    "emergencyOnly": [
+      "helipad"
+    ]
+  },
+  "locationPrecision": {
+    "source": "pulsio_poi.location_precision (text, default 'exact', CHECK)",
+    "values": [
+      "exact",
+      "approximate"
+    ],
+    "fallback": "exact"
+  },
+  "district": {
+    "$comment": "SPEC §10: the only location state, one of nine values. Spelled exactly as the pipeline writes pulsio_ceb.district / pulsio_cwa.district / pulsio_poi.district so joins work ('Black River', not 'Rivière Noire'). pulsio_ceb also emits 'Rodrigues', which is outside this set — see SPEC §10.",
+    "source": "pulsio_profiles.district (text, CHECK)",
+    "values": [
+      "Port Louis",
+      "Pamplemousses",
+      "Rivière du Rempart",
+      "Flacq",
+      "Grand Port",
+      "Savanne",
+      "Plaines Wilhems",
+      "Moka",
+      "Black River"
     ]
   }
 }

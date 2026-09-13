@@ -1,13 +1,12 @@
 import SwiftUI
 
-/// Colour is meaning (SPEC): sky = weather & marine, amber = warnings, coral = danger & emergency,
-/// green = good & fuel, purple = events & pro, teal = brand & tourist. Airport rides with the marine group
-/// as "getting around" — the one call SPEC doesn't make explicitly.
+/// Colour is meaning (SPEC §24): sky = weather & marine, amber = warnings, coral = danger & emergency,
+/// green = good & fuel, purple = events & pro, teal = brand & tourist, white = transport infrastructure.
 extension POIType {
     var tintHex: UInt32 {
         switch self {
         case .beach, .landmark, .waterfall, .hike, .park, .viewpoint, .restaurant, .hotel, .market: Palette.Hex.teal
-        case .ferry, .marina, .airport, .helipad: Palette.Hex.sky
+        case .ferry, .marina, .airport, .helipad: Palette.Hex.transport
         case .hospital, .shelter, .clinic, .police: Palette.Hex.coral
         case .fuel: Palette.Hex.green
         case .pharmacy, .supermarket, .mall, .town, .other: Palette.Hex.muted

@@ -40,4 +40,7 @@ protocol MapSurface: AnyObject {
 
     func setMarkers(_ markers: [MapMarker])
     var onMarkerTap: ((MapMarker) -> Void)? { get set }
+
+    /// The user's own position, drawn by the map for the user only (SPEC §10). Enable only once authorised.
+    func setShowsUserLocation(_ shows: Bool)
 }

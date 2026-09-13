@@ -28,6 +28,7 @@ final class MapLibreSurface: NSObject, MapSurface {
         mapView.attributionButtonPosition = .bottomRight
         mapView.attributionButtonMargins = CGPoint(x: 8, y: 34)
         mapView.backgroundColor = UIColor(Palette.abyss)
+        mapView.tintColor = UIColor(Palette.sky)   // the blue dot
         setCamera(initialCamera, animated: false)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
@@ -80,6 +81,10 @@ final class MapLibreSurface: NSObject, MapSurface {
             style.addSource(source)
             style.addLayer(Self.makeCircleLayer(source: source))
         }
+    }
+
+    func setShowsUserLocation(_ shows: Bool) {
+        mapView.showsUserLocation = shows
     }
 
     // MARK: Styling

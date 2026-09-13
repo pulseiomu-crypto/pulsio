@@ -13,6 +13,7 @@ struct PulsIOApp: App {
                 .environment(environment.poiSync)
                 .environment(environment.session)
                 .environment(environment.gate)
+                .environment(environment.districts)
                 .preferredColorScheme(.dark)
                 .tint(Palette.teal)
                 .task { environment.session.start() }

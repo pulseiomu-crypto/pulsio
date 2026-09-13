@@ -5,8 +5,12 @@ import SwiftUI
 struct MapScreen: View {
     @Environment(\.poiStore) private var store
     @Environment(POISync.self) private var sync
+    @Environment(SessionStore.self) private var session
+    @Environment(DistrictStore.self) private var districts
     @State private var model: MapViewModel?
     @State private var surface = MapLibreSurface()
+    @State private var showPrimer = false
+    @State private var showPicker = false
 
     var body: some View {
         ZStack {
@@ -20,23 +24,76 @@ struct MapScreen: View {
         }
         .task {
             if model == nil {
-                let m = MapViewModel(store: store, sync: sync)
+                let m = MapViewModel(store: store, sync: sync, session: session)
                 m.attach(surface)
+                m.showUserLocation(districts.locationAvailability == .authorized)
                 model = m
                 await m.start()
             }
+        }
+        .onChange(of: session.emergency.isActive) { _, active in
+            Task { await model?.emergencyDidChange(active) }
+        }
+        .onChange(of: districts.locationAvailability) { _, availability in
+            model?.showUserLocation(availability == .authorized)
+        }
+        .sheet(isPresented: $showPrimer) {
+            LocationPrimerSheet { _ in Task { await recentreOnUser() } }
+        }
+        .sheet(isPresented: $showPicker) {
+            DistrictPickerSheet(framing: .general)
+        }
+    }
+
+    /// The locate button: the in-context point of first use for the permission (SPEC §10 flow step 2).
+    private func locateTapped() {
+        switch districts.locationAvailability {
+        case .notDetermined:
+            showPrimer = true
+        case .denied, .restricted:
+            showPicker = true
+        case .authorized:
+            Task {
+                if case .resolved = await districts.locate() { await recentreOnUser() }
+            }
+        }
+    }
+
+    private func recentreOnUser() async {
+        // The map's own blue dot has the position; we only nudge the camera toward it via the SDK's
+        // user-location annotation, so the coordinate never passes through app code that could keep it.
+        model?.showUserLocation(true)
+        if let coordinate = surface.mapView.userLocation?.coordinate, coordinate.latitude != 0 || coordinate.longitude != 0 {
+            model?.centre(on: coordinate.latitude, longitude: coordinate.longitude)
         }
     }
 
     @ViewBuilder
     private func overlays(_ model: MapViewModel) -> some View {
         VStack(alignment: .trailing, spacing: Metrics.Space.sm) {
-            HStack {
-                Spacer()
-                LayerToggle(title: "map.layer.fuel", tint: POIType.fuel.tint, isOn: model.isEnabled(.fuel)) {
-                    Task { await model.toggle(.fuel) }
+            HStack(alignment: .top) {
+                DistrictChip(district: districts.district, source: districts.source) {
+                    if districts.district == nil, districts.locationAvailability == .notDetermined { showPrimer = true } else { showPicker = true }
                 }
-                .accessibilityIdentifier("map.layer.fuel")
+                .accessibilityIdentifier("map.district")
+                Spacer()
+                VStack(alignment: .trailing, spacing: Metrics.Space.sm) {
+                    LayerToggle(title: "map.layer.fuel", tint: POIType.fuel.tint, isOn: model.isEnabled(.fuel)) {
+                        Task { await model.toggle(.fuel) }
+                    }
+                    .accessibilityIdentifier("map.layer.fuel")
+                    Button(action: locateTapped) {
+                        Image(systemName: districts.locationAvailability == .authorized ? "location.fill" : "location")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(districts.locationAvailability == .authorized ? Palette.sky : Palette.muted)
+                            .frame(width: 44, height: 44)
+                            .background(Palette.deep.opacity(0.92), in: Circle())
+                            .overlay(Circle().stroke(Palette.hairStrong, lineWidth: Metrics.hairline))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text("location.locateMe"))
+                    .accessibilityIdentifier("map.locate")
+                }
             }
             Spacer()
             if let poi = model.selected {
@@ -55,6 +112,38 @@ struct MapScreen: View {
 }
 
 // MARK: - Pieces
+
+/// "Where you are" — the one location field, and how it was set. Tap to change it (SPEC §10 step 5).
+private struct DistrictChip: View {
+    let district: District?
+    let source: DistrictStore.Source?
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Metrics.Space.sm) {
+                Image(systemName: source == .gps ? "location.fill" : "mappin")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(district == nil ? Palette.amber : Palette.teal)
+                VStack(alignment: .leading, spacing: 1) {
+                    if let district {
+                        Text(district.label).font(Typography.body(13, weight: .medium)).foregroundStyle(Palette.ink)
+                        Text(source == .gps ? "district.source.gps" : "district.source.manual")
+                            .font(Typography.mono(9)).tracking(0.1).textCase(.uppercase).foregroundStyle(Palette.muted2)
+                    } else {
+                        Text("district.chip.unset").font(Typography.body(13, weight: .medium)).foregroundStyle(Palette.ink)
+                        Text("district.chip.unset.hint").font(Typography.mono(9)).textCase(.uppercase).foregroundStyle(Palette.muted2)
+                    }
+                }
+            }
+            .padding(.horizontal, Metrics.Space.md)
+            .frame(minHeight: 44)
+            .background(Palette.deep.opacity(0.92), in: Capsule())
+            .overlay(Capsule().stroke(Palette.hairStrong, lineWidth: Metrics.hairline))
+        }
+        .buttonStyle(.plain)
+    }
+}
 
 private struct LayerToggle: View {
     let title: LocalizedStringResource

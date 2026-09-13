@@ -13,12 +13,15 @@ final class MapViewModel {
 
     private let store: POIStore
     private let sync: POISync
+    private let session: SessionStore
     private weak var surface: (any MapSurface)?
     private var plotted: [String: POIRecord] = [:]
+    private var emergencyActive = false
 
-    init(store: POIStore, sync: POISync) {
+    init(store: POIStore, sync: POISync, session: SessionStore) {
         self.store = store
         self.sync = sync
+        self.session = session
     }
 
     var syncPhase: POISync.Phase { sync.phase }
@@ -31,9 +34,25 @@ final class MapViewModel {
 
     /// Show whatever the device already has, then catch up with the server and show the result.
     func start() async {
+        emergencyActive = session.emergency.isActive
         await reload()
         await sync.run()
         await reload()
+    }
+
+    /// Emergency-only categories (helipads) appear/disappear with the emergency flag (SPEC §20).
+    func emergencyDidChange(_ active: Bool) async {
+        guard active != emergencyActive else { return }
+        emergencyActive = active
+        await reload()
+    }
+
+    func showUserLocation(_ shows: Bool) {
+        surface?.setShowsUserLocation(shows)
+    }
+
+    func centre(on latitude: Double, longitude: Double) {
+        surface?.setCamera(MapCamera(latitude: latitude, longitude: longitude, zoom: 12), animated: true)
     }
 
     func refresh() async {
@@ -56,7 +75,7 @@ final class MapViewModel {
 
     private func reload() async {
         do {
-            let pois = try await store.plotted(enabledLayers: enabledLayers)
+            let pois = try await store.plotted(enabledLayers: enabledLayers, emergencyActive: emergencyActive)
             plotted = Dictionary(uniqueKeysWithValues: pois.map { (String($0.id), $0) })
             markers = pois.map { poi in
                 MapMarker(id: String(poi.id), latitude: poi.lat, longitude: poi.lng, kind: poi.type.rawValue,

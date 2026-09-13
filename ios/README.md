@@ -26,12 +26,14 @@ xcodebuild -project PulsIO.xcodeproj -scheme PulsIO -destination 'platform=iOS S
 ```
 PulsIO/
   App/            shell: @main, composition root (AppEnvironment), navigation registration (RootView)
-    Session/      app-level identity: SessionStore (auth + profile + emergency flag), AccessPolicy, AccessGate
+    Session/      app-level state: SessionStore (auth + profile + emergency flag), AccessPolicy, AccessGate,
+                  DistrictStore (the one location field: district + how it was set)
   Contracts/      row models + fixed enums mirroring the schema / contracts/*.json — not feature code
   Data/           the ONE data department: SupabaseGateway + repositories (all network here)
     Auth/         AuthRepository — the only file that knows Supabase Auth
     Sync/         POISync — pulls poi_changes_since deltas into the POIStore
-  Platform/       device services: Auth/AppleSignInNonce (CryptoKit), POIStore/ (GRDB on-device POI set)
+  Platform/       device services: Auth/AppleSignInNonce, POIStore/ (GRDB on-device POI set),
+                  Location/ (LocationService — CoreLocation; DistrictResolver — GPS→district on-device)
   Map/            MapSurface protocol (project/unproject/camera/markers) + MapLibreSurface (the only MapLibre import) + MapStyle
   DesignSystem/   tokens (Palette, Typography, Metrics), components, semantic mappings — the finish, once
   Features/       one folder per screen: View + ViewModel; a feature knows its repository, nothing else
@@ -54,16 +56,36 @@ Department not yet populated (arrives with its first feature): `PulseFX/`.
   learn about deactivations, and the 136 approximate shelters (active=false) are needed for search-only
   display. Migration: `poi_versioned_sync`.
 - **What's plotted** is a contract (`contracts/enums.json` → `POIDisplayRules`, SPEC §20): pinned =
-  beach, landmark, waterfall, hike, park, viewpoint, airport, ferry, marina, hospital, shelter (active only —
-  the 13 verified; approximate shelters never get a pin); layer (off by default) = fuel; search-only =
-  pharmacy, supermarket, mall, police, clinic, town. Types §20 doesn't mention (helipad, restaurant, hotel,
-  market, other) stay hidden.
-- **Colour is meaning** (`DesignSystem/Semantics/POIType+Tint.swift`): teal tourist, sky marine/transport,
-  coral emergency (hospital, shelter — shelters emphasised with a light stroke), green fuel.
+  beach, landmark, waterfall, hike, park, viewpoint, airport, ferry, marina, hospital, shelter — shelters only
+  with `location_precision = exact` (the 13; the 136 approximate ones are search-only, never pinned);
+  layer (off by default) = fuel; search-only = pharmacy, supermarket, mall, police, clinic, town;
+  **emergency-only** = helipad (plotted while `pulsio_emergency_state` is active — the general pattern for
+  emergency-relevant categories). restaurant/hotel/market/other stay hidden.
+- **Colour is meaning** (SPEC §24, `DesignSystem/Semantics/POIType+Tint.swift`): teal tourist, white
+  transport infrastructure (airport, ferry, marina, helipad), coral emergency (hospital, shelter — shelters
+  emphasised with a light stroke), green fuel.
 - **Attribution**: "POI © OpenStreetMap contributors · Basemap © Esri" is always on screen (ODbL), plus
   MapLibre's ⓘ button carrying ESRI's full credit line.
-- Not in this pass: user location / blue dot (needs the in-context permission flow, SPEC §10), search,
-  segment tabs, map labels for pins (needs a glyph server), Rodrigues.
+- Not yet: search, segment tabs, map labels for pins (needs a glyph server), Rodrigues.
+
+## Location & district (SPEC §10)
+
+- **One field, nine values.** `DistrictStore` holds `district` + `source` (`gps` | `manual`), persisted in
+  UserDefaults always and to `pulsio_profiles.district` when signed in (CHECK-constrained to the nine, spelled
+  as the pipeline writes them — `'Black River'`). Sign-in reconciles: the profile's district wins if set,
+  otherwise the device's choice is pushed up.
+- **Hard privacy rule, enforced by shape:** `LocationService` hands a coordinate to exactly two consumers —
+  the map SDK (blue dot, drawn by MapLibre itself) and `DistrictResolver`, which turns it into a district
+  on-device by voting among the nearest POIs in the local store and drops it. `ProfileRepository.updateDistrict`
+  is the only location write and takes a `District`. Nothing stores or sends a coordinate.
+- **Flow:** the locate button / district chip is the in-context point of first use → `LocationPrimerSheet`
+  explains why *before* the system prompt → granted: resolve + blue dot; declined: `DistrictPickerSheet` with
+  SPEC §10's verbatim framing (never "features unavailable") and a Settings deep link. District is editable
+  permanently from the chip and from Account.
+- `DistrictResolver` is a nearest-POI vote (766/942 POIs carry a district); swap in district polygons behind
+  the same call if boundary precision ever matters.
+- Opt-in UI tests: `TEST_RUNNER_LOCATION_FLOW=allow|deny` after `xcrun simctl location <udid> set -20.3162,57.5203`
+  and `xcrun simctl privacy <udid> reset location mu.pulsio.app`.
 
 ## Auth — browse freely, sign in to act
 

@@ -4,8 +4,10 @@ import SwiftUI
 /// sign out everywhere (SPEC §17), delete account (App Store 5.1.1(v), genuinely deletes).
 struct AccountView: View {
     @Environment(SessionStore.self) private var session
+    @Environment(DistrictStore.self) private var districts
     @Environment(\.dismiss) private var dismiss
     @State private var displayName = ""
+    @State private var showDistrictPicker = false
     @State private var isConfirmingDelete = false
     @State private var isWorking = false
     @State private var errorKey: String?
@@ -52,6 +54,31 @@ struct AccountView: View {
                     }
                 } header: {
                     Eyebrow(text: "account.plan.eyebrow")
+                }
+                .listRowBackground(Palette.deep)
+
+                Section {
+                    Button { showDistrictPicker = true } label: {
+                        LabeledContent {
+                            HStack(spacing: Metrics.Space.sm) {
+                                if let district = districts.district {
+                                    Text(district.label).foregroundStyle(Palette.ink)
+                                } else {
+                                    Text("district.chip.unset").foregroundStyle(Palette.muted)
+                                }
+                                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(Palette.muted2)
+                            }
+                        } label: {
+                            Text("district.title")
+                        }
+                    }
+                    .accessibilityIdentifier("account.district")
+                } header: {
+                    Eyebrow(text: "district.title")
+                } footer: {
+                    Text(districts.source == .gps ? "district.source.gps.note" : "district.source.manual.note")
+                        .font(Typography.mono(10))
+                        .foregroundStyle(Palette.muted2)
                 }
                 .listRowBackground(Palette.deep)
 
@@ -118,6 +145,7 @@ struct AccountView: View {
                 Text("account.delete.confirm.body")
             }
         }
+        .sheet(isPresented: $showDistrictPicker) { DistrictPickerSheet(framing: .general) }
         .onAppear { displayName = session.profile?.displayName ?? "" }
         .onChange(of: session.profile?.displayName) { _, new in displayName = new ?? "" }
     }

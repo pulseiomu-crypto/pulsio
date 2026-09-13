@@ -6,6 +6,8 @@ protocol ProfileRepository: Sendable {
     /// The profile, creating it if the sign-up trigger somehow didn't (belt and braces; the trigger is the rule).
     func ensureProfile(for userID: UUID) async throws -> Profile
     func updateDisplayName(_ name: String?, for userID: UUID) async throws -> Profile
+    /// The ONLY location write the app ever makes: one of nine district values, never a coordinate (SPEC §10).
+    func updateDistrict(_ district: District?, for userID: UUID) async throws -> Profile
 }
 
 struct SupabaseProfileRepository: ProfileRepository {
@@ -27,6 +29,17 @@ struct SupabaseProfileRepository: ProfileRepository {
         let updated: [Profile] = try await gateway.client
             .from(Profile.table)
             .update(["display_name": trimmed.flatMap { $0.isEmpty ? nil : $0 }, "updated_at": ISO8601DateFormatter().string(from: .now)])
+            .eq("id", value: userID)
+            .select()
+            .execute().value
+        guard let profile = updated.first else { throw ProfileError.notFound }
+        return profile
+    }
+
+    func updateDistrict(_ district: District?, for userID: UUID) async throws -> Profile {
+        let updated: [Profile] = try await gateway.client
+            .from(Profile.table)
+            .update(["district": district?.rawValue, "updated_at": ISO8601DateFormatter().string(from: .now)])
             .eq("id", value: userID)
             .select()
             .execute().value

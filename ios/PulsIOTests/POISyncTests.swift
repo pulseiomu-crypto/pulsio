@@ -18,7 +18,7 @@ struct POISyncTests {
 
     private func row(_ id: Int64, _ version: Int64) -> POIChange {
         POIChange(id: id, version: version, deleted: false, type: .beach, name: "b\(id)", lat: -20.2, lng: 57.5, district: nil,
-                  phone: nil, hours: nil, description: nil, rating: nil, seg: ["all"], active: true, updatedAt: nil)
+                  phone: nil, hours: nil, description: nil, rating: nil, seg: ["all"], active: true, locationPrecision: .exact, updatedAt: nil)
     }
 
     @Test @MainActor func pagesUntilCaughtUpThenResumesIncrementally() async throws {

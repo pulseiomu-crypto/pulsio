@@ -6,6 +6,7 @@ import SwiftUI
 struct RootView: View {
     @Environment(SessionStore.self) private var session
     @Environment(AccessGate.self) private var gate
+    @Environment(DistrictStore.self) private var districts
     @State private var isShowingAccount = false
     @State private var isShowingNews = false
 
@@ -57,6 +58,10 @@ struct RootView: View {
         }
         .onChange(of: session.isSignedIn) { _, signedIn in
             if signedIn { gate.sessionDidSignIn() } else { isShowingAccount = false }
+        }
+        .onChange(of: session.profile?.id) { _, _ in
+            // Sign-in binds the device's district to the profile (or adopts the profile's).
+            Task { await districts.reconcile(with: session.profile) }
         }
     }
 }

@@ -9,7 +9,7 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
     let id: UUID
     var displayName: String?
     var userType: UserType
-    var district: String?
+    var district: District?
     var tier: Tier
     var pulsesRemaining: Int
     var pulsesTotal: Int
@@ -48,7 +48,7 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
         displayName = try c.decodeIfPresent(String.self, forKey: .displayName)
         // Nullable columns with DB defaults: decode leniently so a stray NULL never breaks sign-in.
         userType = try c.decodeIfPresent(UserType.self, forKey: .userType) ?? .mauritian
-        district = try c.decodeIfPresent(String.self, forKey: .district)
+        district = try c.decodeIfPresent(String.self, forKey: .district).flatMap(District.init(rawValue:))
         tier = try c.decodeIfPresent(Tier.self, forKey: .tier) ?? .free
         pulsesRemaining = try c.decodeIfPresent(Int.self, forKey: .pulsesRemaining) ?? 0
         pulsesTotal = try c.decodeIfPresent(Int.self, forKey: .pulsesTotal) ?? 0

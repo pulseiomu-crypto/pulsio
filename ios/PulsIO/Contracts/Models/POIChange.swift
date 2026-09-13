@@ -20,10 +20,12 @@ struct POIChange: Codable, Hashable, Sendable {
     let rating: Double?
     let seg: [String]?
     let active: Bool
+    let locationPrecision: LocationPrecision?
     let updatedAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case id, version, deleted, type, name, lat, lng, district, phone, hours, description, rating, seg, active
+        case locationPrecision = "location_precision"
         case updatedAt = "updated_at"
     }
 }

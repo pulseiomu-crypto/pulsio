@@ -9,6 +9,7 @@ struct AppEnvironment {
     let gate: AccessGate
     let poiStore: POIStore
     let poiSync: POISync
+    let districts: DistrictStore
 
     static func live() -> AppEnvironment {
         let config: SupabaseConfig
@@ -31,7 +32,8 @@ struct AppEnvironment {
             session: session,
             gate: AccessGate(session: session),
             poiStore: poiStore,
-            poiSync: POISync(remote: SupabasePOIRepository(gateway: gateway), store: poiStore)
+            poiSync: POISync(remote: SupabasePOIRepository(gateway: gateway), store: poiStore),
+            districts: DistrictStore(location: LocationService(), resolver: DistrictResolver(store: poiStore), session: session)
         )
     }
 }

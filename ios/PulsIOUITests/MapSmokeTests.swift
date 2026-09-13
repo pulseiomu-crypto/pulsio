@@ -39,3 +39,64 @@ final class MapSmokeTests: XCTestCase {
         add(a)
     }
 }
+
+/// The location layer (SPEC §10). Opt-in: `LOCATION_FLOW=allow` expects a simulated location set on the
+/// simulator and answers the system prompt with Allow; `LOCATION_FLOW=deny` declines and expects the picker.
+final class LocationFlowTests: XCTestCase {
+    private var app: XCUIApplication!
+
+    override func setUp() {
+        continueAfterFailure = false
+        app = XCUIApplication()
+        app.launch()
+    }
+
+    private func attach(_ name: String) {
+        let a = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        a.name = name
+        a.lifetime = .keepAlways
+        add(a)
+    }
+
+    private func openPrimerAndAllowTapped() {
+        XCTAssertTrue(app.buttons["map.locate"].waitForExistence(timeout: 10))
+        app.buttons["map.locate"].tap()
+        XCTAssertTrue(app.buttons["location.allow"].waitForExistence(timeout: 5), "in-context primer before the system prompt")
+        attach("location-primer")
+        app.buttons["location.allow"].tap()
+    }
+
+    func testAllowResolvesDistrictOnDevice() throws {
+        guard ProcessInfo.processInfo.environment["LOCATION_FLOW"] == "allow" else { throw XCTSkip("LOCATION_FLOW=allow") }
+        openPrimerAndAllowTapped()
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let allow = springboard.buttons["Allow While Using App"]
+        XCTAssertTrue(allow.waitForExistence(timeout: 10), "system prompt")
+        allow.tap()
+        let chip = app.buttons["map.district"]
+        let resolved = NSPredicate(format: "label CONTAINS[c] 'Plaines Wilhems'")
+        wait(for: [expectation(for: resolved, evaluatedWith: chip)], timeout: 30)
+        XCTAssertTrue(chip.label.localizedCaseInsensitiveContains("From your location"))
+        sleep(3)   // let the blue dot land
+        attach("location-allowed")
+    }
+
+    func testDenyFallsBackToPickerWithHonestFraming() throws {
+        guard ProcessInfo.processInfo.environment["LOCATION_FLOW"] == "deny" else { throw XCTSkip("LOCATION_FLOW=deny") }
+        openPrimerAndAllowTapped()
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let deny = springboard.buttons["Don’t Allow"]
+        XCTAssertTrue(deny.waitForExistence(timeout: 10), "system prompt")
+        deny.tap()
+        let framing = app.staticTexts["district.framing"]
+        XCTAssertTrue(framing.waitForExistence(timeout: 10), "picker after decline")
+        XCTAssertEqual(framing.label, "PulsIO works best when it knows where you are. Without it, pick your district and we'll show alerts and conditions for that area.")
+        attach("location-declined-picker")
+        app.buttons["district.option.Flacq"].tap()
+        let chip = app.buttons["map.district"]
+        let picked = NSPredicate(format: "label CONTAINS[c] 'Flacq'")
+        wait(for: [expectation(for: picked, evaluatedWith: chip)], timeout: 10)
+        XCTAssertTrue(chip.label.localizedCaseInsensitiveContains("Chosen by you"))
+        attach("location-manual")
+    }
+}

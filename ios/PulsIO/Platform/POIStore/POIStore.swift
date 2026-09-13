@@ -56,6 +56,11 @@ final class POIStore: Sendable {
                 t.column("value", .integer).notNull()
             }
         }
+        m.registerMigration("v2_location_precision") { db in
+            try db.alter(table: "poi") { t in
+                t.add(column: "locationPrecision", .text).notNull().defaults(to: LocationPrecision.exact.rawValue)
+            }
+        }
         return m
     }
 
@@ -101,21 +106,47 @@ final class POIStore: Sendable {
         }
     }
 
-    /// Everything the map should plot, per SPEC §20 rules and the enabled optional layers.
-    func plotted(enabledLayers: Set<POIType>) async throws -> [POIRecord] {
-        let types = POIDisplayRules.pinned.union(POIDisplayRules.layers.intersection(enabledLayers)).map(\.rawValue)
+    /// Everything the map should plot, per SPEC §20 rules, the enabled optional layers, and whether an
+    /// emergency is active (emergency-only categories, e.g. helipads).
+    func plotted(enabledLayers: Set<POIType>, emergencyActive: Bool = false) async throws -> [POIRecord] {
+        var types = POIDisplayRules.pinned.union(POIDisplayRules.layers.intersection(enabledLayers))
+        if emergencyActive { types.formUnion(POIDisplayRules.emergencyOnly) }
+        let typeNames = types.map(\.rawValue)
+        let exactOnly = POIDisplayRules.requiresExactLocation.map(\.rawValue)
         return try await db.read { db in
             try POIRecord
-                .filter(Column("active") == true && types.contains(Column("type")))
+                .filter(Column("active") == true && typeNames.contains(Column("type")))
+                .filter(!exactOnly.contains(Column("type")) || Column("locationPrecision") == LocationPrecision.exact.rawValue)
                 .order(Column("type"), Column("name"))
                 .fetchAll(db)
         }
     }
 
-    /// Nearest active POIs of a type to a coordinate — computed here, on the device (SPEC §10 privacy rule).
-    func nearest(_ type: POIType, to origin: CLLocationCoordinate2D, limit: Int = 3) async throws -> [(poi: POIRecord, metres: CLLocationDistance)] {
+    /// Districts of the nearest POIs that carry one — the on-device input for GPS → district (SPEC §10).
+    /// Returns (district, metres) nearest-first; the caller votes.
+    func nearestDistricts(to origin: CLLocationCoordinate2D, limit: Int = 7) async throws -> [(district: String, metres: CLLocationDistance)] {
         let candidates = try await db.read { db in
-            try POIRecord.filter(Column("type") == type.rawValue && Column("active") == true).fetchAll(db)
+            try POIRecord.filter(Column("district") != nil && Column("active") == true).fetchAll(db)
+        }
+        let from = CLLocation(latitude: origin.latitude, longitude: origin.longitude)
+        return candidates
+            .compactMap { poi -> (String, CLLocationDistance)? in
+                guard let district = poi.district else { return nil }
+                return (district, CLLocation(latitude: poi.lat, longitude: poi.lng).distance(from: from))
+            }
+            .sorted { $0.1 < $1.1 }
+            .prefix(limit)
+            .map { (district: $0.0, metres: $0.1) }
+    }
+
+    /// Nearest active POIs of a type to a coordinate — computed here, on the device (SPEC §10 privacy rule).
+    /// `exactOnly` drops approximate coordinates (default for shelters: "nearest shelter" must be one you can drive to).
+    func nearest(_ type: POIType, to origin: CLLocationCoordinate2D, limit: Int = 3, exactOnly: Bool? = nil) async throws -> [(poi: POIRecord, metres: CLLocationDistance)] {
+        let exact = exactOnly ?? POIDisplayRules.requiresExactLocation.contains(type)
+        let candidates = try await db.read { db in
+            var q = POIRecord.filter(Column("type") == type.rawValue && Column("active") == true)
+            if exact { q = q.filter(Column("locationPrecision") == LocationPrecision.exact.rawValue) }
+            return try q.fetchAll(db)
         }
         let from = CLLocation(latitude: origin.latitude, longitude: origin.longitude)
         return candidates
