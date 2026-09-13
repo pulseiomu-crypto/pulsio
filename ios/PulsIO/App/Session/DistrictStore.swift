@@ -44,6 +44,14 @@ final class DistrictStore {
 
     var locationAvailability: LocationService.Availability { location.availability }
 
+    /// A district-grade reference point for on-device computations (nearest station, sunset): the last
+    /// known fix if authorised, else the district's POI centroid, else nil. Never leaves the device.
+    func referenceCoordinate() async -> CLLocationCoordinate2D? {
+        if let fix = location.lastKnownCoordinate { return fix }
+        guard let district else { return nil }
+        return try? await resolver.store.districtCentroid(district)
+    }
+
     /// Manual choice (picker). Editable permanently, GPS-granted or not (SPEC §10 flow step 5).
     func setManual(_ district: District) async {
         await set(district, source: .manual)

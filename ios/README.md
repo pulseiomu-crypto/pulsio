@@ -64,6 +64,19 @@ All departments from ARCHITECTURE §4 now exist.
 PULSE label, "N available" / "Spent · next hh:mm" / "Sign in to pulse") → `AccessGate.perform(.firePulse)`
 → `consume_pulse` → the ceremony → `PulseSpentSheet` on P-103.
 
+**The result panel (SPEC §14, ARCHITECTURE §6).** `pulse_snapshot(p_district, p_station, p_priorities)`
+assembles and ORDERS the rows server-side and returns them as JSON; `PulsePanelView` renders them
+generically (label/detail are localisation keys, values carry unit codes, tone is a §24 token) — adding a
+sourced row is a change in the function, not in the clients. The three client-side inputs (§10.6) are
+passed in: the district (`DistrictStore`), the nearest of the 10 weather stations (picked on-device from
+`weather_stations()` against the last fix or the district's POI centroid), and the profile's priorities
+(reorder, never filter; default = cyclone, outages, reports, weather, score, fuel, events, sunset). Sunset is
+a `computed` row the server orders and the device fills (`Platform/Sun/SunCalculator`). Cyclone wording is
+the MMS vocabulary in `contracts/enums.json` (`mms.*` keys). Hosting (SPEC §7): compact widths get a bottom
+sheet with peek/half/full detents and background interaction so the island stays visible; regular widths get
+the right-hand panel slot. Opt-in UI test: `TEST_RUNNER_PANEL_FLOW=1` (+ `PANEL_FIRST_ROW=<key>` to assert
+the reorder) on a signed-in simulator with a pulse available.
+
 **PulseFX — the port.** 1:1 from the web module: ten phases over 7.45 s, `render(t)` a pure function of
 time drawn into a SwiftUI `Canvas` inside `TimelineView(.animation)`. No Metal: the terrain wave is vertex
 displacement (three 220-point rings sampled from the heightmap, masked to the baked island silhouette with

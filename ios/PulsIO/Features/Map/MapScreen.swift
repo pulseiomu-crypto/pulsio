@@ -10,6 +10,7 @@ struct MapScreen: View {
     @Environment(PulseStore.self) private var pulses
     @Environment(AccessGate.self) private var gate
     @Environment(PulseFXController.self) private var pulseFX
+    @Environment(PulseResultStore.self) private var result
     @State private var model: MapViewModel?
     @State private var surface = MapLibreSurface()
     @State private var showPrimer = false
@@ -18,18 +19,23 @@ struct MapScreen: View {
     @State private var buttonFrame: CGRect = .zero
 
     var body: some View {
-        ZStack {
-            MapSurfaceView(surface: surface)
-                .ignoresSafeArea()
-                .accessibilityIdentifier("map.surface")
+        PulsePanelHost(content: {
+            ZStack {
+                MapSurfaceView(surface: surface)
+                    .ignoresSafeArea()
+                    .accessibilityIdentifier("map.surface")
 
-            PulseFXOverlay(controller: pulseFX, button: CGPoint(x: buttonFrame.midX, y: buttonFrame.midY),
-                           buttonInner: PulseDock.buttonSize / 2 - PulseDock.bezel)
+                PulseFXOverlay(controller: pulseFX, button: CGPoint(x: buttonFrame.midX, y: buttonFrame.midY),
+                               buttonInner: PulseDock.buttonSize / 2 - PulseDock.bezel)
 
-            if let model {
-                overlays(model)
+                if let model {
+                    overlays(model)
+                }
             }
-        }
+        }, onTap: { row in
+            // Rows tap through to the map (SPEC §14); the panel steps aside so the island is visible.
+            if row.tap == "map" { result.isPresented = false }
+        })
         .coordinateSpace(.named("mapScreen"))
         .overlayPreferenceValue(PulseButtonAnchor.self) { anchor in
             GeometryReader { proxy in
@@ -128,9 +134,29 @@ struct MapScreen: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .accessibilityIdentifier("map.callout")
             }
-            PulseDock(controller: pulseFX, onFire: { fire(model) }, onSpent: { showSpent = true })
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, Metrics.Space.sm)
+            HStack(alignment: .bottom) {
+                Spacer()
+                PulseDock(controller: pulseFX, onFire: { fire(model) }, onSpent: { showSpent = true })
+                Spacer()
+            }
+            .overlay(alignment: .trailing) {
+                if result.hasResult, !result.isPresented, !pulseFX.isRunning {
+                    Button { result.isPresented = true } label: {
+                        Label { Text("panel.reopen") } icon: { Image(systemName: "waveform.path.ecg") }
+                            .font(Typography.mono(10, weight: .semibold))
+                            .tracking(0.14)
+                            .textCase(.uppercase)
+                            .foregroundStyle(Palette.teal)
+                            .padding(.horizontal, Metrics.Space.md)
+                            .frame(minHeight: 44)
+                            .background(Palette.deep.opacity(0.92), in: Capsule())
+                            .overlay(Capsule().stroke(Palette.hairActive, lineWidth: Metrics.hairline))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("panel.reopen")
+                }
+            }
+            .padding(.bottom, Metrics.Space.sm)
             HStack(alignment: .bottom) {
                 AttributionStrip(syncPhase: model.syncPhase, count: model.markers.count)
                 Spacer()
@@ -147,8 +173,10 @@ struct MapScreen: View {
             switch await pulses.fire() {
             case .success:
                 model.dismissSelection()
+                result.isPresented = false
                 pulseFX.fire(markers: model.markers, viewport: UIScreen.main.bounds.size,
-                             onReveal: {}, onDone: { Task { await pulses.refresh() } })
+                             onReveal: { Task { await result.load(present: false) } },   // fetch while the wave runs
+                             onDone: { Task { await pulses.refresh(); if result.hasResult { result.isPresented = true } else { await result.load() } } })
             case .failure(.code(.spent)):
                 showSpent = true
             case .failure:

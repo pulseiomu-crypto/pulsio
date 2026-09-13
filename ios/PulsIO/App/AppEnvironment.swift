@@ -12,6 +12,7 @@ struct AppEnvironment {
     let districts: DistrictStore
     let pulses: PulseStore
     let pulseFX: PulseFXController
+    let pulseResult: PulseResultStore
 
     static func live() -> AppEnvironment {
         let config: SupabaseConfig
@@ -38,7 +39,8 @@ struct AppEnvironment {
             poiSync: POISync(remote: SupabasePOIRepository(gateway: gateway), store: poiStore),
             districts: districts,
             pulses: PulseStore(pulses: SupabasePulseRepository(gateway: gateway), session: session, districts: districts),
-            pulseFX: PulseFXController(terrain: PulseFXTerrain.loadFromBundle())
+            pulseFX: PulseFXController(terrain: PulseFXTerrain.loadFromBundle()),
+            pulseResult: PulseResultStore(panel: SupabasePulsePanelRepository(gateway: gateway), session: session, districts: districts)
         )
     }
 }

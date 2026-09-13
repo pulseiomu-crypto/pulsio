@@ -125,5 +125,61 @@
       "Moka",
       "Black River"
     ]
+  },
+  "mmsCycloneWarning": {
+    "$comment": "Official Mauritius Meteorological Services wording (SPEC §15). Used verbatim; never invented terms. Keys are what pulse_snapshot() returns as value_key for the cyclone row.",
+    "values": [
+      "none",
+      "classI",
+      "classII",
+      "classIII",
+      "classIV",
+      "safetyBulletin",
+      "termination"
+    ]
+  },
+  "mmsRainWarning": {
+    "$comment": "SPEC §15 rain warnings. Vocabulary only until the pipeline sources them.",
+    "values": [
+      "heavyRain",
+      "heavyRainWatch",
+      "torrentialRain"
+    ]
+  },
+  "mmsSeaState": {
+    "$comment": "SPEC §15 sea state (high 6–9 m, very high 9–14 m, phenomenal >14 m). Vocabulary only until sourced.",
+    "values": [
+      "high",
+      "veryHigh",
+      "phenomenal"
+    ]
+  },
+  "priority": {
+    "$comment": "Onboarding priorities (FRONTEND §A step 3), stored in pulsio_profiles.priorities. pulse_snapshot() maps them to row groups: ceb→ceb, weather→weather, cyclone→cyclone, fuel→fuel; traffic and news have no rows yet and are ignored for ordering.",
+    "values": [
+      "ceb",
+      "weather",
+      "traffic",
+      "news",
+      "cyclone",
+      "fuel"
+    ]
+  },
+  "panelRow": {
+    "$comment": "The pulse_snapshot() row contract (ARCHITECTURE §6): an ordered list rendered generically. kind ∈ metric|status|count|list|computed (computed = the client fills it: sunset). unit ∈ c|pct|kmh|uv|score|mur_l|outages|reports|events|time. tone = a SPEC §24 colour token. tap ∈ map|score|null.",
+    "keys": [
+      "key",
+      "group",
+      "kind",
+      "label_key",
+      "value",
+      "value_key",
+      "unit",
+      "detail_key",
+      "detail_args",
+      "items",
+      "tone",
+      "tap"
+    ]
   }
 }

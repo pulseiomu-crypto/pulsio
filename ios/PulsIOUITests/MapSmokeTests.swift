@@ -143,4 +143,36 @@ final class PulseFlowTests: XCTestCase {
         XCTAssertEqual(app.staticTexts["pulse.spent.code"].label, "P-103")
         attach("pulse-spent-sheet")
     }
+
+    /// The payoff: after the ceremony the result panel opens at half height with the server-ordered rows.
+    /// `PANEL_FIRST_ROW` (optional) asserts which row the server put first — set priorities on the profile to check reordering.
+    func testPanelOpensAfterPulse() throws {
+        guard ProcessInfo.processInfo.environment["PANEL_FLOW"] == "1" else { throw XCTSkip("PANEL_FLOW=1 on a signed-in, unspent simulator") }
+        let state = app.staticTexts["pulse.state"]
+        XCTAssertTrue(state.waitForExistence(timeout: 10))
+        wait(for: [expectation(for: NSPredicate(format: "label CONTAINS[c] 'available'"), evaluatedWith: state)], timeout: 15)
+        app.buttons["pulse.fire"].tap()
+
+        let header = app.descendants(matching: .any)["panel.header"].firstMatch
+        XCTAssertTrue(header.waitForExistence(timeout: 30), "panel should open after the ceremony")
+        sleep(1)
+        attach("panel-half")
+        for key in ["cyclone", "ceb", "temperature", "humidity", "wind", "uv", "score", "fuel", "events", "sunset"] {
+            XCTAssertTrue(app.descendants(matching: .any)["panel.row.\(key)"].firstMatch.exists, "row \(key) missing")
+        }
+        if let first = ProcessInfo.processInfo.environment["PANEL_FIRST_ROW"] {
+            let firstRow = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'panel.row.'")).firstMatch
+            XCTAssertEqual(firstRow.identifier, "panel.row.\(first)")
+        }
+        // Drag to full for the complete list, then screenshot.
+        app.swipeUp()
+        sleep(1)
+        attach("panel-full")
+        // Tapping a map row steps the panel aside; the reopen chip brings it back.
+        app.descendants(matching: .any)["panel.row.ceb"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["panel.reopen"].waitForExistence(timeout: 5))
+        attach("panel-dismissed")
+        app.buttons["panel.reopen"].tap()
+        XCTAssertTrue(header.waitForExistence(timeout: 5))
+    }
 }

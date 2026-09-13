@@ -139,6 +139,18 @@ final class POIStore: Sendable {
             .map { (district: $0.0, metres: $0.1) }
     }
 
+    /// Centre of mass of a district's POIs — a district-grade reference point when there's no GPS fix
+    /// (nearest weather station, sunset). Nil if the store has no POIs for it.
+    func districtCentroid(_ district: District) async throws -> CLLocationCoordinate2D? {
+        let rows = try await db.read { db in
+            try POIRecord.filter(Column("district") == district.rawValue && Column("active") == true).fetchAll(db)
+        }
+        guard !rows.isEmpty else { return nil }
+        let lat = rows.map(\.lat).reduce(0, +) / Double(rows.count)
+        let lng = rows.map(\.lng).reduce(0, +) / Double(rows.count)
+        return CLLocationCoordinate2D(latitude: lat, longitude: lng)
+    }
+
     /// Nearest active POIs of a type to a coordinate — computed here, on the device (SPEC §10 privacy rule).
     /// `exactOnly` drops approximate coordinates (default for shelters: "nearest shelter" must be one you can drive to).
     func nearest(_ type: POIType, to origin: CLLocationCoordinate2D, limit: Int = 3, exactOnly: Bool? = nil) async throws -> [(poi: POIRecord, metres: CLLocationDistance)] {

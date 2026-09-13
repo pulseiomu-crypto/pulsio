@@ -111,7 +111,7 @@ Project `beyplrfqhfklylmmrxmw`. Row counts and freshness observed 2026-09-05.
 | `pulsio_news` | Island news feed (has `lat`/`lng`, currently **never populated** — see §6 for the pinning design) | 499 | 2026-09-05 | 🟢 yes | 🟢 **yes** |
 | `pulsio_weather` | Per-station weather (10 stations) | 16,904 | 2026-09-05 | 🟢 yes | 🔴 no (LIVE tab hardcoded) |
 | `pulsio_score` | Computed PulsScore + 6 sub-scores (via `calculate_pulsscore`; 4 of 6 not really measured — see §5) | 1,692 | 2026-09-05 | 🟢 yes (computed) | 🔴 no (topbar `78` hardcoded) |
-| `pulsio_ceb` | Power-cut outages | 146 | 2026-09-04 | 🟢 yes | 🔴 no |
+| `pulsio_ceb` | Power-cut outages | 146 | 2026-09-04 | 🟢 yes | 🟠 pulse panel (2026-09-13) — ⚠️ **parser never retires outages**: rows keep `status='active'` after `end_time`/`restoration_eta` (58 "active" on 2026-09-13, 2 actually live). `pulse_snapshot()` guards by end time; fix in the `ceb` parser on the Mac Mini. |
 | `pulsio_cwa` | Water supply issues | 0 | — | 🟢 yes (no active events) | 🔴 no |
 | `pulsio_cyclone` | Cyclone bulletins | 0 | — | 🟢 yes (none active) | 🔴 no — ⚠️ `class` check (0–5) is wrong vs official MMS classes; schema fix in §15 |
 | `pulsio_fuel` | Fuel prices (mogas/diesel) | 2 | 2026-09-05 | 🟢 yes | 🔴 no |

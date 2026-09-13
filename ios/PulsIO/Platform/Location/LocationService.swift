@@ -26,6 +26,12 @@ final class LocationService: NSObject {
         manager.desiredAccuracy = kCLLocationAccuracyHundredMeters   // district-grade is all we need
     }
 
+    /// The most recent fix the system already has, if authorised — never triggers a prompt or a new fix.
+    var lastKnownCoordinate: CLLocationCoordinate2D? {
+        guard availability == .authorized else { return nil }
+        return manager.location?.coordinate
+    }
+
     /// The system prompt. Ask only in context, after the in-app explanation (SPEC §10 flow).
     func requestWhenInUse() async -> Availability {
         guard availability == .notDetermined else { return availability }
