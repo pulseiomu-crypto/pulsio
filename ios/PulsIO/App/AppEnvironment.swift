@@ -14,6 +14,7 @@ struct AppEnvironment {
     let pulses: PulseStore
     let pulseFX: PulseFXController
     let pulseResult: PulseResultStore
+    let scores: ScoreStore
 
     static func live() -> AppEnvironment {
         let config: SupabaseConfig
@@ -43,7 +44,8 @@ struct AppEnvironment {
             preferences: preferences,
             pulses: PulseStore(pulses: SupabasePulseRepository(gateway: gateway), session: session, districts: districts),
             pulseFX: PulseFXController(terrain: PulseFXTerrain.loadFromBundle()),
-            pulseResult: PulseResultStore(panel: SupabasePulsePanelRepository(gateway: gateway), session: session, districts: districts, preferences: preferences)
+            pulseResult: PulseResultStore(panel: SupabasePulsePanelRepository(gateway: gateway), session: session, districts: districts, preferences: preferences),
+            scores: ScoreStore(scores: SupabaseScoreRepository(gateway: gateway))
         )
     }
 }

@@ -87,6 +87,19 @@ sheet with peek/half/full detents and background interaction so the island stays
 the right-hand panel slot. Opt-in UI test: `TEST_RUNNER_PANEL_FLOW=1` (+ `PANEL_FIRST_ROW=<key>` to assert
 the reorder) on a signed-in simulator with a pulse available.
 
+**PulsScore & share cards (SPEC §16).** `pulsscore_breakdown()` returns the latest score with the six
+components, each carrying `weight`, `score`, `basis` (measured / derived / placeholder) and tone, plus a
+`verdict_key` (named bands in `contracts/enums.json`). `calculate_pulsscore()` was fixed to count only live
+CEB outages and the Mauritius day for events. `PulsScoreRing` draws weights as arc lengths (30/25/20/10/8/7)
+filled to each score in its semantic colour; basis is line style — solid / reduced opacity / dashed — so the
+honesty is in the drawing, and the screen and card both say "3 of 6 factors are measured live today".
+Cards: `Features/Share` — `CardChrome` (wordmark, LIVE date/district, footer with pulsio.mu + QR tagged
+`?ref=card&t=<type>`), `PulsScoreCard`, `PulseResultCard`, `ReportCard`, rendered by `ImageRenderer` at 3×
+to exactly 1080×1920 (Stories) or 1080×1080 (WhatsApp), shared as PNGs via `ShareLink` (several at once).
+`ReportFeatureNotice` carries the "may be featured, moderated first" copy for the report form to come.
+Debug builds: `SHARE_REPORT_SAMPLE=1` adds a sample report card to the panel's share sheet. Unit tests render
+all six cards and check pixel sizes; set `TEST_RUNNER_CARD_OUTPUT_DIR` to keep the PNGs.
+
 **PulseFX — the port.** 1:1 from the web module: ten phases over 7.45 s, `render(t)` a pure function of
 time drawn into a SwiftUI `Canvas` inside `TimelineView(.animation)`. No Metal: the terrain wave is vertex
 displacement (three 220-point rings sampled from the heightmap, masked to the baked island silhouette with

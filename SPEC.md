@@ -483,7 +483,7 @@ tropical depression (51–62 km/h) · moderate tropical storm · severe tropical
 
 **Decision:** shareable cards are **the acquisition channel**, treated as a first-class feature — **three types**:
 1. **Pulse result card** — the snapshot.
-2. **PulsScore card** — **needs rebuilding**: it's currently hardcoded to `78` and shares as **plain text**, so it **cannot reach Instagram Stories at all** (§ PulsScore).
+2. **PulsScore card** — **rebuilt 2026-09-13 (iOS):** live from `pulsscore_breakdown()`, weighted-arc ring (weights as arc lengths, basis as line style), named verdict bands, honesty line; exports as 1080×1920 and 1080×1080 PNG with link + QR. Web still hardcodes `78`/plain text until its build.
 3. **Community report card** — for a specific incident (§11).
 
 **Rules:**

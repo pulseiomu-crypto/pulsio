@@ -181,5 +181,94 @@
       "tone",
       "tap"
     ]
+  },
+  "pulsScoreVerdict": {
+    "$comment": "Named bands from calculate_pulsscore(); pulsscore_breakdown() returns verdict_key. People screenshot words, not numbers — copy lives in the clients' string catalogs under pulsscore.verdict.*.",
+    "bands": [
+      {
+        "key": "perfect",
+        "min": 85
+      },
+      {
+        "key": "great",
+        "min": 70
+      },
+      {
+        "key": "decent",
+        "min": 55
+      },
+      {
+        "key": "challenging",
+        "min": 40
+      },
+      {
+        "key": "difficult",
+        "min": 25
+      },
+      {
+        "key": "severe",
+        "min": 0
+      }
+    ]
+  },
+  "pulsScoreComponent": {
+    "$comment": "The six components, weights and how each is obtained today (SPEC §5 honesty). basis: measured = real input; derived = computed from another measured input (beach from wind+UV); placeholder = constant until a source exists. The ring draws weights as arc lengths and basis as line style.",
+    "components": [
+      {
+        "key": "weather",
+        "weight": 30,
+        "basis": "measured",
+        "tone": "sky"
+      },
+      {
+        "key": "safety",
+        "weight": 25,
+        "basis": "measured",
+        "tone": "coral"
+      },
+      {
+        "key": "beach",
+        "weight": 20,
+        "basis": "derived",
+        "tone": "teal"
+      },
+      {
+        "key": "traffic",
+        "weight": 10,
+        "basis": "placeholder",
+        "tone": "amber"
+      },
+      {
+        "key": "air",
+        "weight": 8,
+        "basis": "placeholder",
+        "tone": "green"
+      },
+      {
+        "key": "events",
+        "weight": 7,
+        "basis": "measured",
+        "tone": "purple"
+      }
+    ]
+  },
+  "shareCard": {
+    "$comment": "SPEC §16: three card types, real images, each carrying the PulsIO name and a way back (link + QR). Formats: stories 1080×1920, square 1080×1080 (WhatsApp-shaped).",
+    "types": [
+      "pulseResult",
+      "pulsScore",
+      "report"
+    ],
+    "formats": {
+      "stories": [
+        1080,
+        1920
+      ],
+      "square": [
+        1080,
+        1080
+      ]
+    },
+    "link": "https://pulsio.mu"
   }
 }

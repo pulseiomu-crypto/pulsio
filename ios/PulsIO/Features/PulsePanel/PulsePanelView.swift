@@ -6,6 +6,7 @@ struct PulsePanelView: View {
     @Environment(PulseResultStore.self) private var result
     @Environment(DistrictStore.self) private var districts
     var onTap: ((PulsePanelRow) -> Void)? = nil
+    var onShare: (() -> Void)? = nil
 
     var body: some View {
         ScrollView {
@@ -51,6 +52,15 @@ struct PulsePanelView: View {
                 if let takenAt = result.takenAt {
                     Text(takenAt, format: .dateTime.hour().minute()).font(Typography.mono(10)).foregroundStyle(Palette.muted2)
                 }
+            }
+            if let onShare {
+                Button(action: onShare) {
+                    Image(systemName: "square.and.arrow.up").font(.system(size: 14, weight: .semibold)).foregroundStyle(Palette.teal)
+                        .frame(width: 44, height: 44)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("share.cta"))
+                .accessibilityIdentifier("panel.share")
             }
         }
         .accessibilityIdentifier("panel.header")

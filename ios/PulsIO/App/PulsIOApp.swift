@@ -18,6 +18,7 @@ struct PulsIOApp: App {
                 .environment(environment.pulses)
                 .environment(environment.pulseFX)
                 .environment(environment.pulseResult)
+                .environment(environment.scores)
                 .preferredColorScheme(.dark)
                 .tint(Palette.teal)
                 .task { environment.session.start() }
@@ -26,7 +27,7 @@ struct PulsIOApp: App {
                 }
                 .onChange(of: scenePhase) { _, phase in
                     // Reference data refresh on foreground (ARCHITECTURE §8: pull deltas on launch/foreground).
-                    if phase == .active { Task { await environment.poiSync.run() } }
+                    if phase == .active { Task { await environment.poiSync.run(); await environment.scores.refresh() } }
                 }
         }
     }

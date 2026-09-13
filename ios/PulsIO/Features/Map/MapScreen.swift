@@ -11,6 +11,9 @@ struct MapScreen: View {
     @Environment(AccessGate.self) private var gate
     @Environment(PulseFXController.self) private var pulseFX
     @Environment(PulseResultStore.self) private var result
+    @Environment(ScoreStore.self) private var scores
+    @State private var showScore = false
+    @State private var showShare = false
     @State private var model: MapViewModel?
     @State private var surface = MapLibreSurface()
     @State private var showPrimer = false
@@ -34,8 +37,12 @@ struct MapScreen: View {
             }
         }, onTap: { row in
             // Rows tap through to the map (SPEC §14); the panel steps aside so the island is visible.
-            if row.tap == "map" { result.isPresented = false }
-        })
+            switch row.tap {
+            case "map": result.isPresented = false
+            case "score": showScore = true
+            default: break
+            }
+        }, onShare: { showShare = true })
         .coordinateSpace(.named("mapScreen"))
         .overlayPreferenceValue(PulseButtonAnchor.self) { anchor in
             GeometryReader { proxy in
@@ -46,12 +53,28 @@ struct MapScreen: View {
             .ignoresSafeArea()
         }
         .sheet(isPresented: $showSpent) { PulseSpentSheet() }
+        .sheet(isPresented: $showScore) { PulsScoreScreen() }
+        .sheet(isPresented: $showShare) {
+            #if DEBUG
+            // Design/QA hook: include a sample community report card (reports aren't built yet).
+            if ProcessInfo.processInfo.environment["SHARE_REPORT_SAMPLE"] == "1" {
+                ShareCardsSheet(preselected: [.pulseResult, .pulsScore, .report], report: ReportCardModel(
+                    category: "Flooding", description: "Royal Road under 30 cm of water outside the Winners at Belle Rose — traffic diverted via Ebène.",
+                    district: .plainesWilhems, confirmations: 4, createdAt: .now, symbol: "water.waves"))
+            } else {
+                ShareCardsSheet(preselected: [.pulseResult, .pulsScore])
+            }
+            #else
+            ShareCardsSheet(preselected: [.pulseResult, .pulsScore])
+            #endif
+        }
         .onChange(of: session.isSignedIn, initial: true) { _, _ in Task { await pulses.refresh() } }
         .task {
             if model == nil {
                 let m = MapViewModel(store: store, sync: sync, session: session)
                 m.attach(surface)
                 pulseFX.attach(surface)
+                Task { await scores.refresh() }
                 m.showUserLocation(districts.locationAvailability == .authorized)
                 model = m
                 await m.start()
@@ -105,10 +128,14 @@ struct MapScreen: View {
     private func overlays(_ model: MapViewModel) -> some View {
         VStack(alignment: .trailing, spacing: Metrics.Space.sm) {
             HStack(alignment: .top) {
-                DistrictChip(district: districts.district, source: districts.source) {
-                    if districts.district == nil, districts.locationAvailability == .notDetermined { showPrimer = true } else { showPicker = true }
+                VStack(alignment: .leading, spacing: Metrics.Space.sm) {
+                    DistrictChip(district: districts.district, source: districts.source) {
+                        if districts.district == nil, districts.locationAvailability == .notDetermined { showPrimer = true } else { showPicker = true }
+                    }
+                    .accessibilityIdentifier("map.district")
+                    ScorePill(breakdown: scores.breakdown) { showScore = true }
+                        .accessibilityIdentifier("map.score")
                 }
-                .accessibilityIdentifier("map.district")
                 Spacer()
                 VStack(alignment: .trailing, spacing: Metrics.Space.sm) {
                     LayerToggle(title: "map.layer.fuel", tint: POIType.fuel.tint, isOn: model.isEnabled(.fuel)) {
@@ -176,7 +203,7 @@ struct MapScreen: View {
                 result.isPresented = false
                 pulseFX.fire(markers: model.markers, viewport: UIScreen.main.bounds.size,
                              onReveal: { Task { await result.load(present: false) } },   // fetch while the wave runs
-                             onDone: { Task { await pulses.refresh(); if result.hasResult { result.isPresented = true } else { await result.load() } } })
+                             onDone: { Task { await pulses.refresh(); await scores.refresh(); if result.hasResult { result.isPresented = true } else { await result.load() } } })
             case .failure(.code(.spent)):
                 showSpent = true
             case .failure:
@@ -187,6 +214,34 @@ struct MapScreen: View {
 }
 
 // MARK: - Pieces
+
+/// The PulsScore pill (FRONTEND §B top bar): score + verdict, tap → PulsScore.
+private struct ScorePill: View {
+    let breakdown: PulsScoreBreakdown?
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Metrics.Space.sm) {
+                PulsScoreRing(breakdown: breakdown, lineWidth: 3, gapDegrees: 6, showsCentre: false).frame(width: 18, height: 18)
+                VStack(alignment: .leading, spacing: 1) {
+                    HStack(spacing: 4) {
+                        Text("pulsscore.title").font(Typography.mono(9)).tracking(0.14).textCase(.uppercase).foregroundStyle(Palette.muted2)
+                        Text(breakdown.map { String($0.score) } ?? "—").font(Typography.body(13, weight: .semibold)).foregroundStyle(Palette.teal).monospacedDigit()
+                    }
+                    if let verdict = breakdown?.verdict {
+                        Text(verdict.label).font(Typography.mono(9)).foregroundStyle(Palette.muted).lineLimit(1)
+                    }
+                }
+            }
+            .padding(.horizontal, Metrics.Space.md)
+            .frame(minHeight: 44)
+            .background(Palette.deep.opacity(0.92), in: Capsule())
+            .overlay(Capsule().stroke(Palette.hairStrong, lineWidth: Metrics.hairline))
+        }
+        .buttonStyle(.plain)
+    }
+}
 
 /// "Where you are" — the one location field, and how it was set. Tap to change it (SPEC §10 step 5).
 private struct DistrictChip: View {
