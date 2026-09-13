@@ -14,6 +14,7 @@ struct PulsIOApp: App {
                 .environment(environment.session)
                 .environment(environment.gate)
                 .environment(environment.districts)
+                .environment(environment.preferences)
                 .environment(environment.pulses)
                 .environment(environment.pulseFX)
                 .environment(environment.pulseResult)

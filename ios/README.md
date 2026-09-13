@@ -64,6 +64,16 @@ All departments from ARCHITECTURE §4 now exist.
 PULSE label, "N available" / "Spent · next hh:mm" / "Sign in to pulse") → `AccessGate.perform(.firePulse)`
 → `consume_pulse` → the ceremony → `PulseSpentSheet` on P-103.
 
+**Onboarding (FRONTEND §A).** Five steps in `Features/Onboarding`: intro (BrandMark + Wordmark over
+`Atmosphere` — the web's glows, 25 drifting motes and CRT scanline, all deterministic, still under Reduce
+Motion) → what is a pulse (the real idle liquid core) → what matters to you (user type + up to 3 priorities
+as `SelectableChip`s with SF Symbols, no emoji) → why location helps (explanation only; the system prompt
+stays in-context at the locate button, SPEC §10) → the map in four beats. Skippable from step two. Rendered
+as an overlay (not a presentation) so it is on screen from the first frame; iPad gets the centred card.
+`PreferencesStore` holds user type, priorities and completion on the device (onboarding runs signed-out) and
+reconciles to `pulsio_profiles` on sign-in — profile wins if it has priorities, else the device's are pushed.
+The pulse panel reads priorities from this store. UI test: `OnboardingTests` (needs a fresh install).
+
 **The result panel (SPEC §14, ARCHITECTURE §6).** `pulse_snapshot(p_district, p_station, p_priorities)`
 assembles and ORDERS the rows server-side and returns them as JSON; `PulsePanelView` renders them
 generically (label/detail are localisation keys, values carry unit codes, tone is a §24 token) — adding a

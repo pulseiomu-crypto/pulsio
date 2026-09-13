@@ -8,6 +8,7 @@ protocol ProfileRepository: Sendable {
     func updateDisplayName(_ name: String?, for userID: UUID) async throws -> Profile
     /// The ONLY location write the app ever makes: one of nine district values, never a coordinate (SPEC §10).
     func updateDistrict(_ district: District?, for userID: UUID) async throws -> Profile
+    func updatePreferences(userType: UserType?, priorities: [String], for userID: UUID) async throws -> Profile
 }
 
 struct SupabaseProfileRepository: ProfileRepository {
@@ -40,6 +41,18 @@ struct SupabaseProfileRepository: ProfileRepository {
         let updated: [Profile] = try await gateway.client
             .from(Profile.table)
             .update(["district": district?.rawValue, "updated_at": ISO8601DateFormatter().string(from: .now)])
+            .eq("id", value: userID)
+            .select()
+            .execute().value
+        guard let profile = updated.first else { throw ProfileError.notFound }
+        return profile
+    }
+
+    func updatePreferences(userType: UserType?, priorities: [String], for userID: UUID) async throws -> Profile {
+        struct Patch: Encodable { let user_type: String?; let priorities: [String]; let updated_at: String }
+        let updated: [Profile] = try await gateway.client
+            .from(Profile.table)
+            .update(Patch(user_type: userType?.rawValue, priorities: priorities, updated_at: ISO8601DateFormatter().string(from: .now)))
             .eq("id", value: userID)
             .select()
             .execute().value

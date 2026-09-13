@@ -17,12 +17,14 @@ final class PulseResultStore {
     private let panel: any PulsePanelRepository
     private let session: SessionStore
     private let districts: DistrictStore
+    private let preferences: PreferencesStore
     private var stations: [WeatherStation] = []
 
-    init(panel: any PulsePanelRepository, session: SessionStore, districts: DistrictStore) {
+    init(panel: any PulsePanelRepository, session: SessionStore, districts: DistrictStore, preferences: PreferencesStore) {
         self.panel = panel
         self.session = session
         self.districts = districts
+        self.preferences = preferences
     }
 
     var hasResult: Bool { !rows.isEmpty }
@@ -33,7 +35,7 @@ final class PulseResultStore {
         defer { isLoading = false }
         let reference = await districts.referenceCoordinate()
         let nearest = await nearestStation(to: reference)
-        let priorities = session.profile?.priorities ?? []
+        let priorities = preferences.priorities.map(\.rawValue)   // device copy; mirrors the profile once signed in
         do {
             var fetched = try await panel.snapshot(district: districts.district, station: nearest, priorities: priorities)
             fill(&fetched, sunsetAt: reference)

@@ -10,6 +10,7 @@ struct AppEnvironment {
     let poiStore: POIStore
     let poiSync: POISync
     let districts: DistrictStore
+    let preferences: PreferencesStore
     let pulses: PulseStore
     let pulseFX: PulseFXController
     let pulseResult: PulseResultStore
@@ -31,6 +32,7 @@ struct AppEnvironment {
             emergencies: SupabaseEmergencyRepository(gateway: gateway)
         )
         let districts = DistrictStore(location: LocationService(), resolver: DistrictResolver(store: poiStore), session: session)
+        let preferences = PreferencesStore(session: session)
         return AppEnvironment(
             news: SupabaseNewsRepository(gateway: gateway),
             session: session,
@@ -38,9 +40,10 @@ struct AppEnvironment {
             poiStore: poiStore,
             poiSync: POISync(remote: SupabasePOIRepository(gateway: gateway), store: poiStore),
             districts: districts,
+            preferences: preferences,
             pulses: PulseStore(pulses: SupabasePulseRepository(gateway: gateway), session: session, districts: districts),
             pulseFX: PulseFXController(terrain: PulseFXTerrain.loadFromBundle()),
-            pulseResult: PulseResultStore(panel: SupabasePulsePanelRepository(gateway: gateway), session: session, districts: districts)
+            pulseResult: PulseResultStore(panel: SupabasePulsePanelRepository(gateway: gateway), session: session, districts: districts, preferences: preferences)
         )
     }
 }

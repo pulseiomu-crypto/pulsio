@@ -80,6 +80,7 @@ struct DistrictStoreTests {
         func ensureProfile(for userID: UUID) async throws -> Profile { throw Unused() }
         func updateDisplayName(_ name: String?, for userID: UUID) async throws -> Profile { throw Unused() }
         func updateDistrict(_ district: District?, for userID: UUID) async throws -> Profile { throw Unused() }
+        func updatePreferences(userType: UserType?, priorities: [String], for userID: UUID) async throws -> Profile { throw Unused() }
     }
     struct NoEmergency: EmergencyRepository {
         func current() async throws -> EmergencyState { .none }

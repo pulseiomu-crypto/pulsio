@@ -130,6 +130,11 @@ final class SessionStore {
         profile = try await profiles.updateDistrict(district, for: user.id)
     }
 
+    func updatePreferences(userType: UserType?, priorities: [String]) async throws {
+        guard let user else { return }
+        profile = try await profiles.updatePreferences(userType: userType, priorities: priorities, for: user.id)
+    }
+
     func signOut(everywhere: Bool) async throws {
         try await auth.signOut(everywhere: everywhere)
     }

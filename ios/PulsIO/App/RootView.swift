@@ -7,6 +7,8 @@ struct RootView: View {
     @Environment(SessionStore.self) private var session
     @Environment(AccessGate.self) private var gate
     @Environment(DistrictStore.self) private var districts
+    @Environment(PreferencesStore.self) private var preferences
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var isShowingAccount = false
     @State private var isShowingNews = false
 
@@ -60,8 +62,33 @@ struct RootView: View {
             if signedIn { gate.sessionDidSignIn() } else { isShowingAccount = false }
         }
         .onChange(of: session.profile?.id) { _, _ in
-            // Sign-in binds the device's district to the profile (or adopts the profile's).
-            Task { await districts.reconcile(with: session.profile) }
+            // Sign-in binds the device's district and preferences to the profile (or adopts the profile's).
+            Task { await districts.reconcile(with: session.profile); await preferences.reconcile(with: session.profile) }
         }
+        .overlay {
+            // First run. Rendered as an overlay rather than a presentation so it is there from the first frame
+            // (a cover whose binding starts true can miss its presentation). iPhone: full-bleed. iPad/desktop
+            // (FRONTEND §A): the same flow centred in a modal card over the dimmed map. Exit = the web's
+            // fade + 1.02 scale.
+            if !preferences.onboardingComplete {
+                Group {
+                    if sizeClass == .regular {
+                        ZStack {
+                            Palette.abyss.opacity(0.7).ignoresSafeArea()
+                            OnboardingFlow()
+                                .frame(width: 620, height: 760)
+                                .clipShape(RoundedRectangle(cornerRadius: Metrics.Radius.xl, style: .continuous))
+                                .overlay(RoundedRectangle(cornerRadius: Metrics.Radius.xl, style: .continuous).stroke(Palette.hairStrong, lineWidth: Metrics.hairline))
+                                .shadow(color: .black.opacity(0.6), radius: 40, y: 20)
+                        }
+                    } else {
+                        OnboardingFlow()
+                    }
+                }
+                .transition(.opacity.combined(with: .scale(scale: 1.02)))
+                .zIndex(10)
+            }
+        }
+        .animation(Metrics.Motion.entrance, value: preferences.onboardingComplete)
     }
 }
