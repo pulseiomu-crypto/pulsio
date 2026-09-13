@@ -30,3 +30,11 @@ enum District: String, Codable, CaseIterable, Sendable, Identifiable {
         }
     }
 }
+
+extension District {
+    /// Out-of-scope districts (Rodrigues today — SPEC §10) must never fail a row: `pulsio_ceb` really does
+    /// emit them. Every model with a district column decodes through this, not through `District.self`.
+    static func decodeLenient<K: CodingKey>(from container: KeyedDecodingContainer<K>, forKey key: K) throws -> District? {
+        try container.decodeIfPresent(String.self, forKey: key).flatMap(District.init(rawValue:))
+    }
+}

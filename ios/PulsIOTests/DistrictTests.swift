@@ -11,6 +11,22 @@ struct DistrictTests {
         #expect(District(rawValue: "Rodrigues") == nil)             // outside the nine (SPEC §10 open item)
     }
 
+    /// A CEB-shaped row for Rodrigues must decode with district = nil, not fail (SPEC §10).
+    @Test func outOfScopeDistrictNeverFailsARow() throws {
+        struct OutageRow: Decodable {
+            let zone: String
+            let district: District?
+            enum CodingKeys: String, CodingKey { case zone, district }
+            init(from decoder: any Decoder) throws {
+                let c = try decoder.container(keyedBy: CodingKeys.self)
+                zone = try c.decode(String.self, forKey: .zone)
+                district = try District.decodeLenient(from: c, forKey: .district)
+            }
+        }
+        let rows = try JSONDecoder().decode([OutageRow].self, from: Data(#"[{"zone":"Port Mathurin","district":"Rodrigues"},{"zone":"Rose Hill","district":"Plaines Wilhems"}]"#.utf8))
+        #expect(rows.map(\.district) == [nil, .plainesWilhems])
+    }
+
     @Test func profileDecodesUnknownDistrictAsNil() throws {
         let decoder = JSONDecoder()
         let row = try decoder.decode(Profile.self, from: Data(#"{"id":"6f1c2d3e-4a5b-4c6d-8e7f-901234567890","district":"Atlantis"}"#.utf8))

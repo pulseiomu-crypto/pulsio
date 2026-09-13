@@ -48,7 +48,7 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
         displayName = try c.decodeIfPresent(String.self, forKey: .displayName)
         // Nullable columns with DB defaults: decode leniently so a stray NULL never breaks sign-in.
         userType = try c.decodeIfPresent(UserType.self, forKey: .userType) ?? .mauritian
-        district = try c.decodeIfPresent(String.self, forKey: .district).flatMap(District.init(rawValue:))
+        district = try District.decodeLenient(from: c, forKey: .district)
         tier = try c.decodeIfPresent(Tier.self, forKey: .tier) ?? .free
         pulsesRemaining = try c.decodeIfPresent(Int.self, forKey: .pulsesRemaining) ?? 0
         pulsesTotal = try c.decodeIfPresent(Int.self, forKey: .pulsesTotal) ?? 0

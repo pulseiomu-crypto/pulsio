@@ -112,7 +112,7 @@
     "fallback": "exact"
   },
   "district": {
-    "$comment": "SPEC §10: the only location state, one of nine values. Spelled exactly as the pipeline writes pulsio_ceb.district / pulsio_cwa.district / pulsio_poi.district so joins work ('Black River', not 'Rivière Noire'). pulsio_ceb also emits 'Rodrigues', which is outside this set — see SPEC §10.",
+    "$comment": "SPEC §10: the only location state, one of nine values — main island only; Rodrigues is out of scope at launch (needs POI coverage first, not just a tenth value). Spelled exactly as the pipeline writes pulsio_ceb.district / pulsio_cwa.district / pulsio_poi.district so joins work ('Black River', not 'Rivière Noire'). DECODING RULE for every client: a district value outside this list (e.g. 'Rodrigues', which pulsio_ceb emits) decodes as null/nil and never fails the row.",
     "source": "pulsio_profiles.district (text, CHECK)",
     "values": [
       "Port Louis",

@@ -306,7 +306,12 @@ Grounded in Apple's Human Interface Guidelines (read 2026-09-05 via the rendered
 - **GPS fills it automatically when granted; the user picks it manually when not.**
 - Everything downstream **reads that one field** — features don't care, and can't tell, which way it was set.
 - The nine districts (constrain the column to these — it's currently unconstrained): **Port Louis, Pamplemousses, Rivière du Rempart, Flacq, Grand Port, Savanne, Plaines Wilhems, Moka, Rivière Noire (Black River).**
-  *Applied 2026-09-13:* `pulsio_profiles.district` is CHECK-constrained to exactly these nine, spelled as the pipeline already writes them (`'Black River'`). **Open:** `pulsio_ceb` also emits `'Rodrigues'` — outside the nine. Either Rodrigues becomes a tenth value or its alerts stay unreachable by district; decide before the alerts panel.
+  *Applied 2026-09-13:* `pulsio_profiles.district` is CHECK-constrained to exactly these nine, spelled as the pipeline already writes them (`'Black River'`).
+
+### Rodrigues — out of scope at launch (decided 2026-09-13)
+- **PulsIO covers the main island at launch.** Rodrigues is a later addition, **once there is POI coverage worth having** — half-serving it would be worse than not claiming to. **The district list stays at nine.**
+- **Consequence today:** the pipeline writes `pulsio_ceb.district = 'Rodrigues'` (9 rows at the time of writing). Those rows are simply **unreachable by district** — no profile can select Rodrigues, so no alert query matches them. They are harmless and must stay harmless: **every client model that carries a district decodes unknown values as `nil` rather than failing the row** (see `contracts/enums.json` → `district`), so a Rodrigues row never breaks a page of results. Do not add a CHECK on `pulsio_ceb.district`; the parser is external (§2 caveat) and the rows are correct data, just out of scope.
+- **If Rodrigues is ever added:** the POI data must be built out first (shelters, hospitals, fuel, pharmacies, beaches — the same categories, with the same precision discipline as §19) — **not** just a tenth district value. Adding the option without the data would show an empty island with live alerts and nothing to act on.
 
 ### 🔒 Privacy constraint — HARD RULE (non-negotiable)
 - **Store the district only. Never coordinates.** The server sees **one of nine district values, nothing finer** — ever.
