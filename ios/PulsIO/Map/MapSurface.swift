@@ -37,9 +37,16 @@ protocol MapSurface: AnyObject {
 
     var camera: MapCamera { get }
     func setCamera(_ camera: MapCamera, animated: Bool)
+    /// Timed camera move — the pulse ceremony choreographs the map to the second.
+    func setCamera(_ camera: MapCamera, duration: TimeInterval)
+    /// Locked for the whole ceremony so nothing can fight the camera.
+    func setInteractionEnabled(_ enabled: Bool)
 
     func setMarkers(_ markers: [MapMarker])
     var onMarkerTap: ((MapMarker) -> Void)? { get set }
+    /// Which markers are lit. `nil` = all (normal state); a set = only those, the rest hidden — the wavefront
+    /// lights pins as it reaches them.
+    func setLitMarkers(_ ids: Set<String>?)
 
     /// The user's own position, drawn by the map for the user only (SPEC §10). Enable only once authorised.
     func setShowsUserLocation(_ shows: Bool)

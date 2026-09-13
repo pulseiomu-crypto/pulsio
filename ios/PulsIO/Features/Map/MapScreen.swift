@@ -7,10 +7,15 @@ struct MapScreen: View {
     @Environment(POISync.self) private var sync
     @Environment(SessionStore.self) private var session
     @Environment(DistrictStore.self) private var districts
+    @Environment(PulseStore.self) private var pulses
+    @Environment(AccessGate.self) private var gate
+    @Environment(PulseFXController.self) private var pulseFX
     @State private var model: MapViewModel?
     @State private var surface = MapLibreSurface()
     @State private var showPrimer = false
     @State private var showPicker = false
+    @State private var showSpent = false
+    @State private var buttonFrame: CGRect = .zero
 
     var body: some View {
         ZStack {
@@ -18,17 +23,39 @@ struct MapScreen: View {
                 .ignoresSafeArea()
                 .accessibilityIdentifier("map.surface")
 
+            PulseFXOverlay(controller: pulseFX, button: CGPoint(x: buttonFrame.midX, y: buttonFrame.midY),
+                           buttonInner: PulseDock.buttonSize / 2 - PulseDock.bezel)
+
             if let model {
                 overlays(model)
             }
         }
+        .coordinateSpace(.named("mapScreen"))
+        .overlayPreferenceValue(PulseButtonAnchor.self) { anchor in
+            GeometryReader { proxy in
+                Color.clear.onChange(of: anchor.map { proxy[$0] }, initial: true) { _, rect in
+                    if let rect { buttonFrame = rect }
+                }
+            }
+            .ignoresSafeArea()
+        }
+        .sheet(isPresented: $showSpent) { PulseSpentSheet() }
+        .onChange(of: session.isSignedIn, initial: true) { _, _ in Task { await pulses.refresh() } }
         .task {
             if model == nil {
                 let m = MapViewModel(store: store, sync: sync, session: session)
                 m.attach(surface)
+                pulseFX.attach(surface)
                 m.showUserLocation(districts.locationAvailability == .authorized)
                 model = m
                 await m.start()
+                #if DEBUG
+                // Design/QA hook: play the ceremony without spending a pulse. Debug builds only.
+                if ProcessInfo.processInfo.environment["PULSEFX_PREVIEW"] == "1" {
+                    try? await Task.sleep(for: .seconds(2))
+                    pulseFX.fire(markers: m.markers, viewport: UIScreen.main.bounds.size, onReveal: {}, onDone: {})
+                }
+                #endif
             }
         }
         .onChange(of: session.emergency.isActive) { _, active in
@@ -101,6 +128,9 @@ struct MapScreen: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .accessibilityIdentifier("map.callout")
             }
+            PulseDock(controller: pulseFX, onFire: { fire(model) }, onSpent: { showSpent = true })
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, Metrics.Space.sm)
             HStack(alignment: .bottom) {
                 AttributionStrip(syncPhase: model.syncPhase, count: model.markers.count)
                 Spacer()
@@ -108,6 +138,23 @@ struct MapScreen: View {
         }
         .padding(Metrics.Space.md)
         .animation(Metrics.Motion.entrance, value: model.selected?.id)
+    }
+
+    /// Fire: gate → spend on the server → ceremony. The map is the ceremony's stage; markers light as the
+    /// wavefront reaches them and the frost clears on impact.
+    private func fire(_ model: MapViewModel) {
+        gate.perform(.firePulse) {
+            switch await pulses.fire() {
+            case .success:
+                model.dismissSelection()
+                pulseFX.fire(markers: model.markers, viewport: UIScreen.main.bounds.size,
+                             onReveal: {}, onDone: { Task { await pulses.refresh() } })
+            case .failure(.code(.spent)):
+                showSpent = true
+            case .failure:
+                break   // PulseStore.lastFailure carries it; the dock line shows sign-in/spent states
+            }
+        }
     }
 }
 

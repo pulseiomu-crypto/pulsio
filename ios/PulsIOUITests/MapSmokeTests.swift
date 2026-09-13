@@ -100,3 +100,47 @@ final class LocationFlowTests: XCTestCase {
         attach("location-manual")
     }
 }
+
+/// The pulse mechanic against the live rules. Opt-in (`PULSE_FLOW=1`) and expects a signed-in free-tier
+/// simulator with today's pulse unused: fires once (ceremony runs), lands in the spent state with the
+/// midnight countdown, and the next tap opens the P-103 sheet.
+final class PulseFlowTests: XCTestCase {
+    private var app: XCUIApplication!
+
+    override func setUp() {
+        continueAfterFailure = false
+        app = XCUIApplication()
+        app.launch()
+    }
+
+    private func attach(_ name: String) {
+        let a = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        a.name = name
+        a.lifetime = .keepAlways
+        add(a)
+    }
+
+    func testFreeTierFiresOnceThenIsSpent() throws {
+        guard ProcessInfo.processInfo.environment["PULSE_FLOW"] == "1" else { throw XCTSkip("PULSE_FLOW=1 on a signed-in simulator") }
+        let state = app.staticTexts["pulse.state"]
+        XCTAssertTrue(state.waitForExistence(timeout: 10))
+        let available = NSPredicate(format: "label CONTAINS[c] 'available'")
+        wait(for: [expectation(for: available, evaluatedWith: state)], timeout: 15)
+        XCTAssertTrue(state.label.contains("1"), "free tier starts the day with 1: \(state.label)")
+        attach("pulse-available")
+
+        app.buttons["pulse.fire"].tap()
+        let firing = NSPredicate(format: "label CONTAINS[c] 'firing'")
+        wait(for: [expectation(for: firing, evaluatedWith: state)], timeout: 10)
+        sleep(4)
+        attach("pulse-ceremony")
+        let spent = NSPredicate(format: "label CONTAINS[c] 'spent' AND label CONTAINS[c] 'next'")
+        wait(for: [expectation(for: spent, evaluatedWith: state)], timeout: 20)
+        attach("pulse-spent")
+
+        app.buttons["pulse.fire"].tap()
+        XCTAssertTrue(app.staticTexts["pulse.spent.code"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.staticTexts["pulse.spent.code"].label, "P-103")
+        attach("pulse-spent-sheet")
+    }
+}

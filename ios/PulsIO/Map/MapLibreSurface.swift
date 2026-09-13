@@ -14,6 +14,8 @@ final class MapLibreSurface: NSObject, MapSurface {
     private static let circleLayerID = "poi-circles"
     private var markers: [String: MapMarker] = [:]
     private var pendingMarkers: [MapMarker]?
+    private var features: [MLNPointFeature] = []
+    private var litMarkers: Set<String>?
 
     init(initialCamera: MapCamera = .mauritius) {
         mapView = MLNMapView(frame: .zero, styleJSON: MapStyle.esriDarkGrayJSON)
@@ -63,17 +65,32 @@ final class MapLibreSurface: NSObject, MapSurface {
         self.markers = Dictionary(uniqueKeysWithValues: markers.map { ($0.id, $0) })
         // `style` is nil until the style has loaded. With an inline JSON style that happens synchronously
         // in init — before the delegate is set — so the delegate callback alone can't be relied on.
-        guard let style = mapView.style else {
+        guard mapView.style != nil else {
             pendingMarkers = markers
             return
         }
-        let features = markers.map { marker -> MLNPointFeature in
+        features = markers.map { marker -> MLNPointFeature in
             let f = MLNPointFeature()
             f.coordinate = CLLocationCoordinate2D(latitude: marker.latitude, longitude: marker.longitude)
             f.identifier = marker.id
-            f.attributes = ["id": marker.id, "kind": marker.kind, "tint": marker.tintHex, "emphasis": marker.emphasis, "title": marker.title]
+            f.attributes = ["id": marker.id, "kind": marker.kind, "tint": marker.tintHex, "emphasis": marker.emphasis,
+                            "title": marker.title, "lit": litMarkers?.contains(marker.id) ?? true]
             return f
         }
+        pushFeatures()
+    }
+
+    func setLitMarkers(_ ids: Set<String>?) {
+        litMarkers = ids
+        for f in features {
+            guard let id = f.attribute(forKey: "id") as? String else { continue }
+            f.attributes["lit"] = ids?.contains(id) ?? true
+        }
+        pushFeatures()
+    }
+
+    private func pushFeatures() {
+        guard let style = mapView.style else { return }
         if let source = style.source(withIdentifier: Self.sourceID) as? MLNShapeSource {
             source.shape = MLNShapeCollectionFeature(shapes: features)
         } else {
@@ -81,6 +98,19 @@ final class MapLibreSurface: NSObject, MapSurface {
             style.addSource(source)
             style.addLayer(Self.makeCircleLayer(source: source))
         }
+    }
+
+    func setCamera(_ camera: MapCamera, duration: TimeInterval) {
+        let target = MLNMapCamera()
+        target.centerCoordinate = CLLocationCoordinate2D(latitude: camera.latitude, longitude: camera.longitude)
+        target.heading = camera.bearing
+        target.pitch = camera.pitch
+        target.altitude = MLNAltitudeForZoomLevel(camera.zoom, camera.pitch, camera.latitude, mapView.bounds.size)
+        mapView.setCamera(target, withDuration: duration, animationTimingFunction: CAMediaTimingFunction(name: .easeInEaseOut))
+    }
+
+    func setInteractionEnabled(_ enabled: Bool) {
+        mapView.isUserInteractionEnabled = enabled
     }
 
     func setShowsUserLocation(_ shows: Bool) {
@@ -104,7 +134,8 @@ final class MapLibreSurface: NSObject, MapSurface {
         ])
         layer.circleStrokeColor = NSExpression(mglJSONObject: ["case", emphasis, "#E8F2EC", "rgba(6,14,24,0.9)"])
         layer.circleStrokeWidth = NSExpression(mglJSONObject: ["case", emphasis, 2, 1.2])
-        layer.circleOpacity = NSExpression(forConstantValue: 0.95)
+        layer.circleOpacity = NSExpression(mglJSONObject: ["case", ["boolean", ["get", "lit"], true], 0.95, 0])
+        layer.circleStrokeOpacity = NSExpression(mglJSONObject: ["case", ["boolean", ["get", "lit"], true], 1, 0])
         return layer
     }
 

@@ -1,0 +1,6 @@
+{
+  "$comment": "P/U/S codes (SPEC §21). Servers raise the code in the Postgres error detail; clients map it to plain-language copy keyed by messageKey, with the code shown small beneath. P = expected states (informative, never alarming); U = user-fixable (always a next step); S = our fault.",
+  "P-100": { "messageKey": "pulse.error.signIn", "meaning": "Firing a pulse needs an account (browse freely, sign in to act)." },
+  "P-101": { "messageKey": "pulse.error.noProfile", "meaning": "Signed in but no pulsio_profiles row — the sign-up trigger didn't run; retry creates it." },
+  "P-103": { "messageKey": "pulse.error.spent", "meaning": "Today's quota and the top-up balance are both used. Next quota at Mauritius midnight." }
+}

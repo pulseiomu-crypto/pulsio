@@ -27,7 +27,7 @@ xcodebuild -project PulsIO.xcodeproj -scheme PulsIO -destination 'platform=iOS S
 PulsIO/
   App/            shell: @main, composition root (AppEnvironment), navigation registration (RootView)
     Session/      app-level state: SessionStore (auth + profile + emergency flag), AccessPolicy, AccessGate,
-                  DistrictStore (the one location field: district + how it was set)
+                  DistrictStore (the one location field: district + how it was set), PulseStore (today's quota + spend)
   Contracts/      row models + fixed enums mirroring the schema / contracts/*.json — not feature code
   Data/           the ONE data department: SupabaseGateway + repositories (all network here)
     Auth/         AuthRepository — the only file that knows Supabase Auth
@@ -35,6 +35,8 @@ PulsIO/
   Platform/       device services: Auth/AppleSignInNonce, POIStore/ (GRDB on-device POI set),
                   Location/ (LocationService — CoreLocation; DistrictResolver — GPS→district on-device)
   Map/            MapSurface protocol (project/unproject/camera/markers) + MapLibreSurface (the only MapLibre import) + MapStyle
+  PulseFX/        the ceremony: Choreography (pure timing/motion), Terrain (baked heightmap), Renderer (pure render(t)),
+                  Controller (camera/marker side effects), Overlay (TimelineView + Canvas)
   DesignSystem/   tokens (Palette, Typography, Metrics), components, semantic mappings — the finish, once
   Features/       one folder per screen: View + ViewModel; a feature knows its repository, nothing else
   Localization/   Localizable.xcstrings (EN + FR) — no string literals in views
@@ -43,7 +45,35 @@ PulsIOTests/      unit tests (Swift Testing)
 PulsIOUITests/    simulator smoke tests (XCUITest); some steps opt in via env — see AuthSmokeTests
 ```
 
-Department not yet populated (arrives with its first feature): `PulseFX/`.
+All departments from ARCHITECTURE §4 now exist.
+
+## The pulse
+
+**Rules live in Supabase** (migration `pulse_rules`), so web behaves identically:
+- `pulsio_tier_rules` — Explorer 1/day · Traveller 10 · Resident ∞ · Pro ∞ (plus ads/device max), public-read.
+- `pulse_status()` — where the caller stands: tier, used today, quota remaining, top-up balance, next reset,
+  `can_pulse`. Quota is **derived from the pulse log** (pulses paid from quota since Mauritius midnight) — no
+  counter to reset, no cron (none is installed; `reset_daily_pulses()` was never scheduled).
+- `consume_pulse(p_district)` — serialised per user; pays from quota, then from `pulse_topup_balance`
+  (server-side, never on the device — SPEC §18); logs to `pulsio_pulses` with `paid_from`; raises `P-100`
+  (sign in) / `P-103` (spent) in the Postgres error detail, mirrored in `contracts/errors.json`.
+- `pulsio_pulses` has a CHECK that `lat`/`lng` are null: a coordinate can never be logged (SPEC §10).
+- Granting top-up credits is the IAP server-verification job — not built yet; the spend side is.
+
+**Client:** `PulseStore` (refresh/fire/countdown) → `PulseDock` (button with the liquid core at rest,
+PULSE label, "N available" / "Spent · next hh:mm" / "Sign in to pulse") → `AccessGate.perform(.firePulse)`
+→ `consume_pulse` → the ceremony → `PulseSpentSheet` on P-103.
+
+**PulseFX — the port.** 1:1 from the web module: ten phases over 7.45 s, `render(t)` a pure function of
+time drawn into a SwiftUI `Canvas` inside `TimelineView(.animation)`. No Metal: the terrain wave is vertex
+displacement (three 220-point rings sampled from the heightmap, masked to the baked island silhouette with
+`clipToLayer`), not per-pixel; the only per-pixel work is the one-off bake of mask + hillshade relief. The
+metaballs use `alphaThreshold ∘ blur` on the discs' composite (filters apply in reverse order of addition)
+plus an un-thresholded halo pass and a `clipToLayer`-confined sheen. `project`/`unproject` come from
+`MapSurface` per frame — the entire map dependency. Camera out/in and marker lighting (pins light as the
+wavefront reaches them, via a `lit` feature attribute) are side effects in `PulseFXController`, outside
+`render(t)`. Reduced Motion skips the ceremony. Debug builds accept `PULSEFX_PREVIEW=1` to play it without
+spending. Opt-in UI test: `TEST_RUNNER_PULSE_FLOW=1` on a signed-in, unspent free-tier simulator.
 
 ## Map & POIs
 

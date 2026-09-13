@@ -78,7 +78,10 @@ final class AuthSmokeTests: XCTestCase {
             XCTAssertTrue(codeField.waitForExistence(timeout: 5))
             codeField.tap()
             codeField.typeText(code)
+            attachScreenshot(named: "code-typed")
             app.buttons["signin.verifyCode"].tap()
+            sleep(3)
+            attachScreenshot(named: "after-verify-tap")
         } else {
             XCTAssertTrue(enteredByHand, "no code appeared in \(codeFile) within 240s and the gate did not close")
         }
