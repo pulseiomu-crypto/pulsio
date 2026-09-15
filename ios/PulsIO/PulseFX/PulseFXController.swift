@@ -11,6 +11,11 @@ final class PulseFXController {
     /// Clock origin while running; the overlay derives `t` from it so the frame is a pure function of time.
     private(set) var startedAt: Date?
     private(set) var lastEndedAt: Date?
+    /// Settings toggle: skip the ceremony (reveal immediately), independent of the system Reduce Motion setting.
+    var ceremonyEnabled: Bool {
+        didSet { UserDefaults.standard.set(ceremonyEnabled, forKey: Self.ceremonyKey) }
+    }
+    static let ceremonyKey = "pulse.ceremony"
     let terrain: PulseFXTerrain?
     let renderer: PulseFXRenderer
 
@@ -26,6 +31,7 @@ final class PulseFXController {
     init(terrain: PulseFXTerrain?) {
         self.terrain = terrain
         renderer = PulseFXRenderer(terrain: terrain)
+        ceremonyEnabled = UserDefaults.standard.object(forKey: Self.ceremonyKey) as? Bool ?? true
     }
 
     func attach(_ surface: any MapSurface) { self.surface = surface }
@@ -49,7 +55,7 @@ final class PulseFXController {
     /// Reduced motion: no ceremony, no camera move — reveal immediately.
     func fire(markers: [MapMarker], viewport: CGSize, onReveal: @escaping @MainActor () -> Void, onDone: @escaping @MainActor () -> Void) {
         guard !isRunning, let surface else { onReveal(); onDone(); return }
-        if UIAccessibility.isReduceMotionEnabled { onReveal(); onDone(); return }
+        if UIAccessibility.isReduceMotionEnabled || !ceremonyEnabled { onReveal(); onDone(); return }
 
         self.markers = markers
         self.viewport = viewport

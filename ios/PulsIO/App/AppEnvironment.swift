@@ -16,6 +16,7 @@ struct AppEnvironment {
     let pulseResult: PulseResultStore
     let scores: ScoreStore
     let reports: ReportStore
+    let tiers: any TierRepository
 
     static func live() -> AppEnvironment {
         let config: SupabaseConfig
@@ -47,7 +48,8 @@ struct AppEnvironment {
             pulseFX: PulseFXController(terrain: PulseFXTerrain.loadFromBundle()),
             pulseResult: PulseResultStore(panel: SupabasePulsePanelRepository(gateway: gateway), session: session, districts: districts, preferences: preferences),
             scores: ScoreStore(scores: SupabaseScoreRepository(gateway: gateway)),
-            reports: ReportStore(repository: SupabaseReportRepository(gateway: gateway, baseURL: config.url), session: session, districts: districts)
+            reports: ReportStore(repository: SupabaseReportRepository(gateway: gateway, baseURL: config.url), session: session, districts: districts),
+            tiers: SupabaseTierRepository(gateway: gateway)
         )
     }
 }

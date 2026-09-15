@@ -11,8 +11,30 @@ final class AuthSmokeTests: XCTestCase {
         app.launch()
     }
 
-    func testSignedOutProfileButtonOpensGateWithAllThreeDoors() {
+    /// Settings → Sign in (the gate). Settings itself is never behind the gate.
+    private func openGate() {
         app.buttons["root.account"].tap()
+        let signIn = app.descendants(matching: .any)["settings.signIn"].firstMatch
+        XCTAssertTrue(signIn.waitForExistence(timeout: 5), "signed out: Settings shows a Sign in row")
+        signIn.tap()
+    }
+
+    /// Settings → Account (signed in).
+    private func openAccount() {
+        app.buttons["root.account"].tap()
+        let account = app.descendants(matching: .any)["settings.account"].firstMatch
+        XCTAssertTrue(account.waitForExistence(timeout: 5), "signed in: Settings shows the Account row")
+        account.tap()
+    }
+
+    /// Close whatever settings/gate sheet is up so the profile button is reachable again.
+    private func closeSheets() {
+        let done = app.descendants(matching: .any)["settings.done"].firstMatch
+        if done.exists { done.tap() }
+    }
+
+    func testSignedOutProfileButtonOpensGateWithAllThreeDoors() {
+        openGate()
         XCTAssertTrue(app.buttons["signin.apple"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["signin.google"].exists)
         XCTAssertTrue(app.textFields["signin.email"].exists)
@@ -20,10 +42,11 @@ final class AuthSmokeTests: XCTestCase {
         attachScreenshot(named: "sign-in-gate")
         app.buttons["signin.cancel"].tap()
         XCTAssertTrue(app.buttons["signin.apple"].waitForNonExistence(timeout: 5), "Cancel must return to browsing")
+        closeSheets()
     }
 
     func testInvalidEmailIsRejectedInline() {
-        app.buttons["root.account"].tap()
+        openGate()
         let field = app.textFields["signin.email"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
@@ -36,7 +59,7 @@ final class AuthSmokeTests: XCTestCase {
         guard let email = ProcessInfo.processInfo.environment["MAGIC_LINK_EMAIL"], !email.isEmpty else {
             throw XCTSkip("Set MAGIC_LINK_EMAIL to send a real sign-in link")
         }
-        app.buttons["root.account"].tap()
+        openGate()
         let field = app.textFields["signin.email"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
@@ -54,7 +77,7 @@ final class AuthSmokeTests: XCTestCase {
         guard let email = env["MAGIC_LINK_EMAIL"], !email.isEmpty, let codeFile = env["MAGIC_LINK_CODE_FILE"] else {
             throw XCTSkip("Set MAGIC_LINK_EMAIL and MAGIC_LINK_CODE_FILE")
         }
-        app.buttons["root.account"].tap()
+        openGate()
         let field = app.textFields["signin.email"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
@@ -88,7 +111,9 @@ final class AuthSmokeTests: XCTestCase {
 
         // Sheet closes on sign-in; the profile button now opens Account.
         XCTAssertTrue(app.buttons["signin.verifyCode"].waitForNonExistence(timeout: 20), "expected the gate to close after a valid code")
-        app.buttons["root.account"].tap()
+        // Settings is still up underneath the closed gate; its first row is now Account.
+        let account = app.descendants(matching: .any)["settings.account"].firstMatch
+        XCTAssertTrue(account.waitForExistence(timeout: 10), "signed in: Settings shows the Account row"); account.tap()
         XCTAssertTrue(app.staticTexts[email].waitForExistence(timeout: 10), "Account sheet should show the signed-in email")
         XCTAssertTrue(app.buttons["account.delete"].exists)
         attachScreenshot(named: "account-signed-in")
@@ -101,7 +126,7 @@ final class AuthSmokeTests: XCTestCase {
         guard ProcessInfo.processInfo.environment["GOOGLE_SIGN_IN"] == "1" else {
             throw XCTSkip("Set GOOGLE_SIGN_IN=1 and complete Google's login by hand in the simulator")
         }
-        app.buttons["root.account"].tap()
+        openGate()
         XCTAssertTrue(app.buttons["signin.google"].waitForExistence(timeout: 5))
         app.buttons["signin.google"].tap()
 
@@ -113,7 +138,8 @@ final class AuthSmokeTests: XCTestCase {
         attachScreen(named: "google-web-auth")
 
         XCTAssertTrue(app.buttons["signin.google"].waitForNonExistence(timeout: 480), "Google sign-in was not completed in time")
-        app.buttons["root.account"].tap()
+        let account = app.descendants(matching: .any)["settings.account"].firstMatch
+        XCTAssertTrue(account.waitForExistence(timeout: 10)); account.tap()
         XCTAssertTrue(app.staticTexts["Signed in with Google"].waitForExistence(timeout: 10), "Account should show the Google provider")
         attachScreenshot(named: "account-google")
         app.buttons["account.done"].tap()
@@ -124,11 +150,13 @@ final class AuthSmokeTests: XCTestCase {
         guard ProcessInfo.processInfo.environment["SIGN_OUT"] == "1" else {
             throw XCTSkip("Set SIGN_OUT=1 to run against a signed-in simulator")
         }
-        app.buttons["root.account"].tap()
+        openAccount()
         XCTAssertTrue(app.buttons["account.signOut"].waitForExistence(timeout: 5), "expected the Account sheet (signed in)")
         app.buttons["account.signOut"].tap()
         XCTAssertTrue(app.buttons["account.signOut"].waitForNonExistence(timeout: 10))
-        app.buttons["root.account"].tap()
+        // Settings is still up underneath; signed out now, its first row is Sign in.
+        let signIn = app.descendants(matching: .any)["settings.signIn"].firstMatch
+        XCTAssertTrue(signIn.waitForExistence(timeout: 5)); signIn.tap()
         XCTAssertTrue(app.buttons["signin.apple"].waitForExistence(timeout: 5), "signed out: profile button opens the gate")
     }
 
@@ -137,11 +165,12 @@ final class AuthSmokeTests: XCTestCase {
         guard ProcessInfo.processInfo.environment["SIGN_OUT_ALL"] == "1" else {
             throw XCTSkip("Set SIGN_OUT_ALL=1 to run against a signed-in simulator")
         }
-        app.buttons["root.account"].tap()
+        openAccount()
         XCTAssertTrue(app.buttons["account.signOutAll"].waitForExistence(timeout: 5), "expected the Account sheet (signed in)")
         app.buttons["account.signOutAll"].tap()
         XCTAssertTrue(app.buttons["account.signOutAll"].waitForNonExistence(timeout: 10))
-        app.buttons["root.account"].tap()
+        let signIn = app.descendants(matching: .any)["settings.signIn"].firstMatch
+        XCTAssertTrue(signIn.waitForExistence(timeout: 5)); signIn.tap()
         XCTAssertTrue(app.buttons["signin.apple"].waitForExistence(timeout: 5), "signed out: profile button opens the gate")
     }
 
@@ -150,7 +179,7 @@ final class AuthSmokeTests: XCTestCase {
         guard ProcessInfo.processInfo.environment["DELETE_ACCOUNT"] == "1" else {
             throw XCTSkip("Set DELETE_ACCOUNT=1 to run against a signed-in simulator")
         }
-        app.buttons["root.account"].tap()
+        openAccount()
         XCTAssertTrue(app.buttons["account.delete"].waitForExistence(timeout: 5), "expected the Account sheet (signed in)")
         XCTAssertTrue(app.buttons["account.signOut"].exists)
         XCTAssertTrue(app.buttons["account.signOutAll"].exists)
@@ -161,8 +190,8 @@ final class AuthSmokeTests: XCTestCase {
         app.buttons["account.delete.confirm"].firstMatch.tap()
         // Back on the feed, signed out: the profile button now opens the gate.
         XCTAssertTrue(app.buttons["account.delete"].waitForNonExistence(timeout: 15), "Account sheet should close after deletion")
-        XCTAssertTrue(app.buttons["root.account"].waitForExistence(timeout: 10))
-        app.buttons["root.account"].tap()
+        let signIn = app.descendants(matching: .any)["settings.signIn"].firstMatch
+        XCTAssertTrue(signIn.waitForExistence(timeout: 10), "signed out: Settings now offers Sign in"); signIn.tap()
         XCTAssertTrue(app.buttons["signin.apple"].waitForExistence(timeout: 5))
     }
 

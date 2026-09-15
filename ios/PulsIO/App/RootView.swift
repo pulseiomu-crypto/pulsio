@@ -9,7 +9,8 @@ struct RootView: View {
     @Environment(DistrictStore.self) private var districts
     @Environment(PreferencesStore.self) private var preferences
     @Environment(\.horizontalSizeClass) private var sizeClass
-    @State private var isShowingAccount = false
+    @State private var isShowingSettings = false
+    @Environment(\.tierRepository) private var tiers
     @State private var isShowingNews = false
 
     var body: some View {
@@ -36,13 +37,14 @@ struct RootView: View {
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            // FRONTEND §I: signed-out, the profile button opens sign-in rather than settings.
-                            if session.isSignedIn { isShowingAccount = true } else { gate.presentSignIn() }
+                            // Settings are never behind the gate: district and preferences live on the device.
+                            // Only the account section inside asks for sign-in.
+                            isShowingSettings = true
                         } label: {
                             Image(systemName: session.isSignedIn ? "person.crop.circle.fill" : "person.crop.circle")
                                 .foregroundStyle(session.isSignedIn ? Palette.teal : Palette.ink)
                         }
-                        .accessibilityLabel(Text("account.title"))
+                        .accessibilityLabel(Text("settings.title"))
                         .accessibilityIdentifier("root.account")
                     }
                 }
@@ -55,11 +57,11 @@ struct RootView: View {
         .sheet(isPresented: $gate.isPresentingSignIn, onDismiss: { gate.cancel() }) {
             SignInSheet()
         }
-        .sheet(isPresented: $isShowingAccount) {
-            AccountView()
+        .sheet(isPresented: $isShowingSettings) {
+            SettingsScreen(tiers: tiers)
         }
         .onChange(of: session.isSignedIn) { _, signedIn in
-            if signedIn { gate.sessionDidSignIn() } else { isShowingAccount = false }
+            if signedIn { gate.sessionDidSignIn() }
         }
         .onChange(of: session.profile?.id) { _, _ in
             // Sign-in binds the device's district and preferences to the profile (or adopts the profile's).

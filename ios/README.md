@@ -100,6 +100,14 @@ to exactly 1080×1920 (Stories) or 1080×1080 (WhatsApp), shared as PNGs via `Sh
 Debug builds: `SHARE_REPORT_SAMPLE=1` adds a sample report card to the panel's share sheet. Unit tests render
 all six cards and check pixel sizes; set `TEST_RUNNER_CARD_OUTPUT_DIR` to keep the PNGs.
 
+**Settings (FRONTEND §I).** `Features/Settings/SettingsScreen` wraps Account and is never behind the gate:
+signed-out users get a Sign in row and everything else — district (picker + "use my location" when
+authorised), preferences (user type + up to three priorities, synced to the profile when signed in), plan
+(tier, pulses today, top-up balance, and a Plans sheet fed by `pulsio_tier_rules`), location status with a
+Settings deep link when denied or the primer when never asked, an in-app "play the pulse ceremony" toggle
+(system Reduce Motion is still respected), language (English; French listed as coming), and About (version,
+privacy/terms/refunds links, the ODbL attribution). The profile button opens Settings; Account is a row inside.
+
 **Community reports (SPEC §11).** Submission (`Features/Report/ReportFlow`) is category → pin (the map moves
 under a centred pin — the one place raw coordinates are sent, because the user places them) → photo → one
 line → submit. `Platform/Photo/PhotoPipeline` runs before upload: resize to 1600 px (measured in pixels),

@@ -10,6 +10,7 @@ struct PulsIOApp: App {
             RootView()
                 .environment(\.newsRepository, environment.news)
                 .environment(\.poiStore, environment.poiStore)
+                .environment(\.tierRepository, environment.tiers)
                 .environment(environment.poiSync)
                 .environment(environment.session)
                 .environment(environment.gate)

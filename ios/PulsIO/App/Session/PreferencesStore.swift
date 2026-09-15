@@ -61,6 +61,11 @@ final class PreferencesStore {
         }
     }
 
+    /// After an edit in Settings: mirror to the profile if signed in (onboarding calls this via completeOnboarding).
+    func syncIfSignedIn() async {
+        if session.isSignedIn { await push() }
+    }
+
     private func push() async {
         do { try await session.updatePreferences(userType: userType, priorities: priorities.map(\.rawValue)) }
         catch { /* the profile keeps its previous values; the device copy still drives the panel */ }

@@ -5872,6 +5872,618 @@
           }
         }
       }
+    },
+    "settings.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Réglages"
+          }
+        }
+      }
+    },
+    "settings.signIn": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Se connecter"
+          }
+        }
+      }
+    },
+    "settings.signIn.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulses, reports, sync"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pulses, signalements, synchronisation"
+          }
+        }
+      }
+    },
+    "settings.district.useLocation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use my location"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Utiliser ma position"
+          }
+        }
+      }
+    },
+    "settings.district.note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editable any time — set it to where you're headed, or fix GPS near a boundary."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Modifiable à tout moment — pour votre destination, ou si le GPS se trompe près d'une limite."
+          }
+        }
+      }
+    },
+    "settings.preferences": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preferences"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Préférences"
+          }
+        }
+      }
+    },
+    "settings.preferences.note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your pulse shows your priorities first."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Votre pulse affiche vos priorités en premier."
+          }
+        }
+      }
+    },
+    "settings.plan.pulsesToday": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulses today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pulses aujourd'hui"
+          }
+        }
+      }
+    },
+    "settings.plan.topups": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top-up balance"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Solde de recharges"
+          }
+        }
+      }
+    },
+    "settings.plan.signedOut": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to see your pulses and top-ups."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Connectez-vous pour voir vos pulses et recharges."
+          }
+        }
+      }
+    },
+    "settings.plan.upgrade": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plans"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Formules"
+          }
+        }
+      }
+    },
+    "settings.location": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Localisation"
+          }
+        }
+      }
+    },
+    "settings.location.on": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Activée"
+          }
+        }
+      }
+    },
+    "settings.location.off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Désactivée"
+          }
+        }
+      }
+    },
+    "settings.location.notAsked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not asked yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pas encore demandée"
+          }
+        }
+      }
+    },
+    "settings.motion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Animation"
+          }
+        }
+      }
+    },
+    "settings.motion.ceremony": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play the pulse ceremony"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Jouer la cérémonie du pulse"
+          }
+        }
+      }
+    },
+    "settings.motion.ceremony.note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off: the map reveals instantly. System Reduce Motion is always respected."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Désactivé : la carte se révèle instantanément. Réduire les animations (système) est toujours respecté."
+          }
+        }
+      }
+    },
+    "settings.language": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Langue"
+          }
+        }
+      }
+    },
+    "settings.language.soon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming soon"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bientôt"
+          }
+        }
+      }
+    },
+    "settings.language.note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "French is on the way — we'd rather ship it reviewed than machine-translated."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Le français arrive — nous préférons le publier relu plutôt que traduit automatiquement."
+          }
+        }
+      }
+    },
+    "settings.about": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "À propos"
+          }
+        }
+      }
+    },
+    "settings.about.version": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "settings.about.privacy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy policy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Politique de confidentialité"
+          }
+        }
+      }
+    },
+    "settings.about.terms": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms of use"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Conditions d'utilisation"
+          }
+        }
+      }
+    },
+    "settings.about.refunds": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refunds"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Remboursements"
+          }
+        }
+      }
+    },
+    "settings.about.odbl": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place data © OpenStreetMap contributors, ODbL. Basemap © Esri."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Données des lieux © contributeurs OpenStreetMap, ODbL. Fond de carte © Esri."
+          }
+        }
+      }
+    },
+    "upgrade.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More pulses, no ads"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Plus de pulses, sans publicité"
+          }
+        }
+      }
+    },
+    "upgrade.line %@ %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ pulses/day · %2$lld device(s) · ads: %3$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%1$@ pulses/jour · %2$lld appareil(s) · publicités : %3$@"
+          }
+        }
+      }
+    },
+    "upgrade.ads.yes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "yes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "oui"
+          }
+        }
+      }
+    },
+    "upgrade.ads.no": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "non"
+          }
+        }
+      }
+    },
+    "upgrade.current": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Votre formule"
+          }
+        }
+      }
+    },
+    "tier.price.free": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Gratuit"
+          }
+        }
+      }
+    },
+    "tier.price.t1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MUR 150 / month"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "MUR 150 / mois"
+          }
+        }
+      }
+    },
+    "tier.price.t2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MUR 400 / month"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "MUR 400 / mois"
+          }
+        }
+      }
+    },
+    "tier.price.pro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sur devis"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
