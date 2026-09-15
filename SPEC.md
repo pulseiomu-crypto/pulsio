@@ -539,6 +539,7 @@ tropical depression (51–62 km/h) · moderate tropical storm · severe tropical
 **Semantic colour:** see §24.
 
 **Search surface:** find POIs by **name or category**, **sorted by distance**, each result showing **distance** and tapping through to the map. Distance is computed **on-device** (location privacy rule, §10). Search is also **where the 136 approximate shelters live** (§19).
+*Built on iOS 2026-09-15:* local-store search over every surfaced type; nearest-first from the last fix or the district centroid, A–Z with an explanatory line otherwise; approximate shelters labelled with village and role-tagged tappable numbers, never pinned; other hits centre the map (search-only types get a transient pin while selected).
 
 ---
 

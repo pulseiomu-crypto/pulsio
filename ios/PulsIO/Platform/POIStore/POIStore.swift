@@ -139,6 +139,23 @@ final class POIStore: Sendable {
             .map { (district: $0.0, metres: $0.1) }
     }
 
+    /// Search (SPEC §20): by name, category or district, over every surfaced type — plotted, layered or
+    /// search-only — including approximate shelters (they're findable; they're never pinned). Types §20 doesn't
+    /// surface stay out. Sorting is the caller's (distance on-device, else alphabetical).
+    func search(_ query: String, types: Set<POIType>? = nil, limit: Int = 60) async throws -> [POIRecord] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let surfaced = POIDisplayRules.pinned.union(POIDisplayRules.layers).union(POIDisplayRules.searchOnly)
+        let allowed = (types.map { $0.intersection(surfaced) } ?? surfaced).map(\.rawValue)
+        return try await db.read { db in
+            var request = POIRecord.filter(Column("active") == true && allowed.contains(Column("type")))
+            if !q.isEmpty {
+                let pattern = "%\(q.replacingOccurrences(of: "%", with: ""))%"
+                request = request.filter(Column("name").like(pattern) || Column("district").like(pattern) || Column("type").like(pattern))
+            }
+            return try request.order(Column("name")).limit(limit).fetchAll(db)
+        }
+    }
+
     /// Centre of mass of a district's POIs — a district-grade reference point when there's no GPS fix
     /// (nearest weather station, sunset). Nil if the store has no POIs for it.
     func districtCentroid(_ district: District) async throws -> CLLocationCoordinate2D? {

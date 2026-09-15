@@ -118,6 +118,16 @@ Map: reports ride the marker layer (amber unconfirmed, coral confirmed, muted pe
 the Storage API first (SQL may not delete storage rows). Opt-in UI tests: `TEST_RUNNER_REPORT_FLOW=1`,
 `TEST_RUNNER_REPORT_ACTIONS=<id>` (with `OPEN_REPORT_ID` in debug builds).
 
+**Search (SPEC §20).** `Features/Search`: name, category or district over every surfaced type (plotted,
+layered and search-only — pharmacy, supermarket, mall, police, clinic, town), run entirely against the local
+POI store (`POIStore.search`); the server sees nothing. Distances are computed on the device from the last
+fix or the district's POI centroid; without either the list is A–Z with a line saying why. Typing a category
+word ("pharmacy", "pharmacie") acts like its chip. The 136 approximate shelters are findable, labelled
+"Location approximate — call to confirm before going", show their village, and are never pinned — tapping
+one opens the card only (no marker, no camera move). Shelter phone strings ("Centre 4520237 · Supervisor …")
+are parsed by `Platform/POIStore/POIContacts` into role-tagged `tel:` chips. Tapping any other hit centres
+the map and, for search-only types, drops a transient pin while the card is open. UI test: `SearchUITests`.
+
 **PulseFX — the port.** 1:1 from the web module: ten phases over 7.45 s, `render(t)` a pure function of
 time drawn into a SwiftUI `Canvas` inside `TimelineView(.animation)`. No Metal: the terrain wave is vertex
 displacement (three 220-point rings sampled from the heightmap, masked to the baked island silhouette with

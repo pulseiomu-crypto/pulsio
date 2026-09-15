@@ -15,6 +15,7 @@ struct MapScreen: View {
     @Environment(ScoreStore.self) private var scores
     @Environment(ReportStore.self) private var reportsStore
     @State private var showReportFlow = false
+    @State private var showSearch = false
     @State private var showScore = false
     @State private var showShare = false
     @State private var model: MapViewModel?
@@ -57,6 +58,7 @@ struct MapScreen: View {
         }
         .sheet(isPresented: $showSpent) { PulseSpentSheet() }
         .sheet(isPresented: $showScore) { PulsScoreScreen() }
+        .sheet(isPresented: $showSearch) { SearchScreen { poi in model?.showSearchResult(poi) } }
         .sheet(isPresented: $showReportFlow, onDismiss: { Task { await reportsStore.refresh() } }) {
             ReportFlow(startCoordinate: reportStartCoordinate())
         }
@@ -161,6 +163,19 @@ struct MapScreen: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: Metrics.Space.sm) {
+                    Button { showSearch = true } label: {
+                        HStack(spacing: Metrics.Space.sm) {
+                            Image(systemName: "magnifyingglass").font(.system(size: 12, weight: .semibold))
+                            Text("search.button")
+                        }
+                        .font(Typography.mono(11, weight: .semibold)).tracking(Typography.eyebrowTracking).textCase(.uppercase)
+                        .foregroundStyle(Palette.ink)
+                        .padding(.horizontal, Metrics.Space.md).frame(minHeight: 44)
+                        .background(Palette.deep.opacity(0.92), in: Capsule())
+                        .overlay(Capsule().stroke(Palette.hairStrong, lineWidth: Metrics.hairline))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("map.search")
                     LayerToggle(title: "map.layer.fuel", tint: POIType.fuel.tint, isOn: model.isEnabled(.fuel)) {
                         Task { await model.toggle(.fuel) }
                     }
@@ -392,11 +407,33 @@ private struct POICallout: View {
                     }
                 }
                 .font(Typography.mono(10))
-                if let phone = poi.phone, !phone.isEmpty, let url = URL(string: "tel:\(phone.filter { !$0.isWhitespace })") {
-                    Link(destination: url) {
-                        Label { Text(phone) } icon: { Image(systemName: "phone.fill") }
-                            .font(Typography.mono(11, weight: .semibold))
-                            .foregroundStyle(Palette.teal)
+                if poi.type == .shelter, poi.locationPrecision == .approximate {
+                    HStack(alignment: .firstTextBaseline, spacing: Metrics.Space.xs) {
+                        Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 10, weight: .semibold))
+                        Text("search.shelter.approximate")
+                    }
+                    .font(Typography.mono(10)).foregroundStyle(Palette.amber)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, Metrics.Space.xs)
+                    .accessibilityIdentifier("map.callout.approximate")
+                }
+                let contacts = POIContacts.parse(poi.phone)
+                if !contacts.isEmpty {
+                    FlowChips {
+                        ForEach(contacts) { c in
+                            if let url = c.url {
+                                Link(destination: url) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: c.role == .supervisor ? "person.fill" : "phone.fill").font(.system(size: 10, weight: .semibold))
+                                        Text(c.display)
+                                    }
+                                    .font(Typography.mono(11, weight: .semibold)).foregroundStyle(Palette.teal)
+                                    .padding(.horizontal, Metrics.Space.sm + 2).frame(minHeight: 32)
+                                    .background(Palette.teal.opacity(0.08), in: Capsule())
+                                    .overlay(Capsule().stroke(Palette.hairActive, lineWidth: Metrics.hairline))
+                                }
+                            }
+                        }
                     }
                     .padding(.top, Metrics.Space.xs)
                 }

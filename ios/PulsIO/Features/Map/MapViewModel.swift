@@ -13,6 +13,9 @@ final class MapViewModel {
     private(set) var selectedReportID: Int64?
     private(set) var loadError: String?
     private var reportMarkers: [MapMarker] = []
+    /// A search hit that isn't normally plotted gets one transient pin while it's selected.
+    private var searchMarker: MapMarker?
+    static let searchMarkerPrefix = "search-"
 
     private let store: POIStore
     private let sync: POISync
@@ -82,7 +85,33 @@ final class MapViewModel {
         await reload()
     }
 
-    func dismissSelection() { selected = nil; selectedReportID = nil }
+    func dismissSelection() {
+        selected = nil
+        selectedReportID = nil
+        if searchMarker != nil { searchMarker = nil; pushMarkers() }
+    }
+
+    /// A search result (SPEC §20): centre on it and open its card. Search-only types get a transient pin;
+    /// approximate shelters get the card only — never a pin, never a camera move (nothing implies precision).
+    func showSearchResult(_ poi: POIRecord) {
+        searchMarker = nil
+        if poi.type == .shelter && poi.locationPrecision == .approximate {
+            selected = poi
+            pushMarkers()
+            return
+        }
+        if !plotted.keys.contains(String(poi.id)) {
+            searchMarker = MapMarker(id: "\(Self.searchMarkerPrefix)\(poi.id)", latitude: poi.lat, longitude: poi.lng, kind: poi.type.rawValue,
+                                     tintHex: poi.type.tintString, emphasis: true, title: poi.name)
+        }
+        selected = poi
+        pushMarkers()
+        surface?.setCamera(MapCamera(latitude: poi.lat, longitude: poi.lng, zoom: 14.5), animated: true)
+    }
+
+    private func pushMarkers() {
+        surface?.setMarkers(markers + (searchMarker.map { [$0] } ?? []))
+    }
     func dismissReport() { selectedReportID = nil }
     func openReport(id: Int64) { selected = nil; selectedReportID = id }
 
@@ -92,13 +121,15 @@ final class MapViewModel {
             MapMarker(id: r.markerID, latitude: r.lat, longitude: r.lng, kind: "report", tintHex: r.tintHex, emphasis: r.status == .confirmed, title: r.description ?? r.category.rawValue)
         }
         markers = markers.filter { !$0.id.hasPrefix(Report.markerPrefix) } + reportMarkers
-        surface?.setMarkers(markers)
+        pushMarkers()
     }
 
     private func select(_ marker: MapMarker) {
         if marker.id.hasPrefix(Report.markerPrefix), let id = Int64(marker.id.dropFirst(Report.markerPrefix.count)) {
             selected = nil
             selectedReportID = id
+        } else if marker.id.hasPrefix(Self.searchMarkerPrefix) {
+            return   // already selected
         } else {
             selectedReportID = nil
             selected = plotted[marker.id]
@@ -114,7 +145,7 @@ final class MapViewModel {
                           tintHex: poi.type.tintString, emphasis: poi.type.isEmphasised, title: poi.name)
             } + reportMarkers
             loadError = nil
-            surface?.setMarkers(markers)
+            pushMarkers()
         } catch {
             loadError = String(describing: error)
         }
