@@ -28,14 +28,16 @@ final class SettingsUITests: XCTestCase {
         // Priorities are editable here, with the same cap as onboarding.
         let count = any["settings.prefs.count"].firstMatch
         app.swipeUp()
+        // Whatever state the device is in, the first chip toggles: on→off always changes the count; off→on
+        // changes it unless the cap (3) is full, in which case a second tap on a selected chip must.
         let before = count.label
-        any["settings.priority.fuel"].firstMatch.tap()
-        if count.label == before {
-            // Already at the cap (3 of 3): the fourth was refused, as designed. Toggle one off instead.
-            XCTAssertTrue(before.hasPrefix("3 of 3"), before)
-            any["settings.priority.ceb"].firstMatch.tap()
+        let changed = NSPredicate(format: "label != %@", before)
+        any["settings.priority.ceb"].firstMatch.tap()
+        if XCTWaiter().wait(for: [expectation(for: changed, evaluatedWith: count)], timeout: 3) != .completed {
+            XCTAssertTrue(before.hasPrefix("3 of 3"), "count unchanged only when at the cap: \(before)")
+            any["settings.priority.weather"].firstMatch.tap()   // one of the three; toggles off
+            wait(for: [expectation(for: changed, evaluatedWith: count)], timeout: 3)
         }
-        XCTAssertNotEqual(count.label, before, "toggling a priority updates the count")
         attach("settings-2-preferences")
 
         // District picker opens from here.
