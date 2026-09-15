@@ -54,7 +54,8 @@ struct RootView: View {
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }
-        .sheet(isPresented: $gate.isPresentingSignIn, onDismiss: { gate.cancel() }) {
+        // One presentation per presenter: while Settings is up, Settings presents the gate itself.
+        .sheet(isPresented: Binding(get: { gate.isPresentingSignIn && !isShowingSettings }, set: { if !$0 { gate.cancel() } })) {
             SignInSheet()
         }
         .sheet(isPresented: $isShowingSettings) {

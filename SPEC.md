@@ -355,7 +355,7 @@ Grounded in Apple's Human Interface Guidelines (read 2026-09-05 via the rendered
 
 ## 11. Community Reports (October launch — full definition)
 
-**Status today:** 🟢 **built on iOS (2026-09-13)** — submission flow, on-device Vision blur, the three moderation layers with `pulsio_moderation`, confirm/flag/block/delete, map pins and the panel count. The operator queue UI in NerveCentre is not built; its functions (`operator_set_report_status`, `operator_block_user`) are. The Claude check needs `ANTHROPIC_API_KEY` set as an edge-function secret; until then every report is held for the operator. This section remains the definition.
+**Status today:** 🟢 **built on iOS (2026-09-13)** — submission flow, on-device Vision blur, the three moderation layers with `pulsio_moderation`, confirm/flag/block/delete, map pins and the panel count. The operator queue UI in NerveCentre is not built; its functions (`operator_set_report_status`, `operator_block_user`) are. The Claude check is live (`ANTHROPIC_API_KEY` set 2026-09-15; verified: a synthetic photo submitted as "flood" was held with the model's verdict logged — "no visible road, water or flooding", confidence 0.85). This section remains the definition.
 
 ### Submission is device-only (iPhone + iPad) — by design
 Reporting **requires a camera and being physically at the incident**: you report a flooded road standing in front of it, not from a laptop. So:

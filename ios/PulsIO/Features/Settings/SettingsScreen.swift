@@ -20,6 +20,7 @@ struct SettingsScreen: View {
 
     var body: some View {
         @Bindable var pulseFX = pulseFX
+        @Bindable var gate = gate
         NavigationStack {
             List {
                 accountSection
@@ -51,6 +52,8 @@ struct SettingsScreen: View {
         .sheet(isPresented: $showPrimer) { LocationPrimerSheet() }
         .sheet(isPresented: $showUpgrade) { UpgradeSheet(tiers: tiers) }
         .sheet(isPresented: $showAccount) { AccountView() }
+        // The gate presents over Settings (RootView steps aside while Settings is showing).
+        .sheet(isPresented: $gate.isPresentingSignIn, onDismiss: { gate.cancel() }) { SignInSheet() }
         .task { await pulses.refresh() }
     }
 
