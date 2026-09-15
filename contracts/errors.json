@@ -1,6 +1,43 @@
 {
   "$comment": "P/U/S codes (SPEC §21). Servers raise the code in the Postgres error detail; clients map it to plain-language copy keyed by messageKey, with the code shown small beneath. P = expected states (informative, never alarming); U = user-fixable (always a next step); S = our fault.",
-  "P-100": { "messageKey": "pulse.error.signIn", "meaning": "Firing a pulse needs an account (browse freely, sign in to act)." },
-  "P-101": { "messageKey": "pulse.error.noProfile", "meaning": "Signed in but no pulsio_profiles row — the sign-up trigger didn't run; retry creates it." },
-  "P-103": { "messageKey": "pulse.error.spent", "meaning": "Today's quota and the top-up balance are both used. Next quota at Mauritius midnight." }
+  "P-100": {
+    "messageKey": "pulse.error.signIn",
+    "meaning": "Firing a pulse needs an account (browse freely, sign in to act)."
+  },
+  "P-101": {
+    "messageKey": "pulse.error.noProfile",
+    "meaning": "Signed in but no pulsio_profiles row — the sign-up trigger didn't run; retry creates it."
+  },
+  "P-103": {
+    "messageKey": "pulse.error.spent",
+    "meaning": "Today's quota and the top-up balance are both used. Next quota at Mauritius midnight."
+  },
+  "U-201": {
+    "messageKey": "report.error.blocked",
+    "meaning": "This account has been blocked from reporting by an operator."
+  },
+  "U-202": {
+    "messageKey": "report.error.photoRequired",
+    "meaning": "A photo (in the submitter's own storage folder) is required."
+  },
+  "U-203": {
+    "messageKey": "report.error.pinOutside",
+    "meaning": "The pin must be in Mauritius."
+  },
+  "U-210": {
+    "messageKey": "report.error.notLive",
+    "meaning": "The report is no longer live (expired, hidden, removed or unknown)."
+  },
+  "U-211": {
+    "messageKey": "report.error.own",
+    "meaning": "You can't confirm or flag your own report."
+  },
+  "U-212": {
+    "messageKey": "report.error.alreadyConfirmed",
+    "meaning": "You already confirmed this report."
+  },
+  "U-213": {
+    "messageKey": "report.error.tooFar",
+    "meaning": "Confirmations are limited to nearby users (2 km on-device; same district server-side)."
+  }
 }

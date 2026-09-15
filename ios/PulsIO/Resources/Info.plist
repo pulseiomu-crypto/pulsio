@@ -62,6 +62,10 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
+	<key>NSCameraUsageDescription</key>
+	<string>PulsIO uses the camera to photograph what you're reporting — a flooded road, a power cut, a hazard. Faces and number plates are blurred on your phone before anything is uploaded.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Attach a photo you already took to a community report. Faces and number plates are blurred on your phone before upload.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>PulsIO uses your location to work out which of Mauritius's districts you're in, so alerts and conditions match where you are. Your position stays on this phone — only the district is ever saved.</string>
 	<key>SupabaseURL</key>

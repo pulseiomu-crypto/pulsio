@@ -100,6 +100,24 @@ to exactly 1080×1920 (Stories) or 1080×1080 (WhatsApp), shared as PNGs via `Sh
 Debug builds: `SHARE_REPORT_SAMPLE=1` adds a sample report card to the panel's share sheet. Unit tests render
 all six cards and check pixel sizes; set `TEST_RUNNER_CARD_OUTPUT_DIR` to keep the PNGs.
 
+**Community reports (SPEC §11).** Submission (`Features/Report/ReportFlow`) is category → pin (the map moves
+under a centred pin — the one place raw coordinates are sent, because the user places them) → photo → one
+line → submit. `Platform/Photo/PhotoPipeline` runs before upload: resize to 1600 px (measured in pixels),
+Vision face rectangles + text regions blurred with a feathered gaussian, JPEG ~30–200 KB; the un-blurred
+original never leaves the phone. On the simulator Vision is pinned to the CPU (no ANE). Camera via
+`UIImagePickerController` (device), `PhotosPicker` fallback, and `REPORT_SAMPLE_PHOTO=1` in debug builds.
+Server: `submit_report()` (blocked-user check, own-folder photo, Mauritius bounds) → the `moderate-report`
+edge function (`supabase/functions/moderate-report`, Claude vision check; **holds** the report when
+`ANTHROPIC_API_KEY` isn't set) → `record_model_verdict()`. Community layer: `confirm_report()` (2 km on the
+device via `Report.isWithinConfirmRadius`, same-district server-side, once, not own; 2 confirmations →
+confirmed), `flag_report()` (once, not own; 2 flags → hidden), `block_reporter()` (user-level block table
+filtered by RLS), `delete_own_report()`. Operator layer for NerveCentre (service role):
+`operator_set_report_status()`, `operator_block_user()`. Every decision lands in `pulsio_moderation`.
+Map: reports ride the marker layer (amber unconfirmed, coral confirmed, muted pending-own); tap → 
+`ReportDetailSheet` with confirm / flag / block / delete. Account deletion removes the user's photos through
+the Storage API first (SQL may not delete storage rows). Opt-in UI tests: `TEST_RUNNER_REPORT_FLOW=1`,
+`TEST_RUNNER_REPORT_ACTIONS=<id>` (with `OPEN_REPORT_ID` in debug builds).
+
 **PulseFX — the port.** 1:1 from the web module: ten phases over 7.45 s, `render(t)` a pure function of
 time drawn into a SwiftUI `Canvas` inside `TimelineView(.animation)`. No Metal: the terrain wave is vertex
 displacement (three 220-point rings sampled from the heightmap, masked to the baked island silhouette with

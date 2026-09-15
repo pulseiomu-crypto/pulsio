@@ -10,7 +10,9 @@ final class MapViewModel {
     private(set) var basemap: Basemap
     private(set) var markers: [MapMarker] = []
     private(set) var selected: POIRecord?
+    private(set) var selectedReportID: Int64?
     private(set) var loadError: String?
+    private var reportMarkers: [MapMarker] = []
 
     private let store: POIStore
     private let sync: POISync
@@ -80,10 +82,27 @@ final class MapViewModel {
         await reload()
     }
 
-    func dismissSelection() { selected = nil }
+    func dismissSelection() { selected = nil; selectedReportID = nil }
+    func dismissReport() { selectedReportID = nil }
+    func openReport(id: Int64) { selected = nil; selectedReportID = id }
+
+    /// Community reports ride on the same marker layer; the wavefront lights them like any other pin.
+    func setReports(_ reports: [Report]) {
+        reportMarkers = reports.map { r in
+            MapMarker(id: r.markerID, latitude: r.lat, longitude: r.lng, kind: "report", tintHex: r.tintHex, emphasis: r.status == .confirmed, title: r.description ?? r.category.rawValue)
+        }
+        markers = markers.filter { !$0.id.hasPrefix(Report.markerPrefix) } + reportMarkers
+        surface?.setMarkers(markers)
+    }
 
     private func select(_ marker: MapMarker) {
-        selected = plotted[marker.id]
+        if marker.id.hasPrefix(Report.markerPrefix), let id = Int64(marker.id.dropFirst(Report.markerPrefix.count)) {
+            selected = nil
+            selectedReportID = id
+        } else {
+            selectedReportID = nil
+            selected = plotted[marker.id]
+        }
     }
 
     private func reload() async {
@@ -93,7 +112,7 @@ final class MapViewModel {
             markers = pois.map { poi in
                 MapMarker(id: String(poi.id), latitude: poi.lat, longitude: poi.lng, kind: poi.type.rawValue,
                           tintHex: poi.type.tintString, emphasis: poi.type.isEmphasised, title: poi.name)
-            }
+            } + reportMarkers
             loadError = nil
             surface?.setMarkers(markers)
         } catch {

@@ -100,6 +100,15 @@ struct SupabaseAuthRepository: AuthRepository {
     }
 
     func deleteAccount() async throws {
+        // Report photos live in the user's own storage folder; storage rows can't be removed from SQL, so the
+        // app deletes them through the Storage API (own-folder policy) before the account row goes.
+        if let uid = auth.currentSession?.user.id {
+            let folder = uid.uuidString.lowercased()
+            let photos = gateway.client.storage.from(Report.photoBucket)
+            if let objects = try? await photos.list(path: folder), !objects.isEmpty {
+                _ = try? await photos.remove(paths: objects.map { "\(folder)/\($0.name)" })
+            }
+        }
         try await gateway.client.rpc("delete_own_account").execute()
         // The server session is gone with the user; clear the local copy regardless of the network result.
         try? await auth.signOut(scope: .local)

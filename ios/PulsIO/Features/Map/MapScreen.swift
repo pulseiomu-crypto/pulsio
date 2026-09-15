@@ -1,3 +1,4 @@
+import CoreLocation
 import SwiftUI
 
 /// The map screen: full-bleed map, layer toggles, POI callout, and the attribution strip that must be
@@ -12,6 +13,8 @@ struct MapScreen: View {
     @Environment(PulseFXController.self) private var pulseFX
     @Environment(PulseResultStore.self) private var result
     @Environment(ScoreStore.self) private var scores
+    @Environment(ReportStore.self) private var reportsStore
+    @State private var showReportFlow = false
     @State private var showScore = false
     @State private var showShare = false
     @State private var model: MapViewModel?
@@ -54,6 +57,14 @@ struct MapScreen: View {
         }
         .sheet(isPresented: $showSpent) { PulseSpentSheet() }
         .sheet(isPresented: $showScore) { PulsScoreScreen() }
+        .sheet(isPresented: $showReportFlow, onDismiss: { Task { await reportsStore.refresh() } }) {
+            ReportFlow(startCoordinate: reportStartCoordinate())
+        }
+        .sheet(isPresented: Binding(get: { model?.selectedReportID != nil }, set: { if !$0 { model?.dismissReport() } })) {
+            if let id = model?.selectedReportID { ReportDetailSheet(reportID: id) }
+        }
+        .onChange(of: reportsStore.reports) { _, reports in model?.setReports(reports) }
+        .onChange(of: session.isSignedIn) { _, _ in Task { await reportsStore.refresh() } }
         .sheet(isPresented: $showShare) {
             #if DEBUG
             // Design/QA hook: include a sample community report card (reports aren't built yet).
@@ -75,6 +86,13 @@ struct MapScreen: View {
                 m.attach(surface)
                 pulseFX.attach(surface)
                 Task { await scores.refresh() }
+                Task {
+                    await reportsStore.refresh(); m.setReports(reportsStore.reports)
+                    #if DEBUG
+                    // QA hook: open a report's sheet directly (map pins aren't addressable from UI tests).
+                    if let raw = ProcessInfo.processInfo.environment["OPEN_REPORT_ID"], let id = Int64(raw) { m.openReport(id: id) }
+                    #endif
+                }
                 m.showUserLocation(districts.locationAvailability == .authorized)
                 model = m
                 await m.start()
@@ -172,6 +190,19 @@ struct MapScreen: View {
                 PulseDock(controller: pulseFX, onFire: { fire(model) }, onSpent: { showSpent = true })
                 Spacer()
             }
+            .overlay(alignment: .leading) {
+                // Report (SPEC §11): an act — the gate asks for sign-in and resumes here.
+                Button { gate.perform(.submitReport) { showReportFlow = true } } label: {
+                    Label { Text("report.button") } icon: { Image(systemName: "camera.fill") }
+                        .font(Typography.mono(10, weight: .semibold)).tracking(0.14).textCase(.uppercase)
+                        .foregroundStyle(Palette.amber)
+                        .padding(.horizontal, Metrics.Space.md).frame(minHeight: 44)
+                        .background(Palette.deep.opacity(0.92), in: Capsule())
+                        .overlay(Capsule().stroke(Palette.amber.opacity(0.4), lineWidth: Metrics.hairline))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("map.report")
+            }
             .overlay(alignment: .trailing) {
                 if result.hasResult, !result.isPresented, !pulseFX.isRunning {
                     Button { result.isPresented = true } label: {
@@ -197,6 +228,13 @@ struct MapScreen: View {
         }
         .padding(Metrics.Space.md)
         .animation(Metrics.Motion.entrance, value: model.selected?.id)
+    }
+
+    /// Where a new report's pin starts: the user's fix if we already have one, else the map centre.
+    private func reportStartCoordinate() -> CLLocationCoordinate2D {
+        if let fix = districts.lastKnownFix { return fix }
+        let c = surface.camera
+        return CLLocationCoordinate2D(latitude: c.latitude, longitude: c.longitude)
     }
 
     /// Fire: gate → spend on the server → ceremony. The map is the ceremony's stage; markers light as the

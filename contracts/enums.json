@@ -270,5 +270,56 @@
       ]
     },
     "link": "https://pulsio.mu"
+  },
+  "reportCategory": {
+    "source": "pulsio_reports.category (text, CHECK) — the ten locked categories (SPEC §11)",
+    "values": [
+      "power_cut",
+      "water_cut",
+      "accident",
+      "hazard",
+      "flood",
+      "traffic",
+      "jellyfish",
+      "event",
+      "infrastructure",
+      "other"
+    ]
+  },
+  "reportStatus": {
+    "$comment": "Lifecycle (SPEC §11): pending (awaiting the model check; visible only to the author) → unconfirmed (live, confirmable) → confirmed (two confirmations). hidden = two flags, pending operator; removed = operator; expired = 2h passed.",
+    "values": [
+      "pending",
+      "unconfirmed",
+      "confirmed",
+      "hidden",
+      "removed",
+      "expired"
+    ]
+  },
+  "reportModeration": {
+    "$comment": "pulsio_moderation is the audit trail: every decision from every layer. Layers: auto (Claude vision check via the moderate-report edge function), community (confirm / flag / block / delete), operator (NerveCentre, service role). Two flags auto-hide. Confirmation radius 2 km is checked on the device (SPEC §11); the server additionally requires the same district.",
+    "layers": [
+      "auto",
+      "community",
+      "operator"
+    ],
+    "actions": [
+      "submitted",
+      "published",
+      "held",
+      "flagged",
+      "auto_hidden",
+      "removed",
+      "restored",
+      "user_blocked",
+      "user_unblocked",
+      "confirmed",
+      "deleted_by_author"
+    ],
+    "confirmRadiusMetres": 2000,
+    "flagsToHide": 2,
+    "confirmationsToConfirm": 2,
+    "expiryHours": 2
   }
 }

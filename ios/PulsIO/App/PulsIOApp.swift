@@ -19,6 +19,7 @@ struct PulsIOApp: App {
                 .environment(environment.pulseFX)
                 .environment(environment.pulseResult)
                 .environment(environment.scores)
+                .environment(environment.reports)
                 .preferredColorScheme(.dark)
                 .tint(Palette.teal)
                 .task { environment.session.start() }

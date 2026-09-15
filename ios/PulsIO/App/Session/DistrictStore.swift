@@ -44,6 +44,17 @@ final class DistrictStore {
 
     var locationAvailability: LocationService.Availability { location.availability }
 
+    /// The last fix the system already has, if authorised — no prompt, no new fix.
+    var lastKnownFix: CLLocationCoordinate2D? { location.lastKnownCoordinate }
+
+    /// A precise current fix for on-device checks that need one (confirmation radius). Asks in context if
+    /// permission was never decided; nil when denied or unavailable. The coordinate is used and dropped.
+    func currentFix() async -> CLLocationCoordinate2D? {
+        let availability = await location.requestWhenInUse()
+        guard availability == .authorized else { return nil }
+        return try? await location.currentLocation().coordinate
+    }
+
     /// A district-grade reference point for on-device computations (nearest station, sunset): the last
     /// known fix if authorised, else the district's POI centroid, else nil. Never leaves the device.
     func referenceCoordinate() async -> CLLocationCoordinate2D? {

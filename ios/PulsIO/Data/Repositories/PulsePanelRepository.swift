@@ -11,10 +11,13 @@ struct SupabasePulsePanelRepository: PulsePanelRepository {
     let gateway: SupabaseGateway
 
     func snapshot(district: District?, station: String?, priorities: [String]) async throws -> [PulsePanelRow] {
-        struct Params: Encodable { let p_district: String?; let p_station: String?; let p_priorities: [String] }
-        return try await gateway.client
-            .rpc(PulsePanelRow.rpc, params: Params(p_district: district?.rawValue, p_station: station, p_priorities: priorities))
-            .execute().value
+        // Explicit nulls: an omitted key would change the RPC signature PostgREST looks for.
+        let params: [String: AnyJSON] = [
+            "p_district": district.map { AnyJSON.string($0.rawValue) } ?? .null,
+            "p_station": station.map(AnyJSON.string) ?? .null,
+            "p_priorities": .array(priorities.map(AnyJSON.string)),
+        ]
+        return try await gateway.client.rpc(PulsePanelRow.rpc, params: params).execute().value
     }
 
     func stations() async throws -> [WeatherStation] {
